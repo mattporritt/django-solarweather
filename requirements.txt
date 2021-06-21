@@ -1,0 +1,4 @@
+###### Requirements with Version Specifiers ######
+Django==3.2.4
+
+###### Requirements without Version Specifiers ######
