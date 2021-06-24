@@ -19,7 +19,7 @@ module.exports = grunt => {
             },
             dist: {
                 files: {
-                    'activeaudit/staticfiles/assets/css/main.css': 'activeaudit/staticfiles/scss/main.scss'
+                    'solarweather/staticfiles/assets/css/main.css': 'solarweather/staticfiles/scss/main.scss'
                 }
             }
         },
@@ -32,9 +32,9 @@ module.exports = grunt => {
             target: {
                 files: [{
                     expand: true,
-                    cwd: 'activeaudit/staticfiles/assets/css',
+                    cwd: 'solarweather/staticfiles/assets/css',
                     src: ['*.css', '!*.min.css', '!*.map'],
-                    dest: 'activeaudit/staticfiles/assets/css',
+                    dest: 'solarweather/staticfiles/assets/css',
                     ext: '.min.css'
                 }]
             }
@@ -46,7 +46,7 @@ module.exports = grunt => {
             target: {
                 files: [{
                     expand: true,
-                    cwd: 'activeaudit/staticfiles/jssrc',
+                    cwd: 'solarweather/staticfiles/jssrc',
                     src: ['**/*.js', '!**/*.min.css', '!**/*.map'],
                 }]
             }
@@ -59,9 +59,9 @@ module.exports = grunt => {
             target: {
                 files: [{
                     expand: true,
-                    cwd: 'activeaudit/staticfiles/jssrc',
+                    cwd: 'solarweather/staticfiles/jssrc',
                     src: ['**/*.js', '!**/*.min.css', '!**/*.map'],
-                    dest: 'activeaudit/staticfiles/assets/js',
+                    dest: 'solarweather/staticfiles/assets/js',
                     ext: '.js'
                 }]
             }
@@ -73,7 +73,7 @@ module.exports = grunt => {
             },
             removeCSS: {
                 // Remove compiled CSS and only keep minified css
-                command: 'find ./activeaudit/staticfiles/assets/css -type f ! -name \'*.min.*\' -delete -print'
+                command: 'find ./solarweather/staticfiles/assets/css -type f ! -name \'*.min.*\' -delete -print'
             },
             collectStatic: {
                 command: './manage.py collectstatic --noinput'
@@ -89,7 +89,7 @@ module.exports = grunt => {
                     expand: true,
                     cwd: 'static/js',
                     src: ['**/*.js', '!**/*.min.css', '!**/*.map'],
-                    dest: 'activeaudit/staticfiles/assets/js',
+                    dest: 'solarweather/staticfiles/assets/js',
                     ext: '.js'
                 }]
             }
