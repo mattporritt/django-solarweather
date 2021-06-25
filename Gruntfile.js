@@ -1,11 +1,11 @@
 module.exports = grunt => {
     const sass = require('node-sass');
-    const zlib = require('zlib')
+    const zlib = require('zlib');
 
     // Load all grunt tasks matching the ['grunt-*', '@*/grunt-*'] patterns
-    require('load-grunt-tasks')(grunt)
-    grunt.task.loadTasks('grunt/terser/tasks')
-    grunt.task.loadTasks('grunt/cachebust/tasks')
+    require('load-grunt-tasks')(grunt);
+    grunt.task.loadTasks('grunt/terser/tasks');
+    grunt.task.loadTasks('grunt/cachebust/tasks');
 
     /**
      * Grunt config.
@@ -121,6 +121,6 @@ module.exports = grunt => {
     });
 
     grunt.registerTask('default',
-        ['shell:removeStatic','sass', 'cssmin', 'eslint', 'terser',
+        ['shell:removeStatic', 'sass', 'cssmin', 'eslint', 'terser',
             'shell:removeCSS', 'shell:collectStatic', 'cachebust', 'compress']);
 };

@@ -1,0 +1,96 @@
+
+// Initial project color palate.
+$rich-black-fogra-29: #0f111a; // rgba(15, 17, 26, 1);
+$space-cadet: #202639; // rgba(32, 38, 57, 1);
+$space-cadet-2: #323d5e; // rgba(50, 61, 94, 1);
+$purple-navy: #465686; // rgba(70, 86, 134, 1);
+$periwinkle-crayola: #bcc4dc; // rgba(188, 196, 220, 1);
+
+// Override Bootstrap variables.
+$primary: $purple-navy;
+
+// Import Bootstrap 5.
+@import "./bootstrap/scss/bootstrap";
+
+// Import Fontawesome 5.
+@import "./fontawesome/scss/fontawesome.scss";
+@import "./fontawesome/scss/solid.scss";
+@import "./fontawesome/scss/brands.scss";
+@import "./fontawesome/scss/regular.scss";
+
+// Core files.
+@import "mixins.scss";
+
+// Fonts.
+@font-face {
+  font-family: 'latoregular';
+  src: url('/static/webfonts/lato-regular-webfont.eot');
+  src: url('/static/webfonts/lato-regular-webfont.eot?#iefix') format('embedded-opentype'),
+  url('/static/webfonts/lato-regular-webfont.woff2') format('woff2'),
+  url('/static/webfonts/lato-regular-webfont.woff') format('woff'),
+  url('/static/webfonts/lato-regular-webfont.ttf') format('truetype'),
+  url('/static/webfonts/lato-regular-webfont.svg#latoregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'latobold';
+  src: url('/static/webfonts/lato-bold-webfont.eot');
+  src: url('/static/webfonts/lato-bold-webfont.eot?#iefix') format('embedded-opentype'),
+  url('/static/webfonts/lato-bold-webfont.woff2') format('woff2'),
+  url('/static/webfonts/lato-bold-webfont.woff') format('woff'),
+  url('/static/webfonts/lato-bold-webfont.ttf') format('truetype'),
+  url('/static/webfonts/lato-bold-webfont.svg#latobold') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'latoregular', Helvetica, Arial, Sans-Serif;
+  color: #ffffff;
+  background-image: linear-gradient( 112.1deg, $space-cadet 30%, $space-cadet-2 89% );
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+p {
+  font-size: 1.1rem;
+  text-shadow: 1px 2px #000;
+}
+
+.navbar{
+  &.aa-nav {
+    background-color: $purple-navy;
+    margin-bottom: 1rem;
+    @include prefix(box-shadow, 0px 2px 4px 0px rgba(188,196,220,1), webkit ms);
+  }
+}
+
+footer {
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: $rich-black-fogra-29;
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  padding-top: 1.5rem;
+  @include prefix(box-shadow, 0px -2px 4px 0px rgba(188,196,220,1), webkit ms);
+
+  a {
+    color: $periwinkle-crayola;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+      color: $purple-navy;
+    }
+  }
+}
+
+.aa-table {
+  color: $white;
+}
+
+.aa-content {
+  min-height: calc(100vh - 210px);
+}
