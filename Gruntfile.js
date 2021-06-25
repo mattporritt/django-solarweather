@@ -54,7 +54,7 @@ module.exports = grunt => {
         terser: { // See for options: https://www.npmjs.com/package/terser#api-reference
             options: {
                 sourceMap: true,
-                ecma: 2016
+                ecma: 2016,
             },
             target: {
                 files: [{
