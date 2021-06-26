@@ -42,5 +42,6 @@ Including another URLconf
 from django.urls import include, path
 
 urlpatterns = [
+    path('weatherstation/', include('weather.urls')),
     path('', include('system.urls')),
 ]

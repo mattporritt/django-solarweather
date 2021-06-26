@@ -22,16 +22,14 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
-from django.http import HttpResponse
+"""
+SolarWeather System App URL Configuration.
 
+"""
+from django.urls import path
 
-def index(request):
-    context = {}
+from weather import views
 
-    response = HttpResponse()
-    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
-    response.content = 'success'
-
-    # Return a simple response
-    return response
-
+urlpatterns = [
+    path('', views.index, name='index'),
+]
