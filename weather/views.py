@@ -23,9 +23,14 @@
 # ==============================================================================
 
 from django.http import HttpResponse
+# import the logging library
+import logging
 
+# Get an instance of a logger
+logger = logging.getLogger('django')
 
 def index(request):
+    logger.info(vars(request))
     context = {}
 
     response = HttpResponse()
