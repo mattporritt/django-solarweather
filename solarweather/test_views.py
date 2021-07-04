@@ -22,6 +22,22 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
-from django.test import TestCase
+from django.test import TestCase, Client, override_settings
+from unittest import mock
 
-# Create your tests here.
+
+# Basic functional testing
+class UserFunctionalTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_user_login(self):
+
+        response = self.client.post('/accounts/login', {'login': user_email,
+                                                        'password': user_passsword,
+                                                        'next': '/'}
+                                    )
+        # Response code should be a redirect if login successful
+        # and content should be empty
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'')
