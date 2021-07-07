@@ -24,6 +24,7 @@
 
 from django.db import models
 
+
 class WeatherData(models.Model):
     """
     This model stores the data received from the weather station.
