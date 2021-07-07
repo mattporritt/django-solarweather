@@ -22,8 +22,7 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
-from django.test import TestCase, Client, override_settings
-from unittest import mock
+from django.test import TestCase, Client
 
 
 # Basic functional testing

@@ -22,22 +22,59 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
-from django.http import HttpResponse
-import logging
+class UnitConversion:
+    """
+    Helper class that provides methods to convert between units.
+    """
 
-# Get an instance of a logger
-logger = logging.getLogger('django')
+    @staticmethod
+    def f_to_c(deg_f: float, places: int = 3) -> float:
+        """
 
+        :param deg_f:
+        :param places:
+        :return: deg_c
+        """
 
-def index(request):
-    #logger.info(request.environ.get('REMOTE_ADDR', '0.0.0.0'))
-    #logger.info(request.GET.get('ID'))
+        deg_c = round((deg_f - 32) * (5/9), places)
 
+        return deg_c
 
-    response = HttpResponse()
-    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
-    response.content = 'success'
+    @staticmethod
+    def mmhg_to_hpa(mm_hg: float, places: int = 3) -> float:
+        """
 
-    # Return a simple response
-    return response
+        :param mm_hg:
+        :param places:
+        :return: hpa
+        """
 
+        hpa = round((mm_hg * 1.33322), places)
+
+        return hpa
+
+    @staticmethod
+    def mph_to_kmh(mph: float, places: int = 3) -> float:
+        """
+
+        :param mph:
+        :param places:
+        :return: kmh
+        """
+
+        kmh = round((mph * 1.60934), places)
+
+        return kmh
+
+    @staticmethod
+    def in_to_cm(inch: float, places: int = 3) -> float:
+        """
+
+        :param inch:
+        :param places:
+        :return: cm
+        """
+
+        cm = round((inch * 2.54), places)
+
+        return cm

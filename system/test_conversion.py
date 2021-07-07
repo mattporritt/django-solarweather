@@ -22,22 +22,18 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
-from django.http import HttpResponse
-import logging
-
-# Get an instance of a logger
-logger = logging.getLogger('django')
+from django.test import TestCase
+from system.conversion import UnitConversion
 
 
-def index(request):
-    #logger.info(request.environ.get('REMOTE_ADDR', '0.0.0.0'))
-    #logger.info(request.GET.get('ID'))
+# Basic functional testing
+class ConversionUnitTestCase(TestCase):
 
+    def test_f_to_c_zero_c(self):
+        """
+        Test converting to zero degrees celsius,
+        also not setting an explicit number or decimal places.
+        """
+        deg_c = UnitConversion.f_to_c(32)
 
-    response = HttpResponse()
-    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
-    response.content = 'success'
-
-    # Return a simple response
-    return response
-
+        self.assertEqual(deg_c, 0)
