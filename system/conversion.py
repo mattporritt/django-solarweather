@@ -30,10 +30,12 @@ class UnitConversion:
     @staticmethod
     def f_to_c(deg_f: float, places: int = 3) -> float:
         """
+        Convert fahrenheit to celsius to an optional number
+        of places.
 
-        :param deg_f:
-        :param places:
-        :return: deg_c
+        :param deg_f: The temp in degrees fahrenheit to convert from.
+        :param places: The number of decimal places to return in the converted result.
+        :return: deg_c: The converted temp in degrees celsius.
         """
 
         deg_c = round((deg_f - 32) * (5/9), places)
@@ -41,25 +43,27 @@ class UnitConversion:
         return deg_c
 
     @staticmethod
-    def mmhg_to_hpa(mm_hg: float, places: int = 3) -> float:
+    def inhg_to_hpa(inch_hg: float, places: int = 3) -> float:
+        """
+        Convert pressure in inches of mercury to hectopascals.
+
+        :param inch_hg: The pressure in inches of mercury to convert from.
+        :param places: The number of decimal places to return in the converted result.
+        :return: hpa: The converted pressure in hectopascals.
         """
 
-        :param mm_hg:
-        :param places:
-        :return: hpa
-        """
-
-        hpa = round((mm_hg * 1.33322), places)
+        hpa = round((inch_hg * 33.86389), places)
 
         return hpa
 
     @staticmethod
     def mph_to_kmh(mph: float, places: int = 3) -> float:
         """
+        Convert speed in miles per hour to kilometers per hour.
 
-        :param mph:
-        :param places:
-        :return: kmh
+        :param mph: The speed in miles per hour to convert from.
+        :param places: The number of decimal places to return in the converted result.
+        :return: kmh: The converted speed in kilometers per hour.
         """
 
         kmh = round((mph * 1.60934), places)
@@ -69,10 +73,11 @@ class UnitConversion:
     @staticmethod
     def in_to_cm(inch: float, places: int = 3) -> float:
         """
+        Convert length/depth in inches to centimeters.
 
-        :param inch:
-        :param places:
-        :return: cm
+        :param inch: The length/depth in inches to convert from.
+        :param places: The number of decimal places to return in the converted result.
+        :return: cm: The converted length/depth in centimeters.
         """
 
         cm = round((inch * 2.54), places)

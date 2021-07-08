@@ -37,3 +37,57 @@ class ConversionUnitTestCase(TestCase):
         deg_c = UnitConversion.f_to_c(32)
 
         self.assertEqual(deg_c, 0)
+
+    def test_f_to_c_hundred_f(self):
+        """
+        Test converting from 100 degrees F,
+        also not setting an explicit number or decimal places.
+        """
+        deg_c = UnitConversion.f_to_c(100)
+
+        self.assertEqual(deg_c, 37.778)
+
+    def test_f_to_c_two_decimal(self):
+        """
+        Test converting from 100 degrees F,
+        also setting 2 decimal places.
+        """
+        deg_c = UnitConversion.f_to_c(100, 2)
+
+        self.assertEqual(deg_c, 37.78)
+
+    def test_f_to_c_four_decimal(self):
+        """
+        Test converting to zero degrees celsius,
+        also setting 2 decimal places.
+        """
+        deg_c = UnitConversion.f_to_c(100, 4)
+
+        self.assertEqual(deg_c, 37.7778)
+
+    def test_inhg_to_hpa(self):
+        """
+        Test converting inches of mercury to hectopascals,
+        also not setting an explicit number or decimal places.
+        """
+        hpa = UnitConversion.inhg_to_hpa(29.714)
+
+        self.assertEqual(hpa, 1006.232)
+
+    def test_mph_to_kmh(self):
+        """
+        Test converting miles per hour to kilometers per hour,
+        also not setting an explicit number or decimal places.
+        """
+        kmh = UnitConversion.mph_to_kmh(100)
+
+        self.assertEqual(kmh, 160.934)
+
+    def test_in_to_cm(self):
+        """
+        Test inches to centimeters,
+        also not setting an explicit number or decimal places.
+        """
+        cm = UnitConversion.in_to_cm(100)
+
+        self.assertEqual(cm, 254)
