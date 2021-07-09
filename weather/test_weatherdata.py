@@ -22,18 +22,17 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
-from django.test import TestCase, Client
+from django.test import TestCase
+from weather.weatherdata import WeatherData
 
 
 # Basic functional testing
-class UserFunctionalTestCase(TestCase):
-    def setUp(self):
-        self.client = Client()
+class WeatherDataUnitTestCase(TestCase):
 
-    def test_index_view(self):
+    def test_store(self):
         
         # Sample of test data that is sent from the weather station.
-        query_vars = {
+        request_data = {
             'ID' : 'IVCTMERN2',
             'PASSWORD': 'reflhd33',
             'indoortempf': '68.0',
@@ -60,8 +59,7 @@ class UserFunctionalTestCase(TestCase):
             'rtfreq': '5',
             }
 
-        response = self.client.get('/weatherstation/updateweatherstation.php', query_vars)
-        # Response code should be a redirect if login successful
-        # and content should be empty
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'success')
+        weather_data = WeatherData()
+        store_result = weather_data.store(request_data)
+
+        self.assertEqual(store_result, 0)

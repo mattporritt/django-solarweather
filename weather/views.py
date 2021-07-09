@@ -23,6 +23,7 @@
 # ==============================================================================
 
 from django.http import HttpResponse
+from weather.weatherdata import WeatherData
 import logging
 
 # Get an instance of a logger
@@ -30,9 +31,17 @@ logger = logging.getLogger('django')
 
 
 def index(request):
-    #logger.info(request.environ.get('REMOTE_ADDR', '0.0.0.0'))
-    #logger.info(request.GET.get('ID'))
+    """
 
+    :param request:
+    :return:
+    """
+    request_data = request.GET
+
+    weather_data = WeatherData()
+    weather_data.store(request_data)
+
+    #logger.info(request.GET)
 
     response = HttpResponse()
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
