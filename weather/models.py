@@ -47,6 +47,7 @@ class WeatherData(models.Model):
     solar_radiation = models.FloatField()
     uv_index = models.IntegerField()
     date_utc = models.DateTimeField()
+    time_stamp = models.IntegerField(db_index=True)
     software_type = models.CharField(max_length=100)
     action = models.CharField(max_length=100)
     real_time = models.IntegerField()

@@ -24,6 +24,7 @@
 
 from weather.models import WeatherData as WeatherDataModel
 from system.conversion import UnitConversion
+from datetime import datetime
 
 
 class WeatherData:
@@ -38,6 +39,11 @@ class WeatherData:
         :return:
         """
 
+        # First do some date mangling.
+        date_string = data.get('dateutc').replace('%20', ' ')
+        datetime_object = datetime.strptime(date_string, '%Y-%m-%d %X')
+
+        # Prepare data object to be stored in database.
         store_data = {
             'indoor_temp': UnitConversion.f_to_c(float(data.get('indoortempf'))),
             'outdoor_temp': UnitConversion.f_to_c(float(data.get('tempf'))),
@@ -56,17 +62,19 @@ class WeatherData:
             'monthly_rain': UnitConversion.in_to_cm(float(data.get('monthlyrainin'))),
             'solar_radiation': float(data.get('solarradiation')),
             'uv_index': int(data.get('UV')),
-            'date_utc': data.get('dateutc'),
+            'date_utc': datetime_object,
+            'time_stamp': datetime_object.timestamp(),
             'software_type': data.get('softwaretype'),
             'action': data.get('action'),
             'real_time': int(data.get('realtime')),
             'radio_freq': int(data.get('rtfreq')),
         }
 
+        # Store data in the database.
         data_record = WeatherDataModel(**store_data)
-
         data_record.save()
 
+        # Return ID of insterted row.
         return data_record.id
 
 
