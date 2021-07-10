@@ -25,6 +25,7 @@
 from weather.models import WeatherData as WeatherDataModel
 from system.conversion import UnitConversion
 from datetime import datetime
+from django.utils.timezone import make_aware
 
 
 class WeatherData:
@@ -41,7 +42,7 @@ class WeatherData:
 
         # First do some date mangling.
         date_string = data.get('dateutc').replace('%20', ' ')
-        datetime_object = datetime.strptime(date_string, '%Y-%m-%d %X')
+        datetime_object = make_aware(datetime.strptime(date_string, '%Y-%m-%d %X'))
 
         # Prepare data object to be stored in database.
         store_data = {
@@ -77,9 +78,5 @@ class WeatherData:
         data_record = WeatherDataModel(**store_data)
         data_record.save()
 
-        # Return ID of insterted row.
+        # Return ID of inserted row.
         return data_record.id
-
-
-
-

@@ -24,6 +24,12 @@
 
 from django.test import TestCase
 from weather.weatherdata import WeatherData
+from weather.models import WeatherData as WeatherDataModel
+
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger('django')
 
 
 # Basic functional testing
@@ -62,4 +68,6 @@ class WeatherDataUnitTestCase(TestCase):
         weather_data = WeatherData()
         store_result = weather_data.store(request_data)
 
-        self.assertEqual(store_result, 0)
+        data_record = WeatherDataModel.objects.get(id=store_result)
+
+        self.assertEqual(data_record.software_type, 'EasyWeatherV1.5.9')
