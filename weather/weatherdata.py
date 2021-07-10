@@ -80,3 +80,50 @@ class WeatherData:
 
         # Return ID of inserted row.
         return data_record.id
+
+    def get_max(self, metric: str, period: str):
+        """
+        Get the maximum value for a given time period.
+
+        :param metric:
+        :param period:
+        :return:
+        """
+
+    def set_max(self, metric: str, period: str):
+        """
+        Set the maximum value for a given time period.
+
+        :param metric:
+        :param period:
+        :return:
+        """
+
+    def get_min(self, metric: str, period: str):
+        """
+        Get the minimum value for a given time period.
+
+        :param metric:
+        :param period:
+        :return:
+        """
+
+    def set_min(self, metric: str, period: str):
+        """
+        Set the minimum value for a given time period.
+
+        :param metric:
+        :param period:
+        :return:
+        """
+
+    def get_data(self):
+        """
+        Get all the data needed to display the weather dashboard.
+        Data returned:
+            Indoor temp - current, daily max, daily min.
+            Outdoor temp - current, daily max, daily min.
+
+
+        :return:
+        """
