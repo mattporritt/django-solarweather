@@ -23,6 +23,7 @@
 # ==============================================================================
 
 from weather.models import WeatherData as WeatherDataModel
+from django.db.models import Max
 from system.conversion import UnitConversion
 from datetime import datetime
 from django.utils.timezone import make_aware
@@ -33,7 +34,8 @@ class WeatherData:
     Class to weather station data related operations
     """
 
-    def store(self, data: dict) -> int:
+    @staticmethod
+    def store(data: dict) -> int:
         """
         Store received weather station data into database.
         :param data:
@@ -81,14 +83,43 @@ class WeatherData:
         # Return ID of inserted row.
         return data_record.id
 
-    def get_max(self, metric: str, period: str):
+    @staticmethod
+    def get_max(metric: str, period: str, timestamp: int = 0):
         """
         Get the maximum value for a given time period.
 
-        :param metric:
-        :param period:
-        :return:
+        :param metric: The metric to get the maximum for, e.g. uv_index
+        :param period: The period the maximum relates to. i.e. 'year', 'month', 'day'.
+        :param timestamp: The unix timestamp to use as the reference.
+        :return: The found maximum value.
         """
+
+        # If timestamp is not provided default to now.
+        if timestamp == 0:
+            timestamp = datetime.now().timestamp()
+
+        # Split out timestamp to date components.
+        date_object = datetime.fromtimestamp(timestamp)
+        max_year = date_object.year
+        max_month = date_object.month
+        max_day = date_object.day
+
+        # Get value from cache.
+        # If cache is empty or invalid get value from the database. Then store in cache.
+        if period == 'year':
+            max_value = WeatherDataModel.objects\
+                .filter(date_utc__year=max_year)\
+                .aggregate(Max(metric))
+        elif period == 'month':
+            max_value = WeatherDataModel.objects \
+                .filter(date_utc__year=max_year, date_utc__month=max_month) \
+                .aggregate(Max(metric))
+        elif period == 'day':
+            max_value = WeatherDataModel.objects \
+                .filter(date_utc__year=max_year, date_utc__month=max_month, date_utc__day=max_day) \
+                .aggregate(Max(metric))
+
+        return max_value
 
     def set_max(self, metric: str, period: str):
         """

@@ -35,8 +35,12 @@ logger = logging.getLogger('django')
 
 # Basic functional testing
 class WeatherDataUnitTestCase(TestCase):
+    fixtures = ['weatherdata.json']
 
     def test_store(self):
+        """
+        Test storing weather data in the database
+        """
 
         weather_data = WeatherData()
         store_result = weather_data.store(test_data.test_query_vars)
@@ -44,3 +48,13 @@ class WeatherDataUnitTestCase(TestCase):
         data_record = WeatherDataModel.objects.get(id=store_result)
 
         self.assertEqual(data_record.software_type, 'EasyWeatherV1.5.9')
+
+    def test_get_max(self):
+        """
+        Test getting max values from the database.
+        """
+
+        weather_data = WeatherData()
+        max_result = weather_data.get_max('solar_radiation', 'day', 1623906568)
+
+        logger.info(max_result)
