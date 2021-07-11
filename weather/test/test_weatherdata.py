@@ -108,3 +108,13 @@ class WeatherDataUnitTestCase(TestCase):
         min_result = weather_data.get_min('outdoor_temp', 'year', 1623906568)
 
         self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
+
+    def test_set_max_day(self):
+        """
+        Test setting max values to the cache for a given day.
+        """
+
+        weather_data = WeatherData()
+        max_result = weather_data.set_max('solar_radiation', 'day', 75.85, 1623906568)
+
+        logger.info(max_result)

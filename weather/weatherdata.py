@@ -27,6 +27,7 @@ from django.db.models import Max, Min
 from system.conversion import UnitConversion
 from datetime import datetime
 from django.utils.timezone import make_aware
+from django.core.cache import caches
 
 
 class WeatherData:
@@ -123,14 +124,48 @@ class WeatherData:
 
         return max_value
 
-    def set_max(self, metric: str, period: str):
+    @staticmethod
+    def set_max(metric: str, period: str, value, timestamp: int = 0):
         """
         Set the maximum value for a given time period.
 
-        :param metric:
-        :param period:
+        :param metric: The metric to get the maximum for, e.g. uv_index
+        :param period: The period the maximum relates to. i.e. 'year', 'month', 'day'.
+        :param value: The new maximum value.
+        :param timestamp: The unix timestamp to use as the reference.
         :return:
         """
+
+        # If timestamp is not provided default to now.
+        if timestamp == 0:
+            timestamp = datetime.now().timestamp()
+
+        # Split out timestamp to date components.
+        date_object = datetime.fromtimestamp(timestamp)
+        max_year = date_object.year
+        max_month = date_object.month
+        max_day = date_object.day
+
+        max_set = False
+
+        current_max = WeatherData.get_max(metric, period, timestamp)
+        max_metric = ''.join((metric, '__max'))
+
+        if current_max.get(max_metric) >= value:
+            # New max is not greater nothing to do.
+            max_set = False
+        else:
+            # New max is greater update cache with new value.
+            if period == 'year':
+                cache_key = 
+
+            elif period == 'month':
+
+            elif period == 'day':
+
+
+        return max_set
+
 
     @staticmethod
     def get_min(metric: str, period: str, timestamp: int = 0):
