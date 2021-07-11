@@ -104,6 +104,8 @@ class WeatherData:
         max_month = date_object.month
         max_day = date_object.day
 
+        max_value = {}
+
         # Get value from cache.
         # If cache is empty or invalid get value from the database. Then store in cache.
         if period == 'year':

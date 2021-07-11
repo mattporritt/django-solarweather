@@ -49,12 +49,32 @@ class WeatherDataUnitTestCase(TestCase):
 
         self.assertEqual(data_record.software_type, 'EasyWeatherV1.5.9')
 
-    def test_get_max(self):
+    def test_get_max_day(self):
         """
-        Test getting max values from the database.
+        Test getting max values from the database for a given day.
         """
 
         weather_data = WeatherData()
         max_result = weather_data.get_max('solar_radiation', 'day', 1623906568)
 
-        logger.info(max_result)
+        self.assertEqual(max_result.get('solar_radiation__max'), 75.85)
+
+    def test_get_max_month(self):
+        """
+        Test getting max values from the database for a given month.
+        """
+
+        weather_data = WeatherData()
+        max_result = weather_data.get_max('solar_radiation', 'month', 1623906568)
+
+        self.assertEqual(max_result.get('solar_radiation__max'), 88.88)
+
+    def test_get_max_year(self):
+        """
+        Test getting max values from the database for a given year.
+        """
+
+        weather_data = WeatherData()
+        max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
+
+        self.assertEqual(max_result.get('solar_radiation__max'), 90.90)
