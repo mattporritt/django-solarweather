@@ -25,6 +25,7 @@
 from django.test import TestCase
 from weather.weatherdata import WeatherData
 from weather.models import WeatherData as WeatherDataModel
+import weather.test.test_data as test_data
 
 import logging
 
@@ -36,37 +37,9 @@ logger = logging.getLogger('django')
 class WeatherDataUnitTestCase(TestCase):
 
     def test_store(self):
-        
-        # Sample of test data that is sent from the weather station.
-        request_data = {
-            'ID' : 'IVCTMERN2',
-            'PASSWORD': 'reflhd33',
-            'indoortempf': '68.0',
-            'tempf': '52.5',
-            'dewptf': '45.5',
-            'windchillf': '52.5',
-            'indoorhumidity': '52',
-            'humidity': '77',
-            'windspeedmph': '0.7',
-            'windgustmph': '1.1',
-            'winddir': '338',
-            'absbaromin': '29.318',
-            'baromin': '29.714',
-            'rainin': '0.000',
-            'dailyrainin': '0.000',
-            'weeklyrainin': '0.181',
-            'monthlyrainin': '3.098',
-            'solarradiation': '71.56',
-            'UV': '0',
-            'dateutc': '2021-06-17%2005:08:28',
-            'softwaretype': 'EasyWeatherV1.5.9',
-            'action': 'updateraw',
-            'realtime': '1',
-            'rtfreq': '5',
-            }
 
         weather_data = WeatherData()
-        store_result = weather_data.store(request_data)
+        store_result = weather_data.store(test_data.test_query_vars)
 
         data_record = WeatherDataModel.objects.get(id=store_result)
 
