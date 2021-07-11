@@ -23,7 +23,7 @@
 # ==============================================================================
 
 from weather.models import WeatherData as WeatherDataModel
-from django.db.models import Max
+from django.db.models import Max, Min
 from system.conversion import UnitConversion
 from datetime import datetime
 from django.utils.timezone import make_aware
@@ -132,14 +132,45 @@ class WeatherData:
         :return:
         """
 
-    def get_min(self, metric: str, period: str):
+    @staticmethod
+    def get_min(metric: str, period: str, timestamp: int = 0):
         """
         Get the minimum value for a given time period.
 
-        :param metric:
-        :param period:
-        :return:
+        :param metric: The metric to get the minimum for, e.g. uv_index
+        :param period: The period the minimum relates to. i.e. 'year', 'month', 'day'.
+        :param timestamp: The unix timestamp to use as the reference.
+        :return: The found minimum value.
         """
+
+        # If timestamp is not provided default to now.
+        if timestamp == 0:
+            timestamp = datetime.now().timestamp()
+
+        # Split out timestamp to date components.
+        date_object = datetime.fromtimestamp(timestamp)
+        min_year = date_object.year
+        min_month = date_object.month
+        min_day = date_object.day
+
+        min_value = {}
+
+        # Get value from cache.
+        # If cache is empty or invalid get value from the database. Then store in cache.
+        if period == 'year':
+            min_value = WeatherDataModel.objects\
+                .filter(date_utc__year=min_year)\
+                .aggregate(Min(metric))
+        elif period == 'month':
+            min_value = WeatherDataModel.objects \
+                .filter(date_utc__year=min_year, date_utc__month=min_month) \
+                .aggregate(Min(metric))
+        elif period == 'day':
+            min_value = WeatherDataModel.objects \
+                .filter(date_utc__year=min_year, date_utc__month=min_month, date_utc__day=min_day) \
+                .aggregate(Min(metric))
+
+        return min_value
 
     def set_min(self, metric: str, period: str):
         """

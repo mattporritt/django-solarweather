@@ -78,3 +78,33 @@ class WeatherDataUnitTestCase(TestCase):
         max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
 
         self.assertEqual(max_result.get('solar_radiation__max'), 90.90)
+
+    def test_get_min_day(self):
+        """
+        Test getting min values from the database for a given day.
+        """
+
+        weather_data = WeatherData()
+        min_result = weather_data.get_min('outdoor_temp', 'day', 1623906568)
+
+        self.assertEqual(min_result.get('outdoor_temp__min'), 11.222)
+
+    def test_get_min_month(self):
+        """
+        Test getting min values from the database for a given month.
+        """
+
+        weather_data = WeatherData()
+        min_result = weather_data.get_min('outdoor_temp', 'month', 1623906568)
+
+        self.assertEqual(min_result.get('outdoor_temp__min'), 10.278)
+
+    def test_get_min_year(self):
+        """
+        Test getting min values from the database for a given year.
+        """
+
+        weather_data = WeatherData()
+        min_result = weather_data.get_min('outdoor_temp', 'year', 1623906568)
+
+        self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)

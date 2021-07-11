@@ -3524,7 +3524,7 @@
     "pk": 111,
     "fields": {
         "indoor_temp": 19.889,
-        "outdoor_temp": 11.278,
+        "outdoor_temp": 10.278,
         "dew_point": 7.389,
         "wind_chill": 11.278,
         "indoor_humidity": 51.0,
@@ -3556,7 +3556,7 @@
     "pk": 112,
     "fields": {
         "indoor_temp": 19.889,
-        "outdoor_temp": 11.278,
+        "outdoor_temp": 9.278,
         "dew_point": 7.389,
         "wind_chill": 11.278,
         "indoor_humidity": 51.0,
