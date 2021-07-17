@@ -76,6 +76,10 @@ class WeatherDataUnitTestCase(TestCase):
         Test getting max values from the database for a given year.
         """
 
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
         weather_data = WeatherData()
         max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
 
@@ -111,6 +115,67 @@ class WeatherDataUnitTestCase(TestCase):
 
         self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
 
+    def test_set_max_year(self):
+        """
+        Test setting max values to the cache for a given day.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        cache_key = 'solar_radiation_2021'
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        weather_data = WeatherData()
+        max_result = weather_data.set_max('solar_radiation', 'year', 90.91, 1623906568)
+        self.assertTrue(max_result)
+
+        # Now check cache contains value.
+        cache_val = cache.get(cache_key)
+        self.assertEqual(cache_val, 90.91)
+
+    def test_set_max_month(self):
+        """
+        Test setting max values to the cache for a given day.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        cache_key = 'solar_radiation_2021_6'
+        weather_data = WeatherData()
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        # Initial should be false as less than the current max
+        max_result = weather_data.set_max('solar_radiation', 'month', 70.70, 1623906568)
+        self.assertFalse(max_result)
+
+        # Month should be updated as greater than stored.
+        max_result = weather_data.set_max('solar_radiation', 'month', 89.70, 1623906568)
+        self.assertTrue(max_result)
+
+        # But year should not have changed.
+        max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
+        self.assertEqual(max_result.get('solar_radiation__max'), 90.90)
+
+        # Update month max to by higher than both year and month max.
+        max_result = weather_data.set_max('solar_radiation', 'month', 91.70, 1623906568)
+        self.assertTrue(max_result)
+        max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
+        self.assertEqual(max_result.get('solar_radiation__max'), 91.70)
+
+        # Now check cache contains value.
+        cache_val = cache.get(cache_key)
+        self.assertEqual(cache_val, 91.70)
+
     def test_set_max_day(self):
         """
         Test setting max values to the cache for a given day.
@@ -121,15 +186,30 @@ class WeatherDataUnitTestCase(TestCase):
         cache.clear()
 
         cache_key = 'solar_radiation_2021_6_17'
+        weather_data = WeatherData()
 
         # Initially caches should be empty.
         cache_val = cache.get(cache_key)
         self.assertIsNone(cache_val)
 
-        weather_data = WeatherData()
+        # Initial should be false as less than the current max
+        max_result = weather_data.set_max('solar_radiation', 'day', 60.70, 1623906568)
+        self.assertFalse(max_result)
+
+        # Day should be updated as greater than stored.
         max_result = weather_data.set_max('solar_radiation', 'day', 75.86, 1623906568)
         self.assertTrue(max_result)
 
+        # But month should not have changed.
+        max_result = weather_data.get_max('solar_radiation', 'month', 1623906568)
+        self.assertEqual(max_result.get('solar_radiation__max'), 88.88)
+
+        # Update day max to by higher than both month and day max.
+        max_result = weather_data.set_max('solar_radiation', 'day', 91.70, 1623906568)
+        self.assertTrue(max_result)
+        max_result = weather_data.get_max('solar_radiation', 'month', 1623906568)
+        self.assertEqual(max_result.get('solar_radiation__max'), 91.70)
+
         # Now check cache contains value.
         cache_val = cache.get(cache_key)
-        self.assertEqual(cache_val, 75.86)
+        self.assertEqual(cache_val, 91.70)

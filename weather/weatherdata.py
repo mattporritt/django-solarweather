@@ -110,24 +110,41 @@ class WeatherData:
         # Get value from cache.
         # If cache is empty or invalid get value from the database. Then store in cache.
         if period == 'year':
-            max_value = WeatherDataModel.objects\
-                .filter(date_utc__year=max_year)\
-                .aggregate(Max(metric))
+            cache_key = '_'.join((metric, str(max_year)))
+            cache_val = cache.get(cache_key)
+            if cache_val is None:
+                max_value = WeatherDataModel.objects\
+                    .filter(date_utc__year=max_year)\
+                    .aggregate(Max(metric))
+            else:
+                max_value = {'{0}__max'.format(metric): cache_val}
         elif period == 'month':
-            max_value = WeatherDataModel.objects \
-                .filter(date_utc__year=max_year, date_utc__month=max_month) \
-                .aggregate(Max(metric))
+            cache_key = '_'.join((metric, str(max_year), str(max_month)))
+            cache_val = cache.get(cache_key)
+            if cache_val is None:
+                max_value = WeatherDataModel.objects \
+                    .filter(date_utc__year=max_year, date_utc__month=max_month) \
+                    .aggregate(Max(metric))
+            else:
+                max_value = {'{0}__max'.format(metric): cache_val}
         elif period == 'day':
-            max_value = WeatherDataModel.objects \
-                .filter(date_utc__year=max_year, date_utc__month=max_month, date_utc__day=max_day) \
-                .aggregate(Max(metric))
-
+            cache_key = '_'.join((metric, str(max_year), str(max_month), str(max_day)))
+            cache_val = cache.get(cache_key)
+            if cache_val is None:
+                max_value = WeatherDataModel.objects \
+                    .filter(date_utc__year=max_year, date_utc__month=max_month, date_utc__day=max_day) \
+                    .aggregate(Max(metric))
+            else:
+                max_value = {'{0}__max'.format(metric): cache_val}
         return max_value
 
     @staticmethod
     def set_max(metric: str, period: str, value, timestamp: int = 0):
         """
         Set the maximum value for a given time period.
+        The value is only "set" in the cache and not updated in the database.
+        max values are not stored explicitly in the database but are resolved
+        from all stored values.
 
         :param metric: The metric to get the maximum for, e.g. uv_index
         :param period: The period the maximum relates to. i.e. 'year', 'month', 'day'.
@@ -140,14 +157,6 @@ class WeatherData:
         if timestamp == 0:
             timestamp = datetime.now().timestamp()
 
-        # Split out timestamp to date components.
-        date_object = datetime.fromtimestamp(timestamp)
-        max_year = date_object.year
-        max_month = date_object.month
-        max_day = date_object.day
-
-        max_set = False
-
         current_max = WeatherData.get_max(metric, period, timestamp)
         max_metric = ''.join((metric, '__max'))
 
@@ -156,14 +165,26 @@ class WeatherData:
             max_set = False
         else:
             # New max is greater update cache with new value.
+
+            # Split out timestamp to date components.
+            date_object = datetime.fromtimestamp(timestamp)
+            max_year = date_object.year
+            max_month = date_object.month
+            max_day = date_object.day
+
             if period == 'year':
                 cache_key = '_'.join((metric, str(max_year)))
 
             elif period == 'month':
                 cache_key = '_'.join((metric, str(max_year), str(max_month)))
+                # If there is a new month max, there may also be a new year max.
+                # We use recursion (magic) to check.
+                result = WeatherData.set_max(metric, 'year', value, timestamp)
 
             elif period == 'day':
                 cache_key = '_'.join((metric, str(max_year), str(max_month), str(max_day)))
+                # If there is a new day max, there may be a new month max.
+                WeatherData.set_max(metric, 'month', value, timestamp)
 
             cache.set(cache_key, value, 3600)
             max_set = True
