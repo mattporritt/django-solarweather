@@ -320,6 +320,26 @@ class WeatherData:
         return min_set
 
     @staticmethod
+    def get_latest(metric: str):
+        """
+        Get the latest received value for a metric
+
+        :param metric: The metric to set the latest for, e.g. uv_index
+        :return:
+        """
+
+    @staticmethod
+    def set_latest(metric: str, value):
+        """
+        Set the latest value for a given metric.
+        The value is only "set" in the cache and not updated in the database.
+
+        :param metric: The metric to set the latest for, e.g. uv_index
+        :param value: The latest value.
+        :return:
+        """
+
+    @staticmethod
     def get_data( timestamp: int = 0):
         """
         Get all the data needed to display the weather dashboard.
