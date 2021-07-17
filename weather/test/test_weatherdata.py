@@ -99,6 +99,7 @@ class WeatherDataUnitTestCase(TestCase):
         """
         Test getting min values from the database for a given month.
         """
+        cache.clear()
 
         weather_data = WeatherData()
         min_result = weather_data.get_min('outdoor_temp', 'month', 1623906568)
@@ -166,7 +167,7 @@ class WeatherDataUnitTestCase(TestCase):
         max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
         self.assertEqual(max_result.get('solar_radiation__max'), 90.90)
 
-        # Update month max to by higher than both year and month max.
+        # Update month max to be higher than both year and month max.
         max_result = weather_data.set_max('solar_radiation', 'month', 91.70, 1623906568)
         self.assertTrue(max_result)
         max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
@@ -204,7 +205,7 @@ class WeatherDataUnitTestCase(TestCase):
         max_result = weather_data.get_max('solar_radiation', 'month', 1623906568)
         self.assertEqual(max_result.get('solar_radiation__max'), 88.88)
 
-        # Update day max to by higher than both month and day max.
+        # Update day max to be higher than both month and day max.
         max_result = weather_data.set_max('solar_radiation', 'day', 91.70, 1623906568)
         self.assertTrue(max_result)
         max_result = weather_data.get_max('solar_radiation', 'month', 1623906568)
@@ -213,3 +214,104 @@ class WeatherDataUnitTestCase(TestCase):
         # Now check cache contains value.
         cache_val = cache.get(cache_key)
         self.assertEqual(cache_val, 91.70)
+
+    def test_set_min_year(self):
+        """
+        Test setting min values to the cache for a given day.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        cache_key = 'outdoor_temp_2021'
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        weather_data = WeatherData()
+        min_result = weather_data.get_min('outdoor_temp', 'year', 1623906568)
+
+        min_result = weather_data.set_min('outdoor_temp', 'year', 8.277, 1623906568)
+        self.assertTrue(min_result)
+
+        # Now check cache contains value.
+        cache_val = cache.get(cache_key)
+        self.assertEqual(cache_val, 8.277)
+
+    def test_set_min_month(self):
+        """
+        Test setting min values to the cache for a given day.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        cache_key = 'outdoor_temp_2021_6'
+        weather_data = WeatherData()
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        # Initial should be false as greater than the current min
+        min_result = weather_data.set_min('outdoor_temp', 'month', 10.279, 1623906568)
+        self.assertFalse(min_result)
+
+        # Month should be updated as less than stored.
+        min_result = weather_data.set_min('outdoor_temp', 'month', 10.277, 1623906568)
+        self.assertTrue(min_result)
+
+        # But year should not have changed.
+        min_result = weather_data.get_min('outdoor_temp', 'year', 1623906568)
+        self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
+
+        # Update month min to be lower than both year and month min.
+        min_result = weather_data.set_min('outdoor_temp', 'month', 9.277, 1623906568)
+        self.assertTrue(min_result)
+        min_result = weather_data.get_min('outdoor_temp', 'year', 1623906568)
+        self.assertEqual(min_result.get('outdoor_temp__min'), 9.277)
+
+        # Now check cache contains value.
+        cache_val = cache.get(cache_key)
+        self.assertEqual(cache_val, 9.277)
+
+    def test_set_min_day(self):
+        """
+        Test setting min values to the cache for a given day.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        cache_key = 'outdoor_temp_2021_6_17'
+        weather_data = WeatherData()
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        # Initial should be false as less than the current min
+        min_result = weather_data.set_min('outdoor_temp', 'day', 11.222, 1623906568)
+        self.assertFalse(min_result)
+
+        # Day should be updated as less than stored.
+        min_result = weather_data.set_min('outdoor_temp', 'day', 11.221, 1623906568)
+        self.assertTrue(min_result)
+
+        # But month should not have changed.
+        min_result = weather_data.get_min('outdoor_temp', 'month', 1623906568)
+        self.assertEqual(min_result.get('outdoor_temp__min'), 10.278)
+
+        # Update day min to be lower than both month and day min.
+        min_result = weather_data.set_min('outdoor_temp', 'day', 10.277, 1623906568)
+        self.assertTrue(min_result)
+        min_result = weather_data.get_min('outdoor_temp', 'month', 1623906568)
+        self.assertEqual(min_result.get('outdoor_temp__min'), 10.277)
+
+        # Now check cache contains value.
+        cache_val = cache.get(cache_key)
+        self.assertEqual(cache_val, 10.277)

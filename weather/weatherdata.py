@@ -267,7 +267,7 @@ class WeatherData:
         current_min = WeatherData.get_min(metric, period, timestamp)
         min_metric = ''.join((metric, '__min'))
 
-        if current_min.get(min_metric) >= value:
+        if current_min.get(min_metric) <= value:
             # New min is not greater nothing to do.
             min_set = False
         else:
