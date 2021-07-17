@@ -24,6 +24,7 @@
 
 from weather.models import WeatherData as WeatherDataModel
 from django.db.models import Max, Min
+from django.db.models.functions import Coalesce
 from system.conversion import UnitConversion
 from datetime import datetime
 from django.utils.timezone import make_aware
@@ -77,6 +78,12 @@ class WeatherData:
             'radio_freq': int(data.get('rtfreq')),
         }
 
+        # Update max and min values.
+        for metric, value in store_data.items():
+            if (type(value) is int) or (type(value) is float):
+                WeatherData.set_max(metric, 'day', value, store_data['time_stamp'])
+                WeatherData.set_min(metric, 'day', value, store_data['time_stamp'])
+
         # Store data in the database.
         data_record = WeatherDataModel(**store_data)
         data_record.save()
@@ -106,6 +113,7 @@ class WeatherData:
         max_day = date_object.day
 
         max_value = {}
+        metric_max = '{0}__max'.format(metric)
 
         # Get value from cache.
         # If cache is empty or invalid get value from the database. Then store in cache.
@@ -116,8 +124,10 @@ class WeatherData:
                 max_value = WeatherDataModel.objects\
                     .filter(date_utc__year=max_year)\
                     .aggregate(Max(metric))
+                if max_value[metric_max] is None:
+                    max_value = {metric_max: 0}
             else:
-                max_value = {'{0}__max'.format(metric): cache_val}
+                max_value = {metric_max: cache_val}
         elif period == 'month':
             cache_key = '_'.join((metric, str(max_year), str(max_month)))
             cache_val = cache.get(cache_key)
@@ -125,8 +135,10 @@ class WeatherData:
                 max_value = WeatherDataModel.objects \
                     .filter(date_utc__year=max_year, date_utc__month=max_month) \
                     .aggregate(Max(metric))
+                if max_value[metric_max] is None:
+                    max_value = {metric_max: 0}
             else:
-                max_value = {'{0}__max'.format(metric): cache_val}
+                max_value = {metric_max: cache_val}
         elif period == 'day':
             cache_key = '_'.join((metric, str(max_year), str(max_month), str(max_day)))
             cache_val = cache.get(cache_key)
@@ -134,8 +146,10 @@ class WeatherData:
                 max_value = WeatherDataModel.objects \
                     .filter(date_utc__year=max_year, date_utc__month=max_month, date_utc__day=max_day) \
                     .aggregate(Max(metric))
+                if max_value[metric_max] is None:
+                    max_value = {metric_max: 0}
             else:
-                max_value = {'{0}__max'.format(metric): cache_val}
+                max_value = {metric_max: cache_val}
         return max_value
 
     @staticmethod
@@ -213,6 +227,7 @@ class WeatherData:
         min_day = date_object.day
 
         min_value = {}
+        metric_min = '{0}__min'.format(metric)
 
         # Get value from cache.
         # If cache is empty or invalid get value from the database. Then store in cache.
@@ -223,8 +238,10 @@ class WeatherData:
                 min_value = WeatherDataModel.objects\
                     .filter(date_utc__year=min_year)\
                     .aggregate(Min(metric))
+                if min_value[metric_min] is None:
+                    min_value = {metric_min: 0}
             else:
-                min_value = {'{0}__min'.format(metric): cache_val}
+                min_value = {metric_min: cache_val}
         elif period == 'month':
             cache_key = '_'.join((metric, str(min_year), str(min_month)))
             cache_val = cache.get(cache_key)
@@ -232,8 +249,10 @@ class WeatherData:
                 min_value = WeatherDataModel.objects \
                     .filter(date_utc__year=min_year, date_utc__month=min_month) \
                     .aggregate(Min(metric))
+                if min_value[metric_min] is None:
+                    min_value = {metric_min: 0}
             else:
-                min_value = {'{0}__min'.format(metric): cache_val}
+                min_value = {metric_min: cache_val}
         elif period == 'day':
             cache_key = '_'.join((metric, str(min_year), str(min_month), str(min_day)))
             cache_val = cache.get(cache_key)
@@ -241,8 +260,10 @@ class WeatherData:
                 min_value = WeatherDataModel.objects \
                     .filter(date_utc__year=min_year, date_utc__month=min_month, date_utc__day=min_day) \
                     .aggregate(Min(metric))
+                if min_value[metric_min] is None:
+                    min_value = {metric_min: 0}
             else:
-                min_value = {'{0}__min'.format(metric): cache_val}
+                min_value = {metric_min: cache_val}
         return min_value
 
     @staticmethod
@@ -298,7 +319,8 @@ class WeatherData:
 
         return min_set
 
-    def get_data(self):
+    @staticmethod
+    def get_data( timestamp: int = 0):
         """
         Get all the data needed to display the weather dashboard.
         Data returned:
@@ -311,3 +333,7 @@ class WeatherData:
 
         :return:
         """
+
+        # If timestamp is not provided default to now.
+        if timestamp == 0:
+            timestamp = datetime.now().timestamp()

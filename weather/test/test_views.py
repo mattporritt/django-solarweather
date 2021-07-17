@@ -24,14 +24,16 @@
 
 from django.test import TestCase, Client
 import weather.test.test_data as test_data
+from django.core.cache import cache
 
 
 # Basic functional testing
-class UserFunctionalTestCase(TestCase):
+class WeatherDataFunctionalTestCase(TestCase):
     def setUp(self):
         self.client = Client()
 
     def test_index_view(self):
+        cache.clear()
 
         response = self.client.get('/weatherstation/updateweatherstation.php', test_data.test_query_vars)
         # Response code should be a redirect if login successful

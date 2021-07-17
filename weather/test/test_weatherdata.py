@@ -55,6 +55,7 @@ class WeatherDataUnitTestCase(TestCase):
         """
         Test getting max values from the database for a given day.
         """
+        cache.clear()
 
         weather_data = WeatherData()
         max_result = weather_data.get_max('solar_radiation', 'day', 1623906568)
