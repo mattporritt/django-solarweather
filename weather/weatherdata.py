@@ -191,7 +191,6 @@ class WeatherData:
 
         return max_set
 
-
     @staticmethod
     def get_min(metric: str, period: str, timestamp: int = 0):
         """
@@ -218,36 +217,97 @@ class WeatherData:
         # Get value from cache.
         # If cache is empty or invalid get value from the database. Then store in cache.
         if period == 'year':
-            min_value = WeatherDataModel.objects\
-                .filter(date_utc__year=min_year)\
-                .aggregate(Min(metric))
+            cache_key = '_'.join((metric, str(min_year)))
+            cache_val = cache.get(cache_key)
+            if cache_val is None:
+                min_value = WeatherDataModel.objects\
+                    .filter(date_utc__year=min_year)\
+                    .aggregate(Min(metric))
+            else:
+                min_value = {'{0}__min'.format(metric): cache_val}
         elif period == 'month':
-            min_value = WeatherDataModel.objects \
-                .filter(date_utc__year=min_year, date_utc__month=min_month) \
-                .aggregate(Min(metric))
+            cache_key = '_'.join((metric, str(min_year), str(min_month)))
+            cache_val = cache.get(cache_key)
+            if cache_val is None:
+                min_value = WeatherDataModel.objects \
+                    .filter(date_utc__year=min_year, date_utc__month=min_month) \
+                    .aggregate(Min(metric))
+            else:
+                min_value = {'{0}__min'.format(metric): cache_val}
         elif period == 'day':
-            min_value = WeatherDataModel.objects \
-                .filter(date_utc__year=min_year, date_utc__month=min_month, date_utc__day=min_day) \
-                .aggregate(Min(metric))
-
+            cache_key = '_'.join((metric, str(min_year), str(min_month), str(min_day)))
+            cache_val = cache.get(cache_key)
+            if cache_val is None:
+                min_value = WeatherDataModel.objects \
+                    .filter(date_utc__year=min_year, date_utc__month=min_month, date_utc__day=min_day) \
+                    .aggregate(Min(metric))
+            else:
+                min_value = {'{0}__min'.format(metric): cache_val}
         return min_value
 
-    def set_min(self, metric: str, period: str):
+    @staticmethod
+    def set_min(metric: str, period: str, value, timestamp: int = 0):
         """
         Set the minimum value for a given time period.
+        The value is only "set" in the cache and not updated in the database.
+        min values are not stored explicitly in the database but are resolved
+        from all stored values.
 
-        :param metric:
-        :param period:
+        :param metric: The metric to get the minimum for, e.g. uv_index
+        :param period: The period the minimum relates to. i.e. 'year', 'month', 'day'.
+        :param value: The new minimum value.
+        :param timestamp: The unix timestamp to use as the reference.
         :return:
         """
+
+        # If timestamp is not provided default to now.
+        if timestamp == 0:
+            timestamp = datetime.now().timestamp()
+
+        current_min = WeatherData.get_min(metric, period, timestamp)
+        min_metric = ''.join((metric, '__min'))
+
+        if current_min.get(min_metric) >= value:
+            # New min is not greater nothing to do.
+            min_set = False
+        else:
+            # New min is greater update cache with new value.
+
+            # Split out timestamp to date components.
+            date_object = datetime.fromtimestamp(timestamp)
+            min_year = date_object.year
+            min_month = date_object.month
+            min_day = date_object.day
+
+            if period == 'year':
+                cache_key = '_'.join((metric, str(min_year)))
+
+            elif period == 'month':
+                cache_key = '_'.join((metric, str(min_year), str(min_month)))
+                # If there is a new month min, there may also be a new year min.
+                # We use recursion (magic) to check.
+                result = WeatherData.set_min(metric, 'year', value, timestamp)
+
+            elif period == 'day':
+                cache_key = '_'.join((metric, str(min_year), str(min_month), str(min_day)))
+                # If there is a new day min, there may be a new month min.
+                WeatherData.set_min(metric, 'month', value, timestamp)
+
+            cache.set(cache_key, value, 3600)
+            min_set = True
+
+        return min_set
 
     def get_data(self):
         """
         Get all the data needed to display the weather dashboard.
         Data returned:
             Indoor temp - current, daily max, daily min.
+                          warmest day of the month, warmest day of the year.
+                          coolest day of the month, coolest day of the year.
             Outdoor temp - current, daily max, daily min.
-
+                          warmest day of the month, warmest day of the year.
+                          coolest day of the month, coolest day of the year.
 
         :return:
         """
