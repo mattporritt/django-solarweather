@@ -27,7 +27,7 @@ from django.db.models import Max, Min
 from system.conversion import UnitConversion
 from datetime import datetime
 from django.utils.timezone import make_aware
-from django.core.cache import caches
+from django.core.cache import cache
 
 
 class WeatherData:
@@ -157,12 +157,16 @@ class WeatherData:
         else:
             # New max is greater update cache with new value.
             if period == 'year':
-                cache_key = 
+                cache_key = '_'.join((metric, str(max_year)))
 
             elif period == 'month':
+                cache_key = '_'.join((metric, str(max_year), str(max_month)))
 
             elif period == 'day':
+                cache_key = '_'.join((metric, str(max_year), str(max_month), str(max_day)))
 
+            cache.set(cache_key, value, 3600)
+            max_set = True
 
         return max_set
 

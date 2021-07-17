@@ -26,6 +26,7 @@ from django.test import TestCase
 from weather.weatherdata import WeatherData
 from weather.models import WeatherData as WeatherDataModel
 import weather.test.test_data as test_data
+from django.core.cache import cache
 
 import logging
 
@@ -35,6 +36,7 @@ logger = logging.getLogger('django')
 
 # Basic functional testing
 class WeatherDataUnitTestCase(TestCase):
+    # Load the fixtures used in this test.
     fixtures = ['weatherdata.json']
 
     def test_store(self):
@@ -114,7 +116,20 @@ class WeatherDataUnitTestCase(TestCase):
         Test setting max values to the cache for a given day.
         """
 
-        weather_data = WeatherData()
-        max_result = weather_data.set_max('solar_radiation', 'day', 75.85, 1623906568)
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
 
-        logger.info(max_result)
+        cache_key = 'solar_radiation_2021_6_17'
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        weather_data = WeatherData()
+        max_result = weather_data.set_max('solar_radiation', 'day', 75.86, 1623906568)
+        self.assertTrue(max_result)
+
+        # Now check cache contains value.
+        cache_val = cache.get(cache_key)
+        self.assertEqual(cache_val, 75.86)
