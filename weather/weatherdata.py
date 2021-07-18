@@ -24,7 +24,6 @@
 
 from weather.models import WeatherData as WeatherDataModel
 from django.db.models import Max, Min
-from django.db.models.functions import Coalesce
 from system.conversion import UnitConversion
 from datetime import datetime
 from django.utils.timezone import make_aware
@@ -35,6 +34,27 @@ class WeatherData:
     """
     Class to weather station data related operations
     """
+
+    # Metrics we can query and get data for.
+    weather_metrics = [
+        'indoor_temp',
+        'outdoor_temp',
+        'dew_point',
+        'wind_chill',
+        'indoor_humidity',
+        'outdoor_humidity',
+        'wind_speed',
+        'wind_gust',
+        'wind_direction',
+        'absolute_pressure',
+        'pressure',
+        'rain',
+        'daily_rain',
+        'weekly_rain',
+        'monthly_rain',
+        'solar_radiation',
+        'uv_index',
+    ]
 
     @staticmethod
     def store(data: dict) -> int:
@@ -268,7 +288,7 @@ class WeatherData:
         return min_value
 
     @staticmethod
-    def set_min(metric: str, period: str, value, timestamp: int = 0):
+    def set_min(metric: str, period: str, value, timestamp: int = 0) -> bool:
         """
         Set the minimum value for a given time period.
         The value is only "set" in the cache and not updated in the database.
@@ -321,7 +341,7 @@ class WeatherData:
         return min_set
 
     @staticmethod
-    def get_latest(metric: str):
+    def get_latest(metric: str) -> dict:
         """
         Get the latest received value for a metric
 
@@ -335,7 +355,7 @@ class WeatherData:
         return {cache_key: cache_val}
 
     @staticmethod
-    def set_latest(metric: str, value):
+    def set_latest(metric: str, value) -> dict:
         """
         Set the latest value for a given metric.
         The value is only "set" in the cache and not updated in the database.
@@ -351,16 +371,13 @@ class WeatherData:
         return {cache_key: value}
 
     @staticmethod
-    def get_data(timestamp: int = 0):
+    def get_data(timestamp: int = 0) -> dict:
         """
         Get all the data needed to display the weather dashboard.
-        Data returned:
-            Indoor temp - latest, daily max, daily min.
-                          warmest day of the month, warmest day of the year.
-                          coolest day of the month, coolest day of the year.
-            Outdoor temp - latest, daily max, daily min.
-                          warmest day of the month, warmest day of the year.
-                          coolest day of the month, coolest day of the year.
+        Data returned for all metrics:
+            latest, daily max, daily min,
+            monthly max, monthly min,
+            yearly max, yearly min.
 
         :return:
         """
@@ -368,3 +385,17 @@ class WeatherData:
         # If timestamp is not provided default to now.
         if timestamp == 0:
             timestamp = datetime.now().timestamp()
+
+        result_data = {}
+
+        for metric in WeatherData.weather_metrics:
+            result_data[metric] = {}
+            result_data[metric]['latest'] = WeatherData.get_latest(metric).get('{0}_latest'.format(metric))
+            result_data[metric]['daily_max'] = WeatherData.get_max(metric, 'day', timestamp).get('{0}__max'.format(metric))
+            result_data[metric]['daily_min'] = WeatherData.get_min(metric, 'day', timestamp).get('{0}__min'.format(metric))
+            result_data[metric]['monthly_max'] = WeatherData.get_max(metric, 'month', timestamp).get('{0}__max'.format(metric))
+            result_data[metric]['monthly_min'] = WeatherData.get_min(metric, 'month', timestamp).get('{0}__min'.format(metric))
+            result_data[metric]['yearly_max'] = WeatherData.get_max(metric, 'year', timestamp).get('{0}__max'.format(metric))
+            result_data[metric]['yearly_min'] = WeatherData.get_min(metric, 'year', timestamp).get('{0}__min'.format(metric))
+
+        return result_data

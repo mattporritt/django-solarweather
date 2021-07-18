@@ -358,3 +358,17 @@ class WeatherDataUnitTestCase(TestCase):
         # Initial should be false as less than the current min
         set_result = weather_data.get_latest('outdoor_temp')
         self.assertEqual(set_result.get('outdoor_temp_latest'), 10.277)
+
+    def test_get_data(self):
+        """
+        Test getting the weather data.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        weather_data = WeatherData()
+
+        result_data = WeatherData.get_data(1623906568)
+        logger.info(result_data)
