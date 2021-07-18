@@ -83,6 +83,7 @@ class WeatherData:
             if (type(value) is int) or (type(value) is float):
                 WeatherData.set_max(metric, 'day', value, store_data['time_stamp'])
                 WeatherData.set_min(metric, 'day', value, store_data['time_stamp'])
+                WeatherData.set_latest(metric, value)
 
         # Store data in the database.
         data_record = WeatherDataModel(**store_data)
@@ -324,9 +325,14 @@ class WeatherData:
         """
         Get the latest received value for a metric
 
-        :param metric: The metric to set the latest for, e.g. uv_index
+        :param: metric: The metric to set the latest for, e.g. uv_index
         :return:
         """
+
+        cache_key = '{0}_latest'.format(metric)
+        cache_val = cache.get(cache_key)
+
+        return {cache_key: cache_val}
 
     @staticmethod
     def set_latest(metric: str, value):
@@ -339,15 +345,20 @@ class WeatherData:
         :return:
         """
 
+        cache_key = '{0}_latest'.format(metric)
+        cache.set(cache_key, value, 3600)
+
+        return {cache_key: value}
+
     @staticmethod
-    def get_data( timestamp: int = 0):
+    def get_data(timestamp: int = 0):
         """
         Get all the data needed to display the weather dashboard.
         Data returned:
-            Indoor temp - current, daily max, daily min.
+            Indoor temp - latest, daily max, daily min.
                           warmest day of the month, warmest day of the year.
                           coolest day of the month, coolest day of the year.
-            Outdoor temp - current, daily max, daily min.
+            Outdoor temp - latest, daily max, daily min.
                           warmest day of the month, warmest day of the year.
                           coolest day of the month, coolest day of the year.
 

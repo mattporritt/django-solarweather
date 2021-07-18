@@ -316,3 +316,45 @@ class WeatherDataUnitTestCase(TestCase):
         # Now check cache contains value.
         cache_val = cache.get(cache_key)
         self.assertEqual(cache_val, 10.277)
+
+    def test_set_latest(self):
+        """
+        Test setting the latest value.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        cache_key = 'outdoor_temp_latest'
+        weather_data = WeatherData()
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        # Initial should be false as less than the current min
+        set_result = weather_data.set_latest('outdoor_temp', 10.277)
+        self.assertEqual(set_result.get('outdoor_temp_latest'), 10.277)
+
+    def test_get_latest(self):
+        """
+        Test getting the latest value.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        cache_key = 'outdoor_temp_latest'
+        weather_data = WeatherData()
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        cache.set(cache_key, 10.277)
+
+        # Initial should be false as less than the current min
+        set_result = weather_data.get_latest('outdoor_temp')
+        self.assertEqual(set_result.get('outdoor_temp_latest'), 10.277)
