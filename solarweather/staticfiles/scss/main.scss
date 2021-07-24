@@ -5,6 +5,7 @@ $space-cadet: #202639; // rgba(32, 38, 57, 1);
 $space-cadet-2: #323d5e; // rgba(50, 61, 94, 1);
 $purple-navy: #465686; // rgba(70, 86, 134, 1);
 $periwinkle-crayola: #bcc4dc; // rgba(188, 196, 220, 1);
+$royal-blue: rgba(18, 30, 46, .5); // #121e2e;
 
 // Override Bootstrap variables.
 $primary: $purple-navy;
@@ -41,6 +42,14 @@ $primary: $purple-navy;
   url('/static/webfonts/lato-bold-webfont.woff') format('woff'),
   url('/static/webfonts/lato-bold-webfont.ttf') format('truetype'),
   url('/static/webfonts/lato-bold-webfont.svg#latobold') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'quantico';
+  src: url('/static/webfonts/Quantico-Regular.woff') format('woff'),
+  url('/static/webfonts/Quantico-Regular.ttf') format('truetype'),
+  url('/static/webfonts/Quantico-Regular.svg#quantico') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -93,4 +102,22 @@ footer {
 
 .sw-content {
   min-height: calc(100vh - 210px);
+}
+
+.dashboard-card {
+  background-color: $royal-blue !important;
+}
+
+.dashboard-card-titles {
+  font-weight: 700;
+  width: 100%;
+  background-color: rgba(255,255,255,0.4);
+  padding-left: 5px;
+  border-radius: 5px;
+}
+
+.dashboard-card-value {
+  font-family: 'quantico', Helvetica, Arial, Sans-Serif;
+  font-size: unquote('clamp(2rem, 0.8rem + 4vw, 5rem)');
+  font-weight: 600;
 }
