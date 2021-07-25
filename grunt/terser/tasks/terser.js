@@ -34,7 +34,6 @@ module.exports = function(grunt) {
             if (fileCount > 0) {
                 // Iterate through files.
                 this.files.forEach(function (file) {
-                    grunt.log.writeln('file loop');
                     // Check if file actually exists (it always should).
                     if (!grunt.file.exists(file.src[0])) {
                         grunt.log.warn('Source file "' + file.src[0] + '" not found.');
