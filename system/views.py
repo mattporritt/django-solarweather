@@ -23,11 +23,39 @@
 # ==============================================================================
 
 from django.shortcuts import render
+from django.http import HttpResponse
+from weather.weatherdata import WeatherData
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger('django')
 
 
-def index(request):
+def dashboard(request):
+    """
+    This is the view that render the main dashboard.
+    :param request:
+    :return:
+    """
+
     context = {}
 
     # Pass the context to a template
     return render(request, 'system/index.html', context)
+
+
+def data_ajax(request):
+    """
+    This view handles ajax requests for the main dashboard.
+
+    :param request:
+    :return:
+    """
+
+    response = HttpResponse()
+    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+    response.content = 'success'
+
+    # Return a simple response
+    return response
 

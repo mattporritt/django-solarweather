@@ -22,15 +22,23 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
-"""
-SolarWeather System App URL Configuration.
+from django.test import TestCase, Client
+from django.core.cache import cache
 
-"""
-from django.urls import path, re_path
 
-from system import views
+# Basic functional testing
+class SystemFunctionalTestCase(TestCase):
+    # Load the fixtures used in this test.
+    fixtures = ['weatherdata.json']
 
-urlpatterns = [
-    path('', views.dashboard, name='dashboard'),
-    re_path(r'^dataajax\/.*', views.data_ajax, name='data_ajax'),
-]
+    def setUp(self):
+        self.client = Client()
+
+    def test_index_view(self):
+        cache.clear()
+
+        response = self.client.post('/dataajax/', {})
+        # Response code should be a redirect if login successful
+        # and content should be empty
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'success')

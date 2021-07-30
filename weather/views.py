@@ -32,6 +32,7 @@ logger = logging.getLogger('django')
 
 def index(request):
     """
+    This view processes the data sent by the weather station
 
     :param request:
     :return:
@@ -40,8 +41,6 @@ def index(request):
 
     weather_data = WeatherData()
     weather_data.store(request_data)
-
-    #logger.info(request.GET)
 
     response = HttpResponse()
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
