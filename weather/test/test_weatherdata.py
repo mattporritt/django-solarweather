@@ -374,8 +374,8 @@ class WeatherDataUnitTestCase(TestCase):
 
         self.assertEqual(result_data['indoor_temp']['daily_min'], 19.722)
         self.assertEqual(result_data['indoor_temp']['daily_max'], 20.0)
-        self.assertEqual(result_data['indoor_temp']['daily_trend'].first()[0], 1623906326)
-        self.assertEqual(result_data['indoor_temp']['daily_trend'].last()[0], 1623907827)
+        self.assertEqual(result_data['indoor_temp']['daily_trend'][0][0], 1623906326)
+        self.assertEqual(result_data['indoor_temp']['daily_trend'][-1][0], 1623907827)
 
     def test_get_trend(self):
         """

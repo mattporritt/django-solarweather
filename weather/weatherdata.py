@@ -418,7 +418,7 @@ class WeatherData:
             result_data[metric]['yearly_min'] = WeatherData.get_min(metric, 'year', timestamp).get('{0}__min'.format(metric))
 
             for trend in WeatherData.weather_trends:
-                result_data[metric]['daily_trend'] = WeatherData.get_trend(metric, 'day', timestamp)
+                result_data[metric]['daily_trend'] = list(WeatherData.get_trend(metric, 'day', timestamp))
 
         return result_data
 

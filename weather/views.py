@@ -24,10 +24,6 @@
 
 from django.http import HttpResponse
 from weather.weatherdata import WeatherData
-import logging
-
-# Get an instance of a logger
-logger = logging.getLogger('django')
 
 
 def index(request):

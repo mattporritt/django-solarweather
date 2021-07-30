@@ -24,6 +24,12 @@
 
 from django.test import TestCase, Client
 from django.core.cache import cache
+import json
+
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger('django')
 
 
 # Basic functional testing
@@ -36,9 +42,11 @@ class SystemFunctionalTestCase(TestCase):
 
     def test_index_view(self):
         cache.clear()
+        response = self.client.get('/dataajax/', {'timestamp': '1623906568'})
+        content = json.loads(response.content)
 
-        response = self.client.post('/dataajax/', {})
-        # Response code should be a redirect if login successful
-        # and content should be empty
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'success')
+        self.assertEqual(content['indoor_temp']['daily_min'], 19.722)
+        self.assertEqual(content['indoor_temp']['daily_max'], 20.0)
+        self.assertEqual(content['indoor_temp']['daily_trend'][0][0], 1623906326)
+        self.assertEqual(content['indoor_temp']['daily_trend'][-1][0], 1623907827)

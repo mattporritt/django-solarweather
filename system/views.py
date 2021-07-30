@@ -23,8 +23,9 @@
 # ==============================================================================
 
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponseNotAllowed, JsonResponse
 from weather.weatherdata import WeatherData
+from datetime import datetime
 import logging
 
 # Get an instance of a logger
@@ -52,10 +53,17 @@ def data_ajax(request):
     :return:
     """
 
-    response = HttpResponse()
-    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
-    response.content = 'success'
+    if request.method == 'POST':
+        return HttpResponseNotAllowed(['GET'])
+    elif request.method == 'GET':
+        # If timestamp is not provided default to now.
+        timestamp = int(request.GET.get('timestamp', default=0))
+        if timestamp == 0:
+            timestamp = datetime.now().timestamp()
 
-    # Return a simple response
-    return response
+        weather_data = WeatherData()
+        result_data = weather_data.get_data(timestamp)
+        response = JsonResponse(result_data)
+
+        return response
 
