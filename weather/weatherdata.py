@@ -56,6 +56,25 @@ class WeatherData:
         'uv_index',
     ]
 
+    # Metrics to get trend data for.
+    weather_trends = [
+        'indoor_temp',
+        'outdoor_temp',
+        'dew_point',
+        'wind_chill',
+        'indoor_humidity',
+        'outdoor_humidity',
+        'wind_speed',
+        'wind_gust',
+        'wind_direction',
+        'absolute_pressure',
+        'pressure',
+        'rain',
+        'daily_rain',
+        'solar_radiation',
+        'uv_index',
+    ]
+
     @staticmethod
     def store(data: dict) -> int:
         """
@@ -398,6 +417,9 @@ class WeatherData:
             result_data[metric]['yearly_max'] = WeatherData.get_max(metric, 'year', timestamp).get('{0}__max'.format(metric))
             result_data[metric]['yearly_min'] = WeatherData.get_min(metric, 'year', timestamp).get('{0}__min'.format(metric))
 
+            for trend in WeatherData.weather_trends:
+                result_data[metric]['daily_trend'] = WeatherData.get_trend(metric, 'day', timestamp)
+
         return result_data
 
     @staticmethod
@@ -421,7 +443,7 @@ class WeatherData:
         trend_month = date_object.month
         trend_day = date_object.day
 
-        result_data = {}
+        trend_data = {}
 
         # TODO: decide if this needs to be cached.
         if period == 'year':
@@ -440,6 +462,4 @@ class WeatherData:
                 .order_by('time_stamp') \
                 .all()
 
-        result_data = {metric: trend_data}
-
-        return result_data
+        return trend_data
