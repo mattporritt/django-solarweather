@@ -365,10 +365,27 @@ class WeatherDataUnitTestCase(TestCase):
         """
 
         # Start by clearing the cache.
-        # If this test was ever run in a production environment it would clear all caches
+        # If this test was ever run in a production environment it would clear all caches.
         cache.clear()
 
         weather_data = WeatherData()
 
-        result_data = WeatherData.get_data(1623906568)
-        logger.info(result_data)
+        result_data = weather_data.get_data(1623906568)
+        #logger.info(result_data)
+
+        # TODO: add some assertions
+
+    def test_get_trend(self):
+        """
+        Test getting the trend data.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches.
+        cache.clear()
+
+        weather_data = WeatherData()
+        result_data = weather_data.get_trend('indoor_temp', 'day', 1623906568)
+
+        self.assertEqual(result_data['indoor_temp'].first()[0], 1623906326)
+        self.assertEqual(result_data['indoor_temp'].last()[0], 1623907827)

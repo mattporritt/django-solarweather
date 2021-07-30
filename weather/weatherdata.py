@@ -399,3 +399,47 @@ class WeatherData:
             result_data[metric]['yearly_min'] = WeatherData.get_min(metric, 'year', timestamp).get('{0}__min'.format(metric))
 
         return result_data
+
+    @staticmethod
+    def get_trend(metric: str, period: str, timestamp: int = 0) -> dict:
+        """
+        Get the metric trend data for a given time period.
+
+        :param metric: The metric to get the trend for, e.g. indoor_temp
+        :param period: The period the trend relates to. i.e. 'year', 'month', 'day'.
+        :param timestamp: The unix timestamp to use as the reference.
+        :return: The trend data.
+        """
+
+        # If timestamp is not provided default to now.
+        if timestamp == 0:
+            timestamp = datetime.now().timestamp()
+
+        # Split out timestamp to date components.
+        date_object = datetime.fromtimestamp(timestamp)
+        trend_year = date_object.year
+        trend_month = date_object.month
+        trend_day = date_object.day
+
+        result_data = {}
+
+        # TODO: decide if this needs to be cached.
+        if period == 'year':
+            trend_data = WeatherDataModel.objects.values_list('time_stamp', metric) \
+                .filter(date_utc__year=trend_year) \
+                .order_by('time_stamp') \
+                .all()
+        elif period == 'month':
+            trend_data = WeatherDataModel.objects.values_list('time_stamp', metric) \
+                .filter(date_utc__year=trend_year, date_utc__month=trend_month) \
+                .order_by('time_stamp') \
+                .all()
+        elif period == 'day':
+            trend_data = WeatherDataModel.objects.values_list('time_stamp', metric) \
+                .filter(date_utc__year=trend_year, date_utc__month=trend_month, date_utc__day=trend_day) \
+                .order_by('time_stamp') \
+                .all()
+
+        result_data = {metric: trend_data}
+
+        return result_data
