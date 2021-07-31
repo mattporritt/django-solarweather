@@ -34,4 +34,7 @@ import {bar} from './foo.js';
 export const init = () => {
     window.console.log('Dashboard JS loaded.');
     bar();
+    fetch('/dataajax/')
+        .then((response) => response.json())
+        .then((data) => window.console.log(data));
 };

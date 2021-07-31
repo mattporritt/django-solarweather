@@ -1,1 +1,1 @@
-{"version":3,"sources":["0"],"names":["bar","init","window","console","log"],"mappings":";AAwBA,oBAEQA,QAAU,kBAOX,MAAMC,KAAO,KAChBC,OAAOC,QAAQC,IAAI,wBACnBJ"}
+{"version":3,"sources":["0"],"names":["bar","init","window","console","log","fetch","then","response","json","data"],"mappings":";AAwBA,oBAEQA,QAAU,kBAOX,MAAMC,KAAO,KAChBC,OAAOC,QAAQC,IAAI,wBACnBJ,MACAK,MAAM,cACDC,MAAMC,GAAaA,EAASC,SAC5BF,MAAMG,GAASP,OAAOC,QAAQC,IAAIK"}
