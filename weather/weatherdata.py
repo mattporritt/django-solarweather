@@ -426,6 +426,24 @@ class WeatherData:
         return round(at, 3)
 
     @staticmethod
+    def get_dew_point(temp: float, humidity: float) -> float:
+        """
+        Calculate the dew point temperature from temp and
+        relative humidity.
+
+        :param temp: Temperature in degrees celsius.
+        :param humidity: Percent relative humidity, e.g. 88(%).
+        :return:
+        """
+
+        ln_humid = math.log(humidity / 100)
+        k_temp = 243.04 + temp
+
+        dew_point = 243.04 * (ln_humid + ((17.625 * temp) / k_temp)) / (17.625 - ln_humid - ((17.625 * temp) / k_temp))
+
+        return round(dew_point, 3)
+
+    @staticmethod
     def get_data(timestamp: int = 0) -> dict:
         """
         Get all the data needed to display the weather dashboard.

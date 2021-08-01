@@ -421,3 +421,16 @@ class WeatherDataUnitTestCase(TestCase):
         result_data = weather_data.get_apparent_temperature(temp, humidity, wind, solar)
 
         self.assertEqual(result_data, 26.182)
+
+    def test_get_dew_point(self):
+        """
+        Test getting apparent temperature with no solar radiation
+        :return:
+        """
+        temp = 25
+        humidity = 50
+
+        weather_data = WeatherData()
+        result_data = weather_data.get_dew_point(temp, humidity)
+
+        self.assertEqual(result_data, 13.858)
