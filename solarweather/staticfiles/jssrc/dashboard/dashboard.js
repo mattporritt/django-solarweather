@@ -24,7 +24,7 @@
 
 'use strict';
 
-import {refreshCounter} from './controls.js';
+import {setup} from './controls.js';
 
 const printOut = () => {
     window.console.log('Timer expired.');
@@ -37,7 +37,7 @@ const printOut = () => {
  */
 export const init = () => {
     window.console.log('Dashboard JS loaded.');
-    refreshCounter(printOut);
+    setup(printOut);
     fetch('/dataajax/')
         .then((response) => response.json())
         .then((data) => window.console.log(data));

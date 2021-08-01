@@ -25,16 +25,46 @@
 
 'use strict';
 
-const refreshPeriod = 60;
+let refreshPeriod = 60;
 let counterid;
+let callback;
+
+/**
+ * Handle processing of refresh and period button actions.
+ *
+ * @param {Event} event The triggered event for the element.
+ */
+const refreshAction = (event) => {
+    event.preventDefault();
+    const element = event.target;
+
+    if (element.closest('button') !== null && element.closest('button').id === 'refresh-dashboard') {
+        callback();
+    } else if (element.tagName.toLowerCase() === 'a') {
+        refreshPeriod = element.dataset.period;
+
+        const refreshElement = document.getElementById('period-container');
+        const actionButton = refreshElement.getElementsByClassName('dropdown-toggle')[0];
+        actionButton.textContent = element.innerHTML;
+
+        const activeoptions = refreshElement.getElementsByClassName('active');
+
+        // Fix active classes.
+        for (let i = 0; i < activeoptions.length; i++) {
+            activeoptions[i].classList.remove('active');
+        }
+        element.classList.add('active');
+    }
+
+    refreshCounter(true);
+};
 
 /**
  * Function for refreshing the counter.
  *
- * @param {function} callback The callback to use when counter hits zero.
  * @param {boolean} reset Reset the current count process.
  */
-export const refreshCounter = (callback, reset = true) => {
+const refreshCounter = (reset = true) => {
     const progressElement = document.getElementById('refresh-progress');
 
     // Reset the current count process.
@@ -63,7 +93,23 @@ export const refreshCounter = (callback, reset = true) => {
             progressElement.setAttribute('style', 'width: 100%');
             progressElement.setAttribute('aria-valuenow', '100');
             callback();
-            refreshCounter(callback);
+            refreshCounter();
         }
     }, (1000));
+};
+
+/**
+ * External entry point to set up the refresh counter.
+ *
+ * @param {function} callbackfunc The function to call when the counter reaches zero..
+ */
+export const setup = (callbackfunc) => {
+    callback = callbackfunc;
+
+    // Event handling for refresh and period buttons.
+    const refreshElement = document.getElementById('period-container');
+    refreshElement.addEventListener('click', refreshAction);
+
+    // Start the refresh counter.
+    refreshCounter();
 };
