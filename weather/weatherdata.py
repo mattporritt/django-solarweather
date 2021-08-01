@@ -28,6 +28,7 @@ from system.conversion import UnitConversion
 from datetime import datetime
 from django.utils.timezone import make_aware
 from django.core.cache import cache
+import math
 
 
 class WeatherData:
@@ -388,6 +389,41 @@ class WeatherData:
         cache.set(cache_key, value, 3600)
 
         return {cache_key: value}
+
+    @staticmethod
+    def get_apparent_temperature(temp: float, humidity: float, wind: float, solar: float) -> float:
+        """
+        This method returns the Australian Apparent Temperature (AT),
+        otherwise known as the "feels like" temperature.
+
+        The formula used for the AT is the same as the one used by the
+        Australian Bureau of Meteorology. It is an approximations of the
+        value provided by a mathematical model of heat balance in the human body.
+        It can includes the effects of temperature, humidity and wind-speed.
+        If present it will also take into account solar radiation.
+
+        :param temp: Temperature in degrees celsius.
+        :param humidity: Percent relative humidity, e.g. 88(%).
+        :param wind: Wind speed in kilometers per hour.
+        :param solar: Net radiation absorbed per unit area of body surface (w/m2).
+        :return:
+        """
+
+        # First convert wind speed from km/h to m/s.
+        windms = wind / 3.6
+
+        # Next calculate water vapour pressure.
+        # This can be calculated from the temperature and relative humidity.
+        exponent_val = (17.27 * temp) / (237.7 + temp)
+        vapour = (humidity / 100) * 6.105 * (math.exp(exponent_val))
+
+        # The algorithm is adjusted depending on if we have solar radiation or not.
+        if solar > 0:
+            at = temp + (0.348 * vapour) - (0.70 * windms) + ((0.70 * solar) / (windms + 10)) - 4.25
+        else:
+            at = temp + (0.348 * vapour) - (0.70 * windms) - 4.00
+
+        return round(at, 3)
 
     @staticmethod
     def get_data(timestamp: int = 0) -> dict:

@@ -391,3 +391,33 @@ class WeatherDataUnitTestCase(TestCase):
 
         self.assertEqual(result_data.first()[0], 1623906326)
         self.assertEqual(result_data.last()[0], 1623907827)
+
+    def test_get_apparent_temperature(self):
+        """
+        Test getting apparent temperature with no solar radiation
+        :return:
+        """
+        temp = 25
+        humidity = 50
+        wind = 3.6
+        solar = 0
+
+        weather_data = WeatherData()
+        result_data = weather_data.get_apparent_temperature(temp, humidity, wind, solar)
+
+        self.assertEqual(result_data, 25.795)
+
+    def test_get_apparent_temperature_solar(self):
+        """
+        Test getting apparent temperature with no solar radiation
+        :return:
+        """
+        temp = 25
+        humidity = 50
+        wind = 3.6
+        solar = 10
+
+        weather_data = WeatherData()
+        result_data = weather_data.get_apparent_temperature(temp, humidity, wind, solar)
+
+        self.assertEqual(result_data, 26.182)
