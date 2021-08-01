@@ -1,0 +1,48 @@
+<div class="period-container" id="period-container">
+    <div class="col-sm d-flex justify-content-end">
+        <button id="refresh-quiz-dashboard" class="btn btn-secondary border-right" type="button">
+            <i class="fa fa-redo"></i>
+        </button>
+		<div class="dropdown">
+  			<button id="refresh-menu-btn" class="btn btn-secondary dropdown-toggle" type="button"
+					data-bs-toggle="dropdown" aria-expanded="false">
+    			1 Minute
+  			</button>
+			<ul id="refresh-menu-items" class="dropdown-menu dropdown-menu-dark" aria-labelledby="refresh-menu">
+				 <li>
+					 <a class="dropdown-item active" href="#"
+						data-period="60"
+	                    aria-label="1 Minute">
+						 1 Minute
+					 </a>
+				 </li>
+				 <li>
+					 <a class="dropdown-item" href="#"
+						data-period="120"
+	                    aria-label="2 Minutes">
+						 2 Minutes
+					 </a>
+				 </li>
+				 <li>
+					 <a class="dropdown-item" href="#"
+						data-period="300"
+	                    aria-label="5 Minutes">
+						 5 Minutes
+					 </a>
+				 </li>
+				 <li>
+					 <a class="dropdown-item" href="#"
+						data-period="600"
+	                    aria-label="10 Minutes">
+						 10 Minutes
+					 </a>
+				 </li>
+			</ul>
+		</div>
+    </div>
+	<div class="progress" style="height: 3px;">
+	  <div id = "refresh-progress" class="progress-bar refresh-progress" role="progressbar"
+		   style="width: 100%;" aria-valuenow="100"
+		   aria-valuemin="0" aria-valuemax="100"></div>
+	</div>
+</div>

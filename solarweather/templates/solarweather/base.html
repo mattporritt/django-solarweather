@@ -27,8 +27,10 @@
             {% block header %}
                 <nav class="navbar navbar-expand-lg aa-nav">
                     <div class="container-fluid">
-                        <img class="header-logo" src="{% static "images/weather.png" %}" />
-                        <span class="navbar-brand mb-0 h1">SolarWeather</span>
+                        <div class="navbar-brand">
+                            <img class="header-logo" src="{% static "images/weather.png" %}" />
+                            <span class="ms-2">SolarWeather</span>
+                        </div>
                     </div>
                 </nav>
             {% endblock %}

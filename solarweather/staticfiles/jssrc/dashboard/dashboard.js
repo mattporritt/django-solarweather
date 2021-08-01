@@ -24,7 +24,11 @@
 
 'use strict';
 
-import {bar} from './foo.js';
+import {refreshCounter} from './controls.js';
+
+const printOut = () => {
+    window.console.log('Timer expired.');
+};
 
 /**
  * Script entry point.
@@ -33,7 +37,7 @@ import {bar} from './foo.js';
  */
 export const init = () => {
     window.console.log('Dashboard JS loaded.');
-    bar();
+    refreshCounter(printOut);
     fetch('/dataajax/')
         .then((response) => response.json())
         .then((data) => window.console.log(data));
