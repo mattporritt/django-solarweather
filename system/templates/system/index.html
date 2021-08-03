@@ -19,76 +19,10 @@
 {% block content %}
     <div class="row">
         <div class="col-lg-6 mb-1 mb-md-2 p-1">
-            <div class="card dashboard-card">
-                <div class="card-header pb-0">
-                    Indoor Temperature
-                </div>
-                <div class="card-body">
-                      <div class="row">
-                        <div class="col-4 col-xxl-3 p-1">
-                          <div class="dashboard-card-titles">NOW</div>
-                          <div class="dashboard-card-value">88.8</div>
-                          <div class="dashboard-card-titles">FEELS LIKE</div>
-                          <div class="dashboard-card-value">88.8</div>
-                        </div>
-                        <div class="col-8 col-xxl-9 p-1">
-                          <div class="dashboard-card-titles">DAILY RANGE</div>
-                          <div class="dashboard-card-graph">
-                              <div class="chart-container">
-                                  <canvas id="indoor-temp-chart"></canvas>
-                              </div>
-                          </div>
-                          <div class="dashboard-card-extrema">
-                              <div class="dashboard-card-extrema-min-container">
-                                  <div class="dashboard-extrema-min">MIN</div>
-                                  <div class="dashboard-extrema-min-val">88.8</div>
-                              </div>
-                              <div class="dashboard-card-extrema-max-container">
-                                  <div class="dashboard-extrema-max">MAX</div>
-                                  <div class="dashboard-extrema-max-val">88.8</div>
-                              </div>
-                          </div>
-
-                        </div>
-                      </div>
-                </div>
-            </div>
+            {% include "system/card-indoor-temp.html" %}
         </div>
         <div class="col-lg-6 mb-1 mb-md-2 p-1">
-            <div class="card dashboard-card">
-                <div class="card-header pb-0">
-                    Outdoor Temperature
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-4 col-xxl-3 p-1">
-                            <div class="dashboard-card-titles">NOW</div>
-                            <div class="dashboard-card-value">88.8</div>
-                            <div class="dashboard-card-titles">FEELS LIKE</div>
-                            <div class="dashboard-card-value">88.8</div>
-                        </div>
-                        <div class="col-8 col-xxl-9 p-1">
-                            <div class="dashboard-card-titles">DAILY RANGE</div>
-                            <div class="dashboard-card-graph">
-                                <div class="chart-container">
-                                  <canvas id="outdoor-temp-chart"></canvas>
-                                </div>
-                            </div>
-                            <div class="dashboard-card-extrema">
-                                <div class="dashboard-card-extrema-min-container">
-                                    <div class="dashboard-extrema-min">MIN</div>
-                                    <div class="dashboard-extrema-min-val">88.8</div>
-                                </div>
-                                <div class="dashboard-card-extrema-max-container">
-                                    <div class="dashboard-extrema-max">MAX</div>
-                                    <div class="dashboard-extrema-max-val">88.8</div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include "system/card-outdoor-temp.html" %}
         </div>
     </div>
     <div class="row">

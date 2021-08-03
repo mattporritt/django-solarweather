@@ -26,8 +26,42 @@
 
 import {setup} from './controls.js';
 
-const printOut = () => {
-    window.console.log('Timer expired.');
+/**
+ * Update the dashboard
+ *
+ * @param {Object} data The raw data to use to update dashboard.
+ */
+const updateDashboard = (data) => {
+    // Individual elements that we will set.
+    const indoorTempNow = document.getElementById('indoor-temp-now');
+    const indoorTempNowFeelsLike = document.getElementById('indoor-temp-now-feels-like');
+    const indoorTempDayMin = document.getElementById('indoor-temp-day-min');
+    const indoorTempDayMax = document.getElementById('indoor-temp-day-max');
+    const outdoorTempNow = document.getElementById('outdoor-temp-now');
+    const outdoorTempNowFeelsLike = document.getElementById('outdoor-temp-now-feels-like');
+    const outdoorTempDayMin = document.getElementById('outdoor-temp-day-min');
+    const outdoorTempDayMax = document.getElementById('outdoor-temp-day-max');
+
+    // Set the values.
+    indoorTempNow.innerHTML = Number.parseFloat(data.indoor_temp.latest).toFixed(1);
+    indoorTempNowFeelsLike.innerHTML = Number.parseFloat(data.indoor_feels_temp.latest).toFixed(1);
+    indoorTempDayMin.innerHTML = Number.parseFloat(data.indoor_temp.daily_min).toFixed(1);
+    indoorTempDayMax.innerHTML = Number.parseFloat(data.indoor_temp.daily_max).toFixed(1);
+    outdoorTempNow.innerHTML = Number.parseFloat(data.outdoor_temp.latest).toFixed(1);
+    outdoorTempNowFeelsLike.innerHTML = Number.parseFloat(data.outdoor_feels_temp.latest).toFixed(1);
+    outdoorTempDayMin.innerHTML = Number.parseFloat(data.outdoor_temp.daily_min).toFixed(1);
+    outdoorTempDayMax.innerHTML = Number.parseFloat(data.outdoor_temp.daily_max).toFixed(1);
+};
+
+/**
+ * Get raw dashboard data.
+ *
+ * @method getData
+ */
+const getData = () => {
+    fetch('/dataajax/')
+        .then((response) => response.json())
+        .then((data) => updateDashboard(data));
 };
 
 /**
@@ -36,9 +70,7 @@ const printOut = () => {
  * @method init
  */
 export const init = () => {
-    window.console.log('Dashboard JS loaded.');
-    setup(printOut);
-    fetch('/dataajax/')
-        .then((response) => response.json())
-        .then((data) => window.console.log(data));
+    setup(getData);
+    getData();
 };
+
