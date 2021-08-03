@@ -40,6 +40,10 @@ class WeatherData:
     weather_metrics = [
         'indoor_temp',
         'outdoor_temp',
+        'indoor_feels_temp',
+        'outdoor_feels_temp',
+        'indoor_dew_temp',
+        'outdoor_dew_temp',
         'dew_point',
         'wind_chill',
         'indoor_humidity',
@@ -61,6 +65,10 @@ class WeatherData:
     weather_trends = [
         'indoor_temp',
         'outdoor_temp',
+        'indoor_feels_temp',
+        'outdoor_feels_temp',
+        'indoor_dew_temp',
+        'outdoor_dew_temp',
         'dew_point',
         'wind_chill',
         'indoor_humidity',
@@ -88,15 +96,27 @@ class WeatherData:
         date_string = data.get('dateutc').replace('%20', ' ')
         datetime_object = make_aware(datetime.strptime(date_string, '%Y-%m-%d %X'))
 
+        # We reuse some values that need post processing first
+        indoor_temp = UnitConversion.f_to_c(float(data.get('indoortempf')))
+        outdoor_temp = UnitConversion.f_to_c(float(data.get('tempf')))
+        indoor_humidity = float(data.get('indoorhumidity'))
+        outdoor_humidity = float(data.get('humidity'))
+        wind_speed = UnitConversion.mph_to_kmh(float(data.get('windspeedmph')))
+        solar_radiation = float(data.get('solarradiation'))
+
         # Prepare data object to be stored in database.
         store_data = {
-            'indoor_temp': UnitConversion.f_to_c(float(data.get('indoortempf'))),
-            'outdoor_temp': UnitConversion.f_to_c(float(data.get('tempf'))),
+            'indoor_temp': indoor_temp,
+            'outdoor_temp': outdoor_temp,
+            'indoor_feels_temp': WeatherData.get_apparent_temperature(indoor_temp, indoor_humidity, wind_speed, solar_radiation),
+            'outdoor_feels_temp': WeatherData.get_apparent_temperature(outdoor_temp, outdoor_humidity, 0.1, 0),
+            'indoor_dew_temp': WeatherData.get_dew_point(indoor_temp, indoor_humidity),
+            'outdoor_dew_temp': WeatherData.get_dew_point(outdoor_temp, outdoor_humidity),
             'dew_point': UnitConversion.f_to_c(float(data.get('dewptf'))),
             'wind_chill': UnitConversion.f_to_c(float(data.get('windchillf'))),
-            'indoor_humidity': float(data.get('indoorhumidity')),
-            'outdoor_humidity': float(data.get('humidity')),
-            'wind_speed': UnitConversion.mph_to_kmh(float(data.get('windspeedmph'))),
+            'indoor_humidity': indoor_humidity,
+            'outdoor_humidity': outdoor_humidity,
+            'wind_speed': wind_speed,
             'wind_gust': UnitConversion.mph_to_kmh(float(data.get('windgustmph'))),
             'wind_direction': float(data.get('winddir')),
             'absolute_pressure': UnitConversion.inhg_to_hpa(float(data.get('absbaromin'))),
@@ -105,7 +125,7 @@ class WeatherData:
             'daily_rain': UnitConversion.in_to_cm(float(data.get('dailyrainin'))),
             'weekly_rain': UnitConversion.in_to_cm(float(data.get('weeklyrainin'))),
             'monthly_rain': UnitConversion.in_to_cm(float(data.get('monthlyrainin'))),
-            'solar_radiation': float(data.get('solarradiation')),
+            'solar_radiation': solar_radiation,
             'uv_index': int(data.get('UV')),
             'date_utc': datetime_object,
             'time_stamp': datetime_object.timestamp(),

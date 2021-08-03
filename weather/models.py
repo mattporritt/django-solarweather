@@ -31,6 +31,10 @@ class WeatherData(models.Model):
     """
     indoor_temp = models.FloatField()
     outdoor_temp = models.FloatField()
+    indoor_feels_temp = models.FloatField()
+    outdoor_feels_temp = models.FloatField()
+    indoor_dew_temp = models.FloatField()
+    outdoor_dew_temp = models.FloatField()
     dew_point = models.FloatField()
     wind_chill = models.FloatField()
     indoor_humidity = models.FloatField()
