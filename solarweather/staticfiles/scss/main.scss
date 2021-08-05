@@ -6,6 +6,7 @@ $space-cadet-2: #323d5e; // rgba(50, 61, 94, 1);
 $purple-navy: #465686; // rgba(70, 86, 134, 1);
 $periwinkle-crayola: #bcc4dc; // rgba(188, 196, 220, 1);
 $royal-blue: rgba(18, 30, 46, .5); // #121e2e;
+$orange-highlight: #c68200;
 
 // Override Bootstrap variables.
 $primary: $purple-navy;
@@ -101,6 +102,36 @@ footer {
   }
 }
 
+.loading-spinner {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-style {
+  width: 3rem;
+  height: 3rem;
+  color: $orange-highlight;
+}
+
+.overlay {
+  position: absolute;
+  background: rgba(255,255,255,.5);
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+.blur {
+  filter: blur(10px);
+}
+
 .sw-table {
   color: $white;
 }
@@ -168,5 +199,5 @@ footer {
 }
 
 .refresh-progress {
-  background-color: #c68200;
+  background-color: $orange-highlight;
 }

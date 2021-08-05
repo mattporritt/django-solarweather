@@ -32,6 +32,8 @@ import {setup} from './controls.js';
  * @param {Object} data The raw data to use to update dashboard.
  */
 const updateDashboard = (data) => {
+    // Parent card elements.
+
     // Individual elements that we will set.
     const indoorTempNow = document.getElementById('indoor-temp-now');
     const indoorTempNowFeelsLike = document.getElementById('indoor-temp-now-feels-like');
@@ -42,13 +44,19 @@ const updateDashboard = (data) => {
     const outdoorTempDayMin = document.getElementById('outdoor-temp-day-min');
     const outdoorTempDayMax = document.getElementById('outdoor-temp-day-max');
 
+    // Handle some potential null conditions.
+    const indoorTempNowVal = data.indoor_temp.latest ? data.indoor_temp.latest : 0;
+    const indoorTempNowFeelsLikeVal = data.indoor_feels_temp.latest? data.indoor_temp.latest : 0;
+    const outdoorTempNowVal = data.outdoor_temp.latest ? data.outdoor_temp.latest : 0;
+    const outdoorTempNowFeelsLikeVal = data.outdoor_feels_temp.latest ? data.outdoor_feels_temp.latest : 0;
+
     // Set the values.
-    indoorTempNow.innerHTML = Number.parseFloat(data.indoor_temp.latest).toFixed(1);
-    indoorTempNowFeelsLike.innerHTML = Number.parseFloat(data.indoor_feels_temp.latest).toFixed(1);
+    indoorTempNow.innerHTML = Number.parseFloat(indoorTempNowVal).toFixed(1);
+    indoorTempNowFeelsLike.innerHTML = Number.parseFloat(indoorTempNowFeelsLikeVal).toFixed(1);
     indoorTempDayMin.innerHTML = Number.parseFloat(data.indoor_temp.daily_min).toFixed(1);
     indoorTempDayMax.innerHTML = Number.parseFloat(data.indoor_temp.daily_max).toFixed(1);
-    outdoorTempNow.innerHTML = Number.parseFloat(data.outdoor_temp.latest).toFixed(1);
-    outdoorTempNowFeelsLike.innerHTML = Number.parseFloat(data.outdoor_feels_temp.latest).toFixed(1);
+    outdoorTempNow.innerHTML = Number.parseFloat(outdoorTempNowVal).toFixed(1);
+    outdoorTempNowFeelsLike.innerHTML = Number.parseFloat(outdoorTempNowFeelsLikeVal).toFixed(1);
     outdoorTempDayMin.innerHTML = Number.parseFloat(data.outdoor_temp.daily_min).toFixed(1);
     outdoorTempDayMax.innerHTML = Number.parseFloat(data.outdoor_temp.daily_max).toFixed(1);
 };
