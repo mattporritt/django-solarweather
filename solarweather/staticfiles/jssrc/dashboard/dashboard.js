@@ -27,6 +27,46 @@
 import {setup} from './controls.js';
 
 /**
+ * @param {Object} Chart The chart object.
+ */
+let Chart;
+
+/**
+ * Render the graph.
+ *
+ * @param {String} canvasId The ID of the canvas HTML element.
+ */
+const renderGraph = (canvasId) => {
+    const labels = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+    ];
+    const data = {
+        labels: labels,
+        datasets: [{
+            label: 'My First dataset',
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: [0, 10, 5, 2, 20, 30, 45],
+        }],
+    };
+    const config = {
+        type: 'line',
+        data: data,
+    };
+
+    const foo = new Chart(
+        document.getElementById(canvasId),
+        config
+    );
+    window.console.log(foo);
+};
+
+/**
  * Update the dashboard
  *
  * @param {Object} data The raw data to use to update dashboard.
@@ -64,6 +104,9 @@ const updateDashboard = (data) => {
     outdoorTempDayMin.innerHTML = Number.parseFloat(data.outdoor_temp.daily_min).toFixed(1);
     outdoorTempDayMax.innerHTML = Number.parseFloat(data.outdoor_temp.daily_max).toFixed(1);
 
+    // Render the graphs.
+    renderGraph('indoor-temp-chart');
+
     // Remove the blur effect etc.
     indoorTempSpinner.style.display = 'none';
     indoorTempOverlay.style.display = 'none';
@@ -87,8 +130,11 @@ const getData = () => {
  * Script entry point.
  *
  * @method init
+ * @param {Object} chart The chart object.
+ *
  */
-export const init = () => {
+export const init = (chart) => {
+    Chart = chart;
     setup(getData);
     getData();
 };

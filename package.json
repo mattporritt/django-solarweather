@@ -13,5 +13,8 @@
     "load-grunt-tasks": "^5.1.0",
     "node-sass": "^5.0.0",
     "terser": "^5.5.1"
+  },
+  "dependencies": {
+    "chart.js": "^3.5.0"
   }
 }
