@@ -33,6 +33,10 @@ import {setup} from './controls.js';
  */
 const updateDashboard = (data) => {
     // Parent card elements.
+    const indoorTempCard = document.getElementById('dashboard-indoor-temp-card');
+    const indoorTempSpinner = indoorTempCard.querySelector('.loading-spinner');
+    const indoorTempOverlay = indoorTempCard.querySelector('.overlay');
+    const indoorTempBlur = indoorTempCard.querySelectorAll('.blur');
 
     // Individual elements that we will set.
     const indoorTempNow = document.getElementById('indoor-temp-now');
@@ -59,6 +63,13 @@ const updateDashboard = (data) => {
     outdoorTempNowFeelsLike.innerHTML = Number.parseFloat(outdoorTempNowFeelsLikeVal).toFixed(1);
     outdoorTempDayMin.innerHTML = Number.parseFloat(data.outdoor_temp.daily_min).toFixed(1);
     outdoorTempDayMax.innerHTML = Number.parseFloat(data.outdoor_temp.daily_max).toFixed(1);
+
+    // Remove the blur effect etc.
+    indoorTempSpinner.style.display = 'none';
+    indoorTempOverlay.style.display = 'none';
+    indoorTempBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
 };
 
 /**
