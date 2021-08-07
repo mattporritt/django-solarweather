@@ -491,13 +491,15 @@ class WeatherData:
             result_data[metric]['yearly_max'] = WeatherData.get_max(metric, 'year', timestamp).get('{0}__max'.format(metric))
             result_data[metric]['yearly_min'] = WeatherData.get_min(metric, 'year', timestamp).get('{0}__min'.format(metric))
 
+            # Get the trend data.
             for trend in WeatherData.weather_trends:
-                result_data[metric]['daily_trend'] = list(WeatherData.get_trend(metric, 'day', timestamp))
+                # We use slicing here to do some quick and dirty down sampling.
+                result_data[metric]['daily_trend'] = WeatherData.get_trend(metric, 'day', timestamp)[::5]
 
         return result_data
 
     @staticmethod
-    def get_trend(metric: str, period: str, timestamp: int = 0) -> dict:
+    def get_trend(metric: str, period: str, timestamp: int = 0) -> list:
         """
         Get the metric trend data for a given time period.
 
@@ -536,4 +538,4 @@ class WeatherData:
                 .order_by('time_stamp') \
                 .all()
 
-        return trend_data
+        return list(trend_data)
