@@ -27,6 +27,58 @@
 import {setup} from './controls.js';
 
 /**
+ * This class allows setting up the configuration object
+ * that is used in charts.
+ *
+ * @class WeatherChartConfig
+ */
+class WeatherChartConfig {
+    /**
+     * Constructor method for the class.
+     */
+    constructor() {
+        this.config = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: [],
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#FFFFFF',
+                        },
+                        ticks: {
+                            color: '#FFFFFF',
+                        },
+                    },
+                    y: {
+                        grid: {
+                            color: '#FFFFFF',
+                        },
+                        ticks: {
+                            color: '#FFFFFF',
+                        },
+                    },
+                },
+            },
+        };
+    }
+}
+
+/**
  * @param {Object} Chart The chart object factory.
  */
 let Chart;
@@ -40,60 +92,12 @@ const weatherCharts = {
 };
 
 /**
- * @param {Object} weatherCharts The charts to make.
- */
-const weatherChartData = {
-    labels: [],
-    datasets: [{
-        backgroundColor: 'rgb(255, 99, 132)',
-        borderColor: 'rgb(255, 99, 132)',
-        data: [],
-    }],
-};
-
-/**
- * @param {Object} weatherChartConfig The chart base config object.
- */
-const weatherChartConfig = {
-    type: 'line',
-    data: weatherChartData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false,
-            },
-        },
-        scales: {
-            x: {
-                grid: {
-                    color: '#FFFFFF',
-                },
-                ticks: {
-                    color: '#FFFFFF',
-                },
-            },
-            y: {
-                grid: {
-                    color: '#FFFFFF',
-                },
-                ticks: {
-                    color: '#FFFFFF',
-                },
-            },
-        },
-    },
-};
-
-/**
  * Update the graphs.
  *
  * @param {String} chartName The chart to update.
  * @param {Object} updateData The data to update the charts with.
  */
 const updateGraphs = (chartName, updateData) => {
-    window.console.log(weatherCharts[chartName].chartObj.data.datasets);
     weatherCharts[chartName].chartObj.data.labels = updateData.labels;
     weatherCharts[chartName].chartObj.data.datasets[0].data = updateData.values;
     weatherCharts[chartName].chartObj.update();
@@ -176,14 +180,17 @@ const getData = () => {
  */
 export const init = (chart) => {
     Chart = chart;
+    const chartConfigObj = new WeatherChartConfig();
 
     // Setup the initial charts.
     for (const chartName in weatherCharts) {
         if ({}.hasOwnProperty.call(weatherCharts, chartName)) {
-            weatherCharts[chartName].chartObj = new Chart(document.getElementById(weatherCharts[chartName].id, weatherChartConfig));
+            weatherCharts[chartName].chartObj = new Chart(
+                document.getElementById(weatherCharts[chartName].id),
+                chartConfigObj.config
+            );
         }
     }
-    window.console.log(weatherCharts);
 
     // Setup auto retrieving of data.
     setup(getData);
