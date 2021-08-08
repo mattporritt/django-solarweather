@@ -1,14 +1,20 @@
-<div class="card dashboard-card">
-    <div class="card-header pb-0">
+<div id="dashboard-outdoor-temp-card" class="card dashboard-card">
+    <div class="loading-spinner">
+      <div class="spinner-border spinner-style" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    <div class="card-header pb-0 blur">
         Outdoor Temperature
     </div>
-    <div class="card-body">
+    <div class="card-body blur">
+        <div class="overlay"></div>
         <div class="row">
             <div class="col-4 col-xxl-3 p-1">
                 <div class="dashboard-card-titles">NOW</div>
-                <div id="outdoor-temp-now" class="dashboard-card-value">88.8</div>
+                <div id="outdoor-temp-now" class="dashboard-card-value">0.0</div>
                 <div class="dashboard-card-titles">FEELS LIKE</div>
-                <div id="outdoor-temp-now-feels-like" class="dashboard-card-value">88.8</div>
+                <div id="outdoor-temp-now-feels-like" class="dashboard-card-value">0.0</div>
             </div>
             <div class="col-8 col-xxl-9 p-1">
                 <div class="dashboard-card-titles">DAILY RANGE</div>
@@ -20,11 +26,11 @@
                 <div class="dashboard-card-extrema">
                     <div class="dashboard-card-extrema-min-container">
                         <div class="dashboard-extrema-min">MIN</div>
-                        <div id="outdoor-temp-day-min" class="dashboard-extrema-min-val">88.8</div>
+                        <div id="outdoor-temp-day-min" class="dashboard-extrema-min-val">0.0</div>
                     </div>
                     <div class="dashboard-card-extrema-max-container">
                         <div class="dashboard-extrema-max">MAX</div>
-                        <div id="outdoor-temp-day-max" class="dashboard-extrema-max-val">88.8</div>
+                        <div id="outdoor-temp-day-max" class="dashboard-extrema-max-val">0.0</div>
                     </div>
                 </div>
 

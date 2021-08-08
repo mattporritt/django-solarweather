@@ -42,8 +42,8 @@ class WeatherChartConfig {
             data: {
                 labels: [],
                 datasets: [{
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: '#c68200',
+                    borderColor: '#FF8C00',
                     data: [],
                 }],
             },
@@ -58,18 +58,18 @@ class WeatherChartConfig {
                 scales: {
                     x: {
                         grid: {
-                            color: '#FFFFFF',
+                            color: 'rgb(255, 255, 255, 0.5)',
                         },
                         ticks: {
-                            color: '#FFFFFF',
+                            color: 'rgb(255, 255, 255)',
                         },
                     },
                     y: {
                         grid: {
-                            color: '#FFFFFF',
+                            color: 'rgb(255, 255, 255, 0.5)',
                         },
                         ticks: {
-                            color: '#FFFFFF',
+                            color: 'rgb(255, 255, 255)',
                         },
                     },
                 },
@@ -153,6 +153,11 @@ const updateDashboard = (data) => {
     const indoorTempOverlay = indoorTempCard.querySelector('.overlay');
     const indoorTempBlur = indoorTempCard.querySelectorAll('.blur');
 
+    const outdoorTempCard = document.getElementById('dashboard-outdoor-temp-card');
+    const outdoorTempSpinner = outdoorTempCard.querySelector('.loading-spinner');
+    const outdoorTempOverlay = outdoorTempCard.querySelector('.overlay');
+    const outdoorTempBlur = outdoorTempCard.querySelectorAll('.blur');
+
     // Individual elements that we will set.
     const indoorTempNow = document.getElementById('indoor-temp-now');
     const indoorTempNowFeelsLike = document.getElementById('indoor-temp-now-feels-like');
@@ -195,6 +200,12 @@ const updateDashboard = (data) => {
     indoorTempSpinner.style.display = 'none';
     indoorTempOverlay.style.display = 'none';
     indoorTempBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
+
+    outdoorTempSpinner.style.display = 'none';
+    outdoorTempOverlay.style.display = 'none';
+    outdoorTempBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
 };
