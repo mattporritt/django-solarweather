@@ -104,6 +104,26 @@ const updateGraphs = (chartName, updateData) => {
 };
 
 /**
+ * Format the timestamps given in the trend data into readable times.
+ *
+ *  @param {Object} data The data to update the charts with.
+ *  @return {Promise} The data processed.
+ */
+const formatDate = (data) => {
+    const labelDates = [];
+    return new Promise((resolve, reject) => {
+        data.labels.forEach((label) =>{
+            const dateObj = new Date(label * 1000);
+            const hours = dateObj.getHours();
+            const minutes = '0' + dateObj.getMinutes();
+            const strftimetime = hours + ':' + minutes.substr(-2); // Will display time in 10:30 format.
+            labelDates.push(strftimetime);
+        });
+        resolve({'labels': labelDates, 'values': data.values});
+    });
+};
+
+/**
  * Format the trend data ready for the charts.
  *
  * @param {Object} data The data to update the charts with.
@@ -164,6 +184,7 @@ const updateDashboard = (data) => {
         if ({}.hasOwnProperty.call(weatherCharts, chartName)) {
             const trendName = weatherCharts[chartName].dataLabel;
             formatTrend(data[trendName].daily_trend)
+                .then(formatDate)
                 .then((trendData) => {
                     updateGraphs(chartName, trendData);
                 });
