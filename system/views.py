@@ -57,7 +57,7 @@ def data_ajax(request):
         return HttpResponseNotAllowed(['GET'])
     elif request.method == 'GET':
         # If timestamp is not provided default to now.
-        timestamp = int(request.GET.get('timestamp', default=0))
+        timestamp = int(request.GET.get('timestamp', default=1623906568))
         if timestamp == 0:
             timestamp = datetime.now().timestamp()
 

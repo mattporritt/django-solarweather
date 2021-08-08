@@ -87,8 +87,8 @@ let Chart;
  * @param {Object} weatherCharts The charts to make.
  */
 const weatherCharts = {
-    'indoorTemp': {'id': 'indoor-temp-chart', 'chartObj': null},
-    'outdoorTemp': {'id': 'outdoor-temp-chart', 'chartObj': null},
+    'indoorTemp': {'id': 'indoor-temp-chart', 'chartObj': null, 'dataLabel': 'indoor_temp'},
+    'outdoorTemp': {'id': 'outdoor-temp-chart', 'chartObj': null, 'dataLabel': 'outdoor_temp'},
 };
 
 /**
@@ -101,6 +101,24 @@ const updateGraphs = (chartName, updateData) => {
     weatherCharts[chartName].chartObj.data.labels = updateData.labels;
     weatherCharts[chartName].chartObj.data.datasets[0].data = updateData.values;
     weatherCharts[chartName].chartObj.update();
+};
+
+/**
+ * Format the trend data ready for the charts.
+ *
+ * @param {Object} data The data to update the charts with.
+ * @return {Promise} The data processed.
+ */
+const formatTrend = (data) => {
+    const labels = [];
+    const values = [];
+    return new Promise((resolve, reject) => {
+        data.forEach((datapair) =>{
+            labels.push(datapair[0]);
+            values.push(datapair[1]);
+        });
+        resolve({'labels': labels, 'values': values});
+    });
 };
 
 /**
@@ -142,13 +160,13 @@ const updateDashboard = (data) => {
     outdoorTempDayMax.innerHTML = Number.parseFloat(data.outdoor_temp.daily_max).toFixed(1);
 
     // Update the charts.
-    const testData = {
-        labels: ['a', 'b', 'c'],
-        values: [1, 3, 6],
-    };
     for (const chartName in weatherCharts) {
         if ({}.hasOwnProperty.call(weatherCharts, chartName)) {
-            updateGraphs(chartName, testData);
+            const trendName = weatherCharts[chartName].dataLabel;
+            formatTrend(data[trendName].daily_trend)
+                .then((trendData) => {
+                    updateGraphs(chartName, trendData);
+                });
         }
     }
 
