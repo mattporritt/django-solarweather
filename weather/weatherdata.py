@@ -29,6 +29,13 @@ from datetime import datetime
 from django.utils.timezone import make_aware
 from django.core.cache import cache
 import math
+import pytz
+from django.conf import settings
+
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger('django')
 
 
 class WeatherData:
@@ -65,23 +72,6 @@ class WeatherData:
     weather_trends = [
         'indoor_temp',
         'outdoor_temp',
-        'indoor_feels_temp',
-        'outdoor_feels_temp',
-        'indoor_dew_temp',
-        'outdoor_dew_temp',
-        'dew_point',
-        'wind_chill',
-        'indoor_humidity',
-        'outdoor_humidity',
-        'wind_speed',
-        'wind_gust',
-        'wind_direction',
-        'absolute_pressure',
-        'pressure',
-        'rain',
-        'daily_rain',
-        'solar_radiation',
-        'uv_index',
     ]
 
     @staticmethod
@@ -93,8 +83,9 @@ class WeatherData:
         """
 
         # First do some date mangling.
+        tz = pytz.timezone('UTC')
         date_string = data.get('dateutc').replace('%20', ' ')
-        datetime_object = make_aware(datetime.strptime(date_string, '%Y-%m-%d %X'))
+        datetime_object = make_aware(datetime.strptime(date_string, '%Y-%m-%d %X'), tz)
 
         # We reuse some values that need post processing first
         indoor_temp = UnitConversion.f_to_c(float(data.get('indoortempf')))
@@ -153,13 +144,14 @@ class WeatherData:
         return data_record.id
 
     @staticmethod
-    def get_max(metric: str, period: str, timestamp: int = 0):
+    def get_max(metric: str, period: str, timestamp: int = 0, usecache: bool = True):
         """
         Get the maximum value for a given time period.
 
         :param metric: The metric to get the maximum for, e.g. uv_index
         :param period: The period the maximum relates to. i.e. 'year', 'month', 'day'.
         :param timestamp: The unix timestamp to use as the reference.
+        :param usecache: Use max value from cache. False means get from database.
         :return: The found maximum value.
         """
 
@@ -179,9 +171,9 @@ class WeatherData:
         # Get value from cache.
         # If cache is empty or invalid get value from the database. Then store in cache.
         if period == 'year':
-            cache_key = '_'.join((metric, str(max_year)))
+            cache_key = '_'.join(('max', metric, str(max_year)))
             cache_val = cache.get(cache_key)
-            if cache_val is None:
+            if (cache_val is None) or (usecache is False):
                 max_value = WeatherDataModel.objects\
                     .filter(date_utc__year=max_year)\
                     .aggregate(Max(metric))
@@ -190,9 +182,9 @@ class WeatherData:
             else:
                 max_value = {metric_max: cache_val}
         elif period == 'month':
-            cache_key = '_'.join((metric, str(max_year), str(max_month)))
+            cache_key = '_'.join(('max', metric, str(max_year), str(max_month)))
             cache_val = cache.get(cache_key)
-            if cache_val is None:
+            if (cache_val is None) or (usecache is False):
                 max_value = WeatherDataModel.objects \
                     .filter(date_utc__year=max_year, date_utc__month=max_month) \
                     .aggregate(Max(metric))
@@ -201,9 +193,9 @@ class WeatherData:
             else:
                 max_value = {metric_max: cache_val}
         elif period == 'day':
-            cache_key = '_'.join((metric, str(max_year), str(max_month), str(max_day)))
+            cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
             cache_val = cache.get(cache_key)
-            if cache_val is None:
+            if (cache_val is None) or (usecache is False):
                 max_value = WeatherDataModel.objects \
                     .filter(date_utc__year=max_year, date_utc__month=max_month, date_utc__day=max_day) \
                     .aggregate(Max(metric))
@@ -232,7 +224,7 @@ class WeatherData:
         if timestamp == 0:
             timestamp = datetime.now().timestamp()
 
-        current_max = WeatherData.get_max(metric, period, timestamp)
+        current_max = WeatherData.get_max(metric, period, timestamp, False)
         max_metric = ''.join((metric, '__max'))
 
         if current_max.get(max_metric) >= value:
@@ -248,16 +240,16 @@ class WeatherData:
             max_day = date_object.day
 
             if period == 'year':
-                cache_key = '_'.join((metric, str(max_year)))
+                cache_key = '_'.join(('max', metric, str(max_year)))
 
             elif period == 'month':
-                cache_key = '_'.join((metric, str(max_year), str(max_month)))
+                cache_key = '_'.join(('max', metric, str(max_year), str(max_month)))
                 # If there is a new month max, there may also be a new year max.
                 # We use recursion (magic) to check.
-                result = WeatherData.set_max(metric, 'year', value, timestamp)
+                WeatherData.set_max(metric, 'year', value, timestamp)
 
             elif period == 'day':
-                cache_key = '_'.join((metric, str(max_year), str(max_month), str(max_day)))
+                cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
                 # If there is a new day max, there may be a new month max.
                 WeatherData.set_max(metric, 'month', value, timestamp)
 
@@ -267,13 +259,14 @@ class WeatherData:
         return max_set
 
     @staticmethod
-    def get_min(metric: str, period: str, timestamp: int = 0):
+    def get_min(metric: str, period: str, timestamp: int = 0, usecache: bool = True):
         """
         Get the minimum value for a given time period.
 
         :param metric: The metric to get the minimum for, e.g. uv_index
         :param period: The period the minimum relates to. i.e. 'year', 'month', 'day'.
         :param timestamp: The unix timestamp to use as the reference.
+        :param usecache: Use max value from cache. False means get from database.
         :return: The found minimum value.
         """
 
@@ -293,9 +286,9 @@ class WeatherData:
         # Get value from cache.
         # If cache is empty or invalid get value from the database. Then store in cache.
         if period == 'year':
-            cache_key = '_'.join((metric, str(min_year)))
+            cache_key = '_'.join(('min', metric, str(min_year)))
             cache_val = cache.get(cache_key)
-            if cache_val is None:
+            if (cache_val is None) or (usecache is False):
                 min_value = WeatherDataModel.objects\
                     .filter(date_utc__year=min_year)\
                     .aggregate(Min(metric))
@@ -304,9 +297,9 @@ class WeatherData:
             else:
                 min_value = {metric_min: cache_val}
         elif period == 'month':
-            cache_key = '_'.join((metric, str(min_year), str(min_month)))
+            cache_key = '_'.join(('min', metric, str(min_year), str(min_month)))
             cache_val = cache.get(cache_key)
-            if cache_val is None:
+            if (cache_val is None) or (usecache is False):
                 min_value = WeatherDataModel.objects \
                     .filter(date_utc__year=min_year, date_utc__month=min_month) \
                     .aggregate(Min(metric))
@@ -315,9 +308,9 @@ class WeatherData:
             else:
                 min_value = {metric_min: cache_val}
         elif period == 'day':
-            cache_key = '_'.join((metric, str(min_year), str(min_month), str(min_day)))
+            cache_key = '_'.join(('min', metric, str(min_year), str(min_month), str(min_day)))
             cache_val = cache.get(cache_key)
-            if cache_val is None:
+            if (cache_val is None) or (usecache is False):
                 min_value = WeatherDataModel.objects \
                     .filter(date_utc__year=min_year, date_utc__month=min_month, date_utc__day=min_day) \
                     .aggregate(Min(metric))
@@ -346,7 +339,7 @@ class WeatherData:
         if timestamp == 0:
             timestamp = datetime.now().timestamp()
 
-        current_min = WeatherData.get_min(metric, period, timestamp)
+        current_min = WeatherData.get_min(metric, period, timestamp, False)
         min_metric = ''.join((metric, '__min'))
 
         if current_min.get(min_metric) <= value:
@@ -362,16 +355,16 @@ class WeatherData:
             min_day = date_object.day
 
             if period == 'year':
-                cache_key = '_'.join((metric, str(min_year)))
+                cache_key = '_'.join(('min', metric, str(min_year)))
 
             elif period == 'month':
-                cache_key = '_'.join((metric, str(min_year), str(min_month)))
+                cache_key = '_'.join(('min', metric, str(min_year), str(min_month)))
                 # If there is a new month min, there may also be a new year min.
                 # We use recursion (magic) to check.
-                result = WeatherData.set_min(metric, 'year', value, timestamp)
+                WeatherData.set_min(metric, 'year', value, timestamp)
 
             elif period == 'day':
-                cache_key = '_'.join((metric, str(min_year), str(min_month), str(min_day)))
+                cache_key = '_'.join(('min', metric, str(min_year), str(min_month), str(min_day)))
                 # If there is a new day min, there may be a new month min.
                 WeatherData.set_min(metric, 'month', value, timestamp)
 
@@ -492,9 +485,18 @@ class WeatherData:
             result_data[metric]['yearly_min'] = WeatherData.get_min(metric, 'year', timestamp).get('{0}__min'.format(metric))
 
             # Get the trend data.
-            for trend in WeatherData.weather_trends:
+            if metric in WeatherData.weather_trends:
                 # We use slicing here to do some quick and dirty down sampling.
-                result_data[metric]['daily_trend'] = WeatherData.get_trend(metric, 'day', timestamp)[::5]
+                # Down sampling is based on number of elements (told you it was dirty).
+                trend_list = WeatherData.get_trend(metric, 'day', timestamp)
+                list_size = len(trend_list)
+
+                if list_size <= 250:
+                    result_data[metric]['daily_trend'] = trend_list
+                elif (list_size > 250) or (list_size < 100):
+                    result_data[metric]['daily_trend'] = trend_list[::10]
+                else:
+                    result_data[metric]['daily_trend'] = trend_list[::50]
 
         return result_data
 
