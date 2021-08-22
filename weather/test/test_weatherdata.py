@@ -126,7 +126,7 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
-        cache_key = 'solar_radiation_2021'
+        cache_key = 'max_solar_radiation_2021'
 
         # Initially caches should be empty.
         cache_val = cache.get(cache_key)
@@ -149,7 +149,7 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
-        cache_key = 'solar_radiation_2021_6'
+        cache_key = 'max_solar_radiation_2021_6'
         weather_data = WeatherData()
 
         # Initially caches should be empty.
@@ -187,7 +187,7 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
-        cache_key = 'solar_radiation_2021_6_17'
+        cache_key = 'max_solar_radiation_2021_6_17'
         weather_data = WeatherData()
 
         # Initially caches should be empty.
@@ -225,7 +225,7 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
-        cache_key = 'outdoor_temp_2021'
+        cache_key = 'min_outdoor_temp_2021'
 
         # Initially caches should be empty.
         cache_val = cache.get(cache_key)
@@ -250,7 +250,7 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
-        cache_key = 'outdoor_temp_2021_6'
+        cache_key = 'min_outdoor_temp_2021_6'
         weather_data = WeatherData()
 
         # Initially caches should be empty.
@@ -288,7 +288,7 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
-        cache_key = 'outdoor_temp_2021_6_17'
+        cache_key = 'min_outdoor_temp_2021_6_17'
         weather_data = WeatherData()
 
         # Initially caches should be empty.
@@ -375,7 +375,7 @@ class WeatherDataUnitTestCase(TestCase):
         self.assertEqual(result_data['indoor_temp']['daily_min'], 19.722)
         self.assertEqual(result_data['indoor_temp']['daily_max'], 20.0)
         self.assertEqual(result_data['indoor_temp']['daily_trend'][0][0], 1623906326)
-        self.assertEqual(result_data['indoor_temp']['daily_trend'][-1][0], 1623907767)
+        self.assertEqual(result_data['indoor_temp']['daily_trend'][-1][0], 1623907827)
 
     def test_get_trend(self):
         """
