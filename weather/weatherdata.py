@@ -30,7 +30,6 @@ from django.utils.timezone import make_aware
 from django.core.cache import cache
 import math
 import pytz
-from django.conf import settings
 
 import logging
 
@@ -130,10 +129,17 @@ class WeatherData:
         }
 
         # Update max and min values.
+        timestamp = datetime.now().timestamp()
+        date_object = datetime.fromtimestamp(timestamp)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
         for metric, value in store_data.items():
             if (type(value) is int) or (type(value) is float):
-                WeatherData.set_max(metric, 'day', value, store_data['time_stamp'])
-                WeatherData.set_min(metric, 'day', value, store_data['time_stamp'])
+                WeatherData.set_max(metric, 'day', value, time_obj)
+                WeatherData.set_min(metric, 'day', value, time_obj)
                 WeatherData.set_latest(metric, value)
 
         # Store data in the database.
@@ -144,26 +150,20 @@ class WeatherData:
         return data_record.id
 
     @staticmethod
-    def get_max(metric: str, period: str, timestamp: int = 0, usecache: bool = True):
+    def get_max(metric: str, period: str, time_obj: dict, usecache: bool = True):
         """
         Get the maximum value for a given time period.
 
         :param metric: The metric to get the maximum for, e.g. uv_index
         :param period: The period the maximum relates to. i.e. 'year', 'month', 'day'.
-        :param timestamp: The unix timestamp to use as the reference.
+        :param time_obj: The object that contains the time data.
         :param usecache: Use max value from cache. False means get from database.
         :return: The found maximum value.
         """
 
-        # If timestamp is not provided default to now.
-        if timestamp == 0:
-            timestamp = datetime.now().timestamp()
-
-        # Split out timestamp to date components.
-        date_object = datetime.fromtimestamp(timestamp)
-        max_year = date_object.year
-        max_month = date_object.month
-        max_day = date_object.day
+        max_year = time_obj['year']
+        max_month = time_obj['month']
+        max_day = time_obj['day']
 
         max_value = {}
         metric_max = '{0}__max'.format(metric)
@@ -206,7 +206,7 @@ class WeatherData:
         return max_value
 
     @staticmethod
-    def set_max(metric: str, period: str, value, timestamp: int = 0):
+    def set_max(metric: str, period: str, value, time_obj: dict):
         """
         Set the maximum value for a given time period.
         The value is only "set" in the cache and not updated in the database.
@@ -216,69 +216,64 @@ class WeatherData:
         :param metric: The metric to get the maximum for, e.g. uv_index
         :param period: The period the maximum relates to. i.e. 'year', 'month', 'day'.
         :param value: The new maximum value.
-        :param timestamp: The unix timestamp to use as the reference.
+        :param time_obj: The object that contains the time data.
         :return:
         """
 
-        # If timestamp is not provided default to now.
-        if timestamp == 0:
-            timestamp = datetime.now().timestamp()
+        max_year = time_obj['year']
+        max_month = time_obj['month']
+        max_day = time_obj['day']
+        max_set = False
 
-        current_max = WeatherData.get_max(metric, period, timestamp, False)
-        max_metric = ''.join((metric, '__max'))
+        if period == 'year':
+            cache_key = '_'.join(('max', metric, str(max_year)))
 
-        if current_max.get(max_metric) >= value:
-            # New max is not greater nothing to do.
-            max_set = False
-        else:
-            # New max is greater update cache with new value.
+        elif period == 'month':
+            cache_key = '_'.join(('max', metric, str(max_year), str(max_month)))
 
-            # Split out timestamp to date components.
-            date_object = datetime.fromtimestamp(timestamp)
-            max_year = date_object.year
-            max_month = date_object.month
-            max_day = date_object.day
+        elif period == 'day':
+            cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
 
-            if period == 'year':
-                cache_key = '_'.join(('max', metric, str(max_year)))
+        cache_val = cache.get(cache_key)  # Raw check of cache.
+        if cache_val is None:
+            # Cache is empty, get value from database.
+            db_val = WeatherData.get_max(metric, period, time_obj, False)
+            max_metric = ''.join((metric, '__max'))
+            cache_val = db_val.get(max_metric)
+            cache.set(cache_key, cache_val, 3600)
+            max_set = True
 
-            elif period == 'month':
-                cache_key = '_'.join(('max', metric, str(max_year), str(max_month)))
-                # If there is a new month max, there may also be a new year max.
-                # We use recursion (magic) to check.
-                WeatherData.set_max(metric, 'year', value, timestamp)
-
-            elif period == 'day':
-                cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
-                # If there is a new day max, there may be a new month max.
-                WeatherData.set_max(metric, 'month', value, timestamp)
-
+        if cache_val < value:
             cache.set(cache_key, value, 3600)
             max_set = True
+
+        # Do recursive checks if needed.
+        if period == 'month' and max_set is True:
+            # If there is a new month max, there may also be a new year max.
+            # We use recursion (magic) to check.
+            WeatherData.set_max(metric, 'year', value, time_obj)
+
+        elif period == 'day' and max_set is True:
+            # If there is a new day max, there may be a new month max.
+            WeatherData.set_max(metric, 'month', value, time_obj)
 
         return max_set
 
     @staticmethod
-    def get_min(metric: str, period: str, timestamp: int = 0, usecache: bool = True):
+    def get_min(metric: str, period: str, time_obj: dict, usecache: bool = True):
         """
         Get the minimum value for a given time period.
 
         :param metric: The metric to get the minimum for, e.g. uv_index
         :param period: The period the minimum relates to. i.e. 'year', 'month', 'day'.
-        :param timestamp: The unix timestamp to use as the reference.
+        :param time_obj: The object that contains the time data.
         :param usecache: Use max value from cache. False means get from database.
         :return: The found minimum value.
         """
 
-        # If timestamp is not provided default to now.
-        if timestamp == 0:
-            timestamp = datetime.now().timestamp()
-
-        # Split out timestamp to date components.
-        date_object = datetime.fromtimestamp(timestamp)
-        min_year = date_object.year
-        min_month = date_object.month
-        min_day = date_object.day
+        min_year = time_obj['year']
+        min_month = time_obj['month']
+        min_day = time_obj['day']
 
         min_value = {}
         metric_min = '{0}__min'.format(metric)
@@ -321,7 +316,7 @@ class WeatherData:
         return min_value
 
     @staticmethod
-    def set_min(metric: str, period: str, value, timestamp: int = 0) -> bool:
+    def set_min(metric: str, period: str, value, time_obj: dict) -> bool:
         """
         Set the minimum value for a given time period.
         The value is only "set" in the cache and not updated in the database.
@@ -331,45 +326,46 @@ class WeatherData:
         :param metric: The metric to get the minimum for, e.g. uv_index
         :param period: The period the minimum relates to. i.e. 'year', 'month', 'day'.
         :param value: The new minimum value.
-        :param timestamp: The unix timestamp to use as the reference.
+        :param time_obj: The object that contains the time data.
         :return:
         """
 
-        # If timestamp is not provided default to now.
-        if timestamp == 0:
-            timestamp = datetime.now().timestamp()
+        min_year = time_obj['year']
+        min_month = time_obj['month']
+        min_day = time_obj['day']
+        min_set = False
 
-        current_min = WeatherData.get_min(metric, period, timestamp, False)
-        min_metric = ''.join((metric, '__min'))
+        if period == 'year':
+            cache_key = '_'.join(('min', metric, str(min_year)))
 
-        if current_min.get(min_metric) <= value:
-            # New min is not greater nothing to do.
-            min_set = False
-        else:
-            # New min is greater update cache with new value.
+        elif period == 'month':
+            cache_key = '_'.join(('min', metric, str(min_year), str(min_month)))
 
-            # Split out timestamp to date components.
-            date_object = datetime.fromtimestamp(timestamp)
-            min_year = date_object.year
-            min_month = date_object.month
-            min_day = date_object.day
+        elif period == 'day':
+            cache_key = '_'.join(('min', metric, str(min_year), str(min_month), str(min_day)))
 
-            if period == 'year':
-                cache_key = '_'.join(('min', metric, str(min_year)))
+        cache_val = cache.get(cache_key)  # Raw check of cache.
+        if cache_val is None:
+            # Cache is empty, get value from database.
+            db_val = WeatherData.get_min(metric, period, time_obj, False)
+            min_metric = ''.join((metric, '__min'))
+            cache_val = db_val.get(min_metric)
+            cache.set(cache_key, cache_val, 3600)
+            min_set = True
 
-            elif period == 'month':
-                cache_key = '_'.join(('min', metric, str(min_year), str(min_month)))
-                # If there is a new month min, there may also be a new year min.
-                # We use recursion (magic) to check.
-                WeatherData.set_min(metric, 'year', value, timestamp)
-
-            elif period == 'day':
-                cache_key = '_'.join(('min', metric, str(min_year), str(min_month), str(min_day)))
-                # If there is a new day min, there may be a new month min.
-                WeatherData.set_min(metric, 'month', value, timestamp)
-
+        if cache_val < value:
             cache.set(cache_key, value, 3600)
             min_set = True
+
+        # Do recursive checks if needed.
+        if period == 'month' and min_set is True:
+            # If there is a new month min, there may also be a new year min.
+            # We use recursion (magic) to check.
+            WeatherData.set_min(metric, 'year', value, time_obj)
+
+        elif period == 'day' and min_set is True:
+            # If there is a new day min, there may be a new month min.
+            WeatherData.set_min(metric, 'month', value, time_obj)
 
         return min_set
 
@@ -472,17 +468,25 @@ class WeatherData:
         if timestamp == 0:
             timestamp = datetime.now().timestamp()
 
+        # Split out timestamp to date components.
+        date_object = datetime.fromtimestamp(timestamp)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         result_data = {}
 
         for metric in WeatherData.weather_metrics:
             result_data[metric] = {}
             result_data[metric]['latest'] = WeatherData.get_latest(metric).get('{0}_latest'.format(metric))
-            result_data[metric]['daily_max'] = WeatherData.get_max(metric, 'day', timestamp).get('{0}__max'.format(metric))
-            result_data[metric]['daily_min'] = WeatherData.get_min(metric, 'day', timestamp).get('{0}__min'.format(metric))
-            result_data[metric]['monthly_max'] = WeatherData.get_max(metric, 'month', timestamp).get('{0}__max'.format(metric))
-            result_data[metric]['monthly_min'] = WeatherData.get_min(metric, 'month', timestamp).get('{0}__min'.format(metric))
-            result_data[metric]['yearly_max'] = WeatherData.get_max(metric, 'year', timestamp).get('{0}__max'.format(metric))
-            result_data[metric]['yearly_min'] = WeatherData.get_min(metric, 'year', timestamp).get('{0}__min'.format(metric))
+            result_data[metric]['daily_max'] = WeatherData.get_max(metric, 'day', time_obj).get('{0}__max'.format(metric))
+            result_data[metric]['daily_min'] = WeatherData.get_min(metric, 'day', time_obj).get('{0}__min'.format(metric))
+            result_data[metric]['monthly_max'] = WeatherData.get_max(metric, 'month', time_obj).get('{0}__max'.format(metric))
+            result_data[metric]['monthly_min'] = WeatherData.get_min(metric, 'month', time_obj).get('{0}__min'.format(metric))
+            result_data[metric]['yearly_max'] = WeatherData.get_max(metric, 'year', time_obj).get('{0}__max'.format(metric))
+            result_data[metric]['yearly_min'] = WeatherData.get_min(metric, 'year', time_obj).get('{0}__min'.format(metric))
 
             # Get the trend data.
             if metric in WeatherData.weather_trends:
@@ -496,7 +500,7 @@ class WeatherData:
                 elif (list_size > 250) or (list_size < 100):
                     result_data[metric]['daily_trend'] = trend_list[::10]
                 else:
-                    result_data[metric]['daily_trend'] = trend_list[::50]
+                    result_data[metric]['daily_trend'] = trend_list[::75]
 
         return result_data
 

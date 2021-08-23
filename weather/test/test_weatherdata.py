@@ -27,6 +27,7 @@ from weather.weatherdata import WeatherData
 from weather.models import WeatherData as WeatherDataModel
 import weather.test.test_data as test_data
 from django.core.cache import cache
+from datetime import datetime
 
 import logging
 
@@ -57,8 +58,15 @@ class WeatherDataUnitTestCase(TestCase):
         """
         cache.clear()
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         weather_data = WeatherData()
-        max_result = weather_data.get_max('solar_radiation', 'day', 1623906568)
+        max_result = weather_data.get_max('solar_radiation', 'day', time_obj)
 
         self.assertEqual(max_result.get('solar_radiation__max'), 75.85)
 
@@ -67,8 +75,15 @@ class WeatherDataUnitTestCase(TestCase):
         Test getting max values from the database for a given month.
         """
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         weather_data = WeatherData()
-        max_result = weather_data.get_max('solar_radiation', 'month', 1623906568)
+        max_result = weather_data.get_max('solar_radiation', 'month', time_obj)
 
         self.assertEqual(max_result.get('solar_radiation__max'), 88.88)
 
@@ -81,8 +96,15 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         weather_data = WeatherData()
-        max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
+        max_result = weather_data.get_max('solar_radiation', 'year', time_obj)
 
         self.assertEqual(max_result.get('solar_radiation__max'), 90.90)
 
@@ -91,8 +113,15 @@ class WeatherDataUnitTestCase(TestCase):
         Test getting min values from the database for a given day.
         """
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         weather_data = WeatherData()
-        min_result = weather_data.get_min('outdoor_temp', 'day', 1623906568)
+        min_result = weather_data.get_min('outdoor_temp', 'day', time_obj)
 
         self.assertEqual(min_result.get('outdoor_temp__min'), 11.222)
 
@@ -102,8 +131,15 @@ class WeatherDataUnitTestCase(TestCase):
         """
         cache.clear()
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         weather_data = WeatherData()
-        min_result = weather_data.get_min('outdoor_temp', 'month', 1623906568)
+        min_result = weather_data.get_min('outdoor_temp', 'month', time_obj)
 
         self.assertEqual(min_result.get('outdoor_temp__min'), 10.278)
 
@@ -112,8 +148,15 @@ class WeatherDataUnitTestCase(TestCase):
         Test getting min values from the database for a given year.
         """
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         weather_data = WeatherData()
-        min_result = weather_data.get_min('outdoor_temp', 'year', 1623906568)
+        min_result = weather_data.get_min('outdoor_temp', 'year', time_obj)
 
         self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
 
@@ -128,12 +171,19 @@ class WeatherDataUnitTestCase(TestCase):
 
         cache_key = 'max_solar_radiation_2021'
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         # Initially caches should be empty.
         cache_val = cache.get(cache_key)
         self.assertIsNone(cache_val)
 
         weather_data = WeatherData()
-        max_result = weather_data.set_max('solar_radiation', 'year', 90.91, 1623906568)
+        max_result = weather_data.set_max('solar_radiation', 'year', 90.91, time_obj)
         self.assertTrue(max_result)
 
         # Now check cache contains value.
@@ -149,6 +199,13 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         cache_key = 'max_solar_radiation_2021_6'
         weather_data = WeatherData()
 
@@ -156,22 +213,22 @@ class WeatherDataUnitTestCase(TestCase):
         cache_val = cache.get(cache_key)
         self.assertIsNone(cache_val)
 
-        # Initial should be false as less than the current max
-        max_result = weather_data.set_max('solar_radiation', 'month', 70.70, 1623906568)
-        self.assertFalse(max_result)
-
-        # Month should be updated as greater than stored.
-        max_result = weather_data.set_max('solar_radiation', 'month', 89.70, 1623906568)
+        # Initial should be True as caches are empty.
+        max_result = weather_data.set_max('solar_radiation', 'month', 70.70, time_obj)
         self.assertTrue(max_result)
 
-        # But year should not have changed.
-        max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
+        # Month should be updated as greater than stored.
+        max_result = weather_data.set_max('solar_radiation', 'month', 89.70, time_obj)
+        self.assertTrue(max_result)
+
+        # Year should not have changed as caches are empty.
+        max_result = weather_data.get_max('solar_radiation', 'year', time_obj)
         self.assertEqual(max_result.get('solar_radiation__max'), 90.90)
 
         # Update month max to be higher than both year and month max.
-        max_result = weather_data.set_max('solar_radiation', 'month', 91.70, 1623906568)
+        max_result = weather_data.set_max('solar_radiation', 'month', 91.70, time_obj)
         self.assertTrue(max_result)
-        max_result = weather_data.get_max('solar_radiation', 'year', 1623906568)
+        max_result = weather_data.get_max('solar_radiation', 'year', time_obj)
         self.assertEqual(max_result.get('solar_radiation__max'), 91.70)
 
         # Now check cache contains value.
@@ -187,6 +244,13 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         cache_key = 'max_solar_radiation_2021_6_17'
         weather_data = WeatherData()
 
@@ -194,22 +258,22 @@ class WeatherDataUnitTestCase(TestCase):
         cache_val = cache.get(cache_key)
         self.assertIsNone(cache_val)
 
-        # Initial should be false as less than the current max
-        max_result = weather_data.set_max('solar_radiation', 'day', 60.70, 1623906568)
-        self.assertFalse(max_result)
-
-        # Day should be updated as greater than stored.
-        max_result = weather_data.set_max('solar_radiation', 'day', 75.86, 1623906568)
+        # Should be true as there isn't a cached value.
+        max_result = weather_data.set_max('solar_radiation', 'day', 60.70, time_obj)
         self.assertTrue(max_result)
 
-        # But month should not have changed.
-        max_result = weather_data.get_max('solar_radiation', 'month', 1623906568)
+        # Day should be updated as greater than stored.
+        max_result = weather_data.set_max('solar_radiation', 'day', 75.86, time_obj)
+        self.assertTrue(max_result)
+
+        # Month should not have also updated as there was no cached value.
+        max_result = weather_data.get_max('solar_radiation', 'month', time_obj)
         self.assertEqual(max_result.get('solar_radiation__max'), 88.88)
 
         # Update day max to be higher than both month and day max.
-        max_result = weather_data.set_max('solar_radiation', 'day', 91.70, 1623906568)
+        max_result = weather_data.set_max('solar_radiation', 'day', 91.70, time_obj)
         self.assertTrue(max_result)
-        max_result = weather_data.get_max('solar_radiation', 'month', 1623906568)
+        max_result = weather_data.get_max('solar_radiation', 'month', time_obj)
         self.assertEqual(max_result.get('solar_radiation__max'), 91.70)
 
         # Now check cache contains value.
@@ -227,14 +291,21 @@ class WeatherDataUnitTestCase(TestCase):
 
         cache_key = 'min_outdoor_temp_2021'
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         # Initially caches should be empty.
         cache_val = cache.get(cache_key)
         self.assertIsNone(cache_val)
 
         weather_data = WeatherData()
-        min_result = weather_data.get_min('outdoor_temp', 'year', 1623906568)
+        min_result = weather_data.get_min('outdoor_temp', 'year', time_obj)
 
-        min_result = weather_data.set_min('outdoor_temp', 'year', 8.277, 1623906568)
+        min_result = weather_data.set_min('outdoor_temp', 'year', 8.277, time_obj)
         self.assertTrue(min_result)
 
         # Now check cache contains value.
@@ -250,6 +321,13 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         cache_key = 'min_outdoor_temp_2021_6'
         weather_data = WeatherData()
 
@@ -258,21 +336,21 @@ class WeatherDataUnitTestCase(TestCase):
         self.assertIsNone(cache_val)
 
         # Initial should be false as greater than the current min
-        min_result = weather_data.set_min('outdoor_temp', 'month', 10.279, 1623906568)
+        min_result = weather_data.set_min('outdoor_temp', 'month', 10.279, time_obj)
         self.assertFalse(min_result)
 
         # Month should be updated as less than stored.
-        min_result = weather_data.set_min('outdoor_temp', 'month', 10.277, 1623906568)
+        min_result = weather_data.set_min('outdoor_temp', 'month', 10.277, time_obj)
         self.assertTrue(min_result)
 
         # But year should not have changed.
-        min_result = weather_data.get_min('outdoor_temp', 'year', 1623906568)
+        min_result = weather_data.get_min('outdoor_temp', 'year', time_obj)
         self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
 
         # Update month min to be lower than both year and month min.
-        min_result = weather_data.set_min('outdoor_temp', 'month', 9.277, 1623906568)
+        min_result = weather_data.set_min('outdoor_temp', 'month', 9.277, time_obj)
         self.assertTrue(min_result)
-        min_result = weather_data.get_min('outdoor_temp', 'year', 1623906568)
+        min_result = weather_data.get_min('outdoor_temp', 'year', time_obj)
         self.assertEqual(min_result.get('outdoor_temp__min'), 9.277)
 
         # Now check cache contains value.
@@ -288,6 +366,13 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches
         cache.clear()
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+
         cache_key = 'min_outdoor_temp_2021_6_17'
         weather_data = WeatherData()
 
@@ -296,21 +381,21 @@ class WeatherDataUnitTestCase(TestCase):
         self.assertIsNone(cache_val)
 
         # Initial should be false as less than the current min
-        min_result = weather_data.set_min('outdoor_temp', 'day', 11.222, 1623906568)
+        min_result = weather_data.set_min('outdoor_temp', 'day', 11.222, time_obj)
         self.assertFalse(min_result)
 
         # Day should be updated as less than stored.
-        min_result = weather_data.set_min('outdoor_temp', 'day', 11.221, 1623906568)
+        min_result = weather_data.set_min('outdoor_temp', 'day', 11.221, time_obj)
         self.assertTrue(min_result)
 
         # But month should not have changed.
-        min_result = weather_data.get_min('outdoor_temp', 'month', 1623906568)
+        min_result = weather_data.get_min('outdoor_temp', 'month', time_obj)
         self.assertEqual(min_result.get('outdoor_temp__min'), 10.278)
 
         # Update day min to be lower than both month and day min.
-        min_result = weather_data.set_min('outdoor_temp', 'day', 10.277, 1623906568)
+        min_result = weather_data.set_min('outdoor_temp', 'day', 10.277, time_obj)
         self.assertTrue(min_result)
-        min_result = weather_data.get_min('outdoor_temp', 'month', 1623906568)
+        min_result = weather_data.get_min('outdoor_temp', 'month', time_obj)
         self.assertEqual(min_result.get('outdoor_temp__min'), 10.277)
 
         # Now check cache contains value.
