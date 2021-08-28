@@ -168,6 +168,11 @@ const updateDashboard = (data) => {
     const rainOverlay = rainCard.querySelector('.overlay');
     const rainBlur = rainCard.querySelectorAll('.blur');
 
+    const pressureCard = document.getElementById('dashboard-pressure-card');
+    const pressureSpinner = pressureCard.querySelector('.loading-spinner');
+    const pressureOverlay = pressureCard.querySelector('.overlay');
+    const pressureBlur = pressureCard.querySelectorAll('.blur');
+
     // Individual elements that we will set.
     const indoorTempNow = document.getElementById('indoor-temp-now');
     const indoorTempNowFeelsLike = document.getElementById('indoor-temp-now-feels-like');
@@ -190,6 +195,10 @@ const updateDashboard = (data) => {
     const rainRate = document.getElementById('rain-rate');
     const rainWeek = document.getElementById('rain-week');
     const rainMonth = document.getElementById('rain-month');
+
+    const pressureNow = document.getElementById('pressure-now');
+    const pressureDayMin = document.getElementById('pressure-day-min');
+    const pressureDayMax = document.getElementById('pressure-day-max');
 
     // Handle some potential null conditions.
     const indoorTempNowVal = data.indoor_temp.latest ? data.indoor_temp.latest : 0;
@@ -230,6 +239,10 @@ const updateDashboard = (data) => {
     rainWeek.innerHTML = Number.parseFloat(data.weekly_rain.latest).toFixed(1);
     rainMonth.innerHTML = Number.parseFloat(data.monthly_rain.latest).toFixed(1);
 
+    pressureNow.innerHTML = Number.parseFloat(data.pressure.latest).toFixed(2);
+    pressureDayMin.innerHTML = Number.parseFloat(data.pressure.daily_min).toFixed(2);
+    pressureDayMax.innerHTML = Number.parseFloat(data.pressure.daily_max).toFixed(2);
+
     // Update the charts.
     for (const chartName in weatherCharts) {
         if ({}.hasOwnProperty.call(weatherCharts, chartName)) {
@@ -264,6 +277,12 @@ const updateDashboard = (data) => {
     rainSpinner.style.display = 'none';
     rainOverlay.style.display = 'none';
     rainBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
+
+    pressureSpinner.style.display = 'none';
+    pressureOverlay.style.display = 'none';
+    pressureBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
 };

@@ -1,21 +1,26 @@
-<div class="card dashboard-card">
-    <div class="card-header">
+<div id="dashboard-pressure-card" class="card dashboard-card">
+    <div class="loading-spinner">
+      <div class="spinner-border spinner-style" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    <div class="card-header pb-0 blur">
         Pressure hPa
     </div>
-    <div class="card-body">
-
-                <div class="dashboard-card-titles">RELATIVE NOW</div>
-                <div id="indoor-humidity-now" class="dashboard-card-value">0000.00</div>
-                <div class="dashboard-card-extrema">
-                    <div class="dashboard-card-extrema-min-container">
-                        <div class="dashboard-extrema-min">MIN</div>
-                        <div id="indoor-humidity-day-min" class="dashboard-extrema-min-val">0000.00</div>
-                    </div>
-                    <div class="dashboard-card-extrema-max-container">
-                        <div class="dashboard-extrema-max">MAX</div>
-                        <div id="indoor-humidity-day-max" class="dashboard-extrema-max-val">0000.00</div>
-                    </div>
-                </div>
+    <div class="card-body blur">
+        <div class="overlay"></div>
+        <div class="dashboard-card-titles">RELATIVE NOW</div>
+        <div id="pressure-now" class="dashboard-card-value">0000.00</div>
+        <div class="dashboard-card-extrema">
+            <div class="dashboard-card-extrema-min-container">
+                <div class="dashboard-extrema-min">MIN</div>
+                <div id="pressure-day-min" class="dashboard-extrema-min-val">0000.00</div>
+            </div>
+            <div class="dashboard-card-extrema-max-container">
+                <div class="dashboard-extrema-max">MAX</div>
+                <div id="pressure-day-max" class="dashboard-extrema-max-val">0000.00</div>
+            </div>
+        </div>
 
     </div>
 </div>
