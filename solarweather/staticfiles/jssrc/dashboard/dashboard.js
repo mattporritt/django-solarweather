@@ -163,6 +163,11 @@ const updateDashboard = (data) => {
     const humidityOverlay = humidityCard.querySelector('.overlay');
     const humidityBlur = humidityCard.querySelectorAll('.blur');
 
+    const rainCard = document.getElementById('dashboard-rain-card');
+    const rainSpinner = rainCard.querySelector('.loading-spinner');
+    const rainOverlay = rainCard.querySelector('.overlay');
+    const rainBlur = rainCard.querySelectorAll('.blur');
+
     // Individual elements that we will set.
     const indoorTempNow = document.getElementById('indoor-temp-now');
     const indoorTempNowFeelsLike = document.getElementById('indoor-temp-now-feels-like');
@@ -181,6 +186,11 @@ const updateDashboard = (data) => {
     const outdoorHumidityDayMin = document.getElementById('outdoor-humidity-day-min');
     const outdoorHumidityDayMax = document.getElementById('outdoor-humidity-day-max');
 
+    const rainDay = document.getElementById('rain-day');
+    const rainRate = document.getElementById('rain-rate');
+    const rainWeek = document.getElementById('rain-week');
+    const rainMonth = document.getElementById('rain-month');
+
     // Handle some potential null conditions.
     const indoorTempNowVal = data.indoor_temp.latest ? data.indoor_temp.latest : 0;
     const indoorTempNowFeelsLikeVal = data.indoor_feels_temp.latest? data.indoor_temp.latest : 0;
@@ -190,6 +200,11 @@ const updateDashboard = (data) => {
 
     const indoorHumidityNowVal = data.indoor_humidity.latest ? data.indoor_humidity.latest : 0;
     const outdoorHumidityNowVal = data.outdoor_humidity.latest ? data.outdoor_humidity.latest : 0;
+
+    // Calculations.
+    const nowDate = new Date();
+    const nowHours = nowDate.getHours() + 1;
+    const rainRateVal = data.rain.latest / nowHours;
 
     // Set the values.
     indoorTempNow.innerHTML = Number.parseFloat(indoorTempNowVal).toFixed(1);
@@ -209,6 +224,11 @@ const updateDashboard = (data) => {
     outdoorHumidityNow.innerHTML = Number.parseInt(outdoorHumidityNowVal);
     outdoorHumidityDayMin.innerHTML = Number.parseInt(data.outdoor_humidity.daily_min);
     outdoorHumidityDayMax.innerHTML = Number.parseInt(data.outdoor_humidity.daily_max);
+
+    rainDay.innerHTML = Number.parseFloat(data.rain.latest).toFixed(1);
+    rainRate.innerHTML = Number.parseFloat(rainRateVal).toFixed(1);
+    rainWeek.innerHTML = Number.parseFloat(data.weekly_rain.latest).toFixed(1);
+    rainMonth.innerHTML = Number.parseFloat(data.monthly_rain.latest).toFixed(1);
 
     // Update the charts.
     for (const chartName in weatherCharts) {
@@ -238,6 +258,12 @@ const updateDashboard = (data) => {
     humiditySpinner.style.display = 'none';
     humidityOverlay.style.display = 'none';
     humidityBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
+
+    rainSpinner.style.display = 'none';
+    rainOverlay.style.display = 'none';
+    rainBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
 };
