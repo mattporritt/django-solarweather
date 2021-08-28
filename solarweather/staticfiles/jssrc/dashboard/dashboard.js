@@ -158,31 +158,57 @@ const updateDashboard = (data) => {
     const outdoorTempOverlay = outdoorTempCard.querySelector('.overlay');
     const outdoorTempBlur = outdoorTempCard.querySelectorAll('.blur');
 
+    const humidityCard = document.getElementById('dashboard-humidity-card');
+    const humiditySpinner = humidityCard.querySelector('.loading-spinner');
+    const humidityOverlay = humidityCard.querySelector('.overlay');
+    const humidityBlur = humidityCard.querySelectorAll('.blur');
+
     // Individual elements that we will set.
     const indoorTempNow = document.getElementById('indoor-temp-now');
     const indoorTempNowFeelsLike = document.getElementById('indoor-temp-now-feels-like');
     const indoorTempDayMin = document.getElementById('indoor-temp-day-min');
     const indoorTempDayMax = document.getElementById('indoor-temp-day-max');
+
     const outdoorTempNow = document.getElementById('outdoor-temp-now');
     const outdoorTempNowFeelsLike = document.getElementById('outdoor-temp-now-feels-like');
     const outdoorTempDayMin = document.getElementById('outdoor-temp-day-min');
     const outdoorTempDayMax = document.getElementById('outdoor-temp-day-max');
 
+    const indoorHumidityNow = document.getElementById('indoor-humidity-now');
+    const indoorHumidityDayMin = document.getElementById('indoor-humidity-day-min');
+    const indoorHumidityDayMax = document.getElementById('indoor-humidity-day-max');
+    const outdoorHumidityNow = document.getElementById('outdoor-humidity-now');
+    const outdoorHumidityDayMin = document.getElementById('outdoor-humidity-day-min');
+    const outdoorHumidityDayMax = document.getElementById('outdoor-humidity-day-max');
+
     // Handle some potential null conditions.
     const indoorTempNowVal = data.indoor_temp.latest ? data.indoor_temp.latest : 0;
     const indoorTempNowFeelsLikeVal = data.indoor_feels_temp.latest? data.indoor_temp.latest : 0;
+
     const outdoorTempNowVal = data.outdoor_temp.latest ? data.outdoor_temp.latest : 0;
     const outdoorTempNowFeelsLikeVal = data.outdoor_feels_temp.latest ? data.outdoor_feels_temp.latest : 0;
+
+    const indoorHumidityNowVal = data.indoor_humidity.latest ? data.indoor_humidity.latest : 0;
+    const outdoorHumidityNowVal = data.outdoor_humidity.latest ? data.outdoor_humidity.latest : 0;
 
     // Set the values.
     indoorTempNow.innerHTML = Number.parseFloat(indoorTempNowVal).toFixed(1);
     indoorTempNowFeelsLike.innerHTML = Number.parseFloat(indoorTempNowFeelsLikeVal).toFixed(1);
     indoorTempDayMin.innerHTML = Number.parseFloat(data.indoor_temp.daily_min).toFixed(1);
     indoorTempDayMax.innerHTML = Number.parseFloat(data.indoor_temp.daily_max).toFixed(1);
+
     outdoorTempNow.innerHTML = Number.parseFloat(outdoorTempNowVal).toFixed(1);
     outdoorTempNowFeelsLike.innerHTML = Number.parseFloat(outdoorTempNowFeelsLikeVal).toFixed(1);
     outdoorTempDayMin.innerHTML = Number.parseFloat(data.outdoor_temp.daily_min).toFixed(1);
     outdoorTempDayMax.innerHTML = Number.parseFloat(data.outdoor_temp.daily_max).toFixed(1);
+
+    indoorHumidityNow.innerHTML = Number.parseInt(indoorHumidityNowVal);
+    indoorHumidityDayMin.innerHTML = Number.parseInt(data.indoor_humidity.daily_min);
+    indoorHumidityDayMax.innerHTML = Number.parseInt(data.indoor_humidity.daily_max);
+
+    outdoorHumidityNow.innerHTML = Number.parseInt(outdoorHumidityNowVal);
+    outdoorHumidityDayMin.innerHTML = Number.parseInt(data.outdoor_humidity.daily_min);
+    outdoorHumidityDayMax.innerHTML = Number.parseInt(data.outdoor_humidity.daily_max);
 
     // Update the charts.
     for (const chartName in weatherCharts) {
@@ -206,6 +232,12 @@ const updateDashboard = (data) => {
     outdoorTempSpinner.style.display = 'none';
     outdoorTempOverlay.style.display = 'none';
     outdoorTempBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
+
+    humiditySpinner.style.display = 'none';
+    humidityOverlay.style.display = 'none';
+    humidityBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
 };
