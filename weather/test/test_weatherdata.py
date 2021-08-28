@@ -68,7 +68,7 @@ class WeatherDataUnitTestCase(TestCase):
         weather_data = WeatherData()
         max_result = weather_data.get_max('solar_radiation', 'day', time_obj)
 
-        self.assertEqual(max_result.get('solar_radiation__max'), 75.85)
+        self.assertEqual(max_result.get('solar_radiation__max'), 90.90)
 
     def test_get_max_month(self):
         """
@@ -85,7 +85,7 @@ class WeatherDataUnitTestCase(TestCase):
         weather_data = WeatherData()
         max_result = weather_data.get_max('solar_radiation', 'month', time_obj)
 
-        self.assertEqual(max_result.get('solar_radiation__max'), 88.88)
+        self.assertEqual(max_result.get('solar_radiation__max'), 90.90)
 
     def test_get_max_year(self):
         """
@@ -123,7 +123,7 @@ class WeatherDataUnitTestCase(TestCase):
         weather_data = WeatherData()
         min_result = weather_data.get_min('outdoor_temp', 'day', time_obj)
 
-        self.assertEqual(min_result.get('outdoor_temp__min'), 11.222)
+        self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
 
     def test_get_min_month(self):
         """
@@ -141,7 +141,7 @@ class WeatherDataUnitTestCase(TestCase):
         weather_data = WeatherData()
         min_result = weather_data.get_min('outdoor_temp', 'month', time_obj)
 
-        self.assertEqual(min_result.get('outdoor_temp__min'), 10.278)
+        self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
 
     def test_get_min_year(self):
         """
@@ -218,12 +218,12 @@ class WeatherDataUnitTestCase(TestCase):
         self.assertTrue(max_result)
 
         # Month should be updated as greater than stored.
-        max_result = weather_data.set_max('solar_radiation', 'month', 89.70, time_obj)
+        max_result = weather_data.set_max('solar_radiation', 'month', 90.91, time_obj)
         self.assertTrue(max_result)
 
         # Year should not have changed as caches are empty.
         max_result = weather_data.get_max('solar_radiation', 'year', time_obj)
-        self.assertEqual(max_result.get('solar_radiation__max'), 90.90)
+        self.assertEqual(max_result.get('solar_radiation__max'), 90.91)
 
         # Update month max to be higher than both year and month max.
         max_result = weather_data.set_max('solar_radiation', 'month', 91.70, time_obj)
@@ -263,22 +263,22 @@ class WeatherDataUnitTestCase(TestCase):
         self.assertTrue(max_result)
 
         # Day should be updated as greater than stored.
-        max_result = weather_data.set_max('solar_radiation', 'day', 75.86, time_obj)
+        max_result = weather_data.set_max('solar_radiation', 'day', 90.91, time_obj)
         self.assertTrue(max_result)
 
         # Month should not have also updated as there was no cached value.
         max_result = weather_data.get_max('solar_radiation', 'month', time_obj)
-        self.assertEqual(max_result.get('solar_radiation__max'), 88.88)
+        self.assertEqual(max_result.get('solar_radiation__max'), 90.91)
 
         # Update day max to be higher than both month and day max.
-        max_result = weather_data.set_max('solar_radiation', 'day', 91.70, time_obj)
+        max_result = weather_data.set_max('solar_radiation', 'day', 91.92, time_obj)
         self.assertTrue(max_result)
         max_result = weather_data.get_max('solar_radiation', 'month', time_obj)
-        self.assertEqual(max_result.get('solar_radiation__max'), 91.70)
+        self.assertEqual(max_result.get('solar_radiation__max'), 91.92)
 
         # Now check cache contains value.
         cache_val = cache.get(cache_key)
-        self.assertEqual(cache_val, 91.70)
+        self.assertEqual(cache_val, 91.92)
 
     def test_set_min_year(self):
         """
@@ -304,9 +304,9 @@ class WeatherDataUnitTestCase(TestCase):
 
         weather_data = WeatherData()
         min_result = weather_data.get_min('outdoor_temp', 'year', time_obj)
+        self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
 
-        min_result = weather_data.set_min('outdoor_temp', 'year', 8.277, time_obj)
-        self.assertTrue(min_result)
+        weather_data.set_min('outdoor_temp', 'year', 8.277, time_obj)
 
         # Now check cache contains value.
         cache_val = cache.get(cache_key)
@@ -337,11 +337,11 @@ class WeatherDataUnitTestCase(TestCase):
 
         # Initial should be false as greater than the current min
         min_result = weather_data.set_min('outdoor_temp', 'month', 10.279, time_obj)
-        self.assertFalse(min_result)
+        self.assertTrue(min_result)
 
         # Month should be updated as less than stored.
         min_result = weather_data.set_min('outdoor_temp', 'month', 10.277, time_obj)
-        self.assertTrue(min_result)
+        self.assertFalse(min_result)
 
         # But year should not have changed.
         min_result = weather_data.get_min('outdoor_temp', 'year', time_obj)
@@ -382,25 +382,25 @@ class WeatherDataUnitTestCase(TestCase):
 
         # Initial should be false as less than the current min
         min_result = weather_data.set_min('outdoor_temp', 'day', 11.222, time_obj)
-        self.assertFalse(min_result)
+        self.assertTrue(min_result)
 
         # Day should be updated as less than stored.
         min_result = weather_data.set_min('outdoor_temp', 'day', 11.221, time_obj)
-        self.assertTrue(min_result)
+        self.assertFalse(min_result)
 
         # But month should not have changed.
         min_result = weather_data.get_min('outdoor_temp', 'month', time_obj)
-        self.assertEqual(min_result.get('outdoor_temp__min'), 10.278)
+        self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
 
         # Update day min to be lower than both month and day min.
         min_result = weather_data.set_min('outdoor_temp', 'day', 10.277, time_obj)
-        self.assertTrue(min_result)
+        self.assertFalse(min_result)
         min_result = weather_data.get_min('outdoor_temp', 'month', time_obj)
-        self.assertEqual(min_result.get('outdoor_temp__min'), 10.277)
+        self.assertEqual(min_result.get('outdoor_temp__min'), 9.278)
 
         # Now check cache contains value.
         cache_val = cache.get(cache_key)
-        self.assertEqual(cache_val, 10.277)
+        self.assertEqual(cache_val, 9.278)
 
     def test_set_latest(self):
         """

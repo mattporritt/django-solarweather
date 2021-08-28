@@ -175,7 +175,7 @@ class WeatherData:
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
                 max_value = WeatherDataModel.objects\
-                    .filter(date_utc__year=max_year)\
+                    .filter(time_year=max_year)\
                     .aggregate(Max(metric))
                 if max_value[metric_max] is None:
                     max_value = {metric_max: 0}
@@ -186,7 +186,7 @@ class WeatherData:
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
                 max_value = WeatherDataModel.objects \
-                    .filter(date_utc__year=max_year, date_utc__month=max_month) \
+                    .filter(time_year=max_year, time_month=max_month) \
                     .aggregate(Max(metric))
                 if max_value[metric_max] is None:
                     max_value = {metric_max: 0}
@@ -197,7 +197,7 @@ class WeatherData:
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
                 max_value = WeatherDataModel.objects \
-                    .filter(date_utc__year=max_year, date_utc__month=max_month, date_utc__day=max_day) \
+                    .filter(time_year=max_year, time_month=max_month, time_day=max_day) \
                     .aggregate(Max(metric))
                 if max_value[metric_max] is None:
                     max_value = {metric_max: 0}
@@ -285,7 +285,7 @@ class WeatherData:
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
                 min_value = WeatherDataModel.objects\
-                    .filter(date_utc__year=min_year)\
+                    .filter(time_year=min_year)\
                     .aggregate(Min(metric))
                 if min_value[metric_min] is None:
                     min_value = {metric_min: 0}
@@ -296,7 +296,7 @@ class WeatherData:
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
                 min_value = WeatherDataModel.objects \
-                    .filter(date_utc__year=min_year, date_utc__month=min_month) \
+                    .filter(time_year=min_year, time_month=min_month) \
                     .aggregate(Min(metric))
                 if min_value[metric_min] is None:
                     min_value = {metric_min: 0}
@@ -307,7 +307,7 @@ class WeatherData:
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
                 min_value = WeatherDataModel.objects \
-                    .filter(date_utc__year=min_year, date_utc__month=min_month, date_utc__day=min_day) \
+                    .filter(time_year=min_year, time_month=min_month, time_day=min_day) \
                     .aggregate(Min(metric))
                 if min_value[metric_min] is None:
                     min_value = {metric_min: 0}
@@ -353,7 +353,7 @@ class WeatherData:
             cache.set(cache_key, cache_val, 3600)
             min_set = True
 
-        if cache_val < value:
+        if cache_val > value:
             cache.set(cache_key, value, 3600)
             min_set = True
 
@@ -500,7 +500,7 @@ class WeatherData:
                 elif (list_size > 250) or (list_size < 100):
                     result_data[metric]['daily_trend'] = trend_list[::10]
                 else:
-                    result_data[metric]['daily_trend'] = trend_list[::75]
+                    result_data[metric]['daily_trend'] = trend_list[::50]
 
         return result_data
 
@@ -530,17 +530,17 @@ class WeatherData:
         # TODO: decide if this needs to be cached.
         if period == 'year':
             trend_data = WeatherDataModel.objects.values_list('time_stamp', metric) \
-                .filter(date_utc__year=trend_year) \
+                .filter(time_year=trend_year) \
                 .order_by('time_stamp') \
                 .all()
         elif period == 'month':
             trend_data = WeatherDataModel.objects.values_list('time_stamp', metric) \
-                .filter(date_utc__year=trend_year, date_utc__month=trend_month) \
+                .filter(time_year=trend_year, time_month=trend_month) \
                 .order_by('time_stamp') \
                 .all()
         elif period == 'day':
             trend_data = WeatherDataModel.objects.values_list('time_stamp', metric) \
-                .filter(date_utc__year=trend_year, date_utc__month=trend_month, date_utc__day=trend_day) \
+                .filter(time_year=trend_year, time_month=trend_month, time_day=trend_day) \
                 .order_by('time_stamp') \
                 .all()
 
