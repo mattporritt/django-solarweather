@@ -202,7 +202,7 @@ const updateDashboard = (data) => {
 
     // Handle some potential null conditions.
     const indoorTempNowVal = data.indoor_temp.latest ? data.indoor_temp.latest : 0;
-    const indoorTempNowFeelsLikeVal = data.indoor_feels_temp.latest? data.indoor_temp.latest : 0;
+    const indoorTempNowFeelsLikeVal = data.indoor_feels_temp.latest? data.indoor_feels_temp.latest : 0;
 
     const outdoorTempNowVal = data.outdoor_temp.latest ? data.outdoor_temp.latest : 0;
     const outdoorTempNowFeelsLikeVal = data.outdoor_feels_temp.latest ? data.outdoor_feels_temp.latest : 0;
@@ -213,7 +213,7 @@ const updateDashboard = (data) => {
     // Calculations.
     const nowDate = new Date();
     const nowHours = nowDate.getHours() + 1;
-    const rainRateVal = data.rain.latest / nowHours;
+    const rainRateVal = data.daily_rain.latest / nowHours;
 
     // Set the values.
     indoorTempNow.innerHTML = Number.parseFloat(indoorTempNowVal).toFixed(1);
@@ -234,7 +234,7 @@ const updateDashboard = (data) => {
     outdoorHumidityDayMin.innerHTML = Number.parseInt(data.outdoor_humidity.daily_min);
     outdoorHumidityDayMax.innerHTML = Number.parseInt(data.outdoor_humidity.daily_max);
 
-    rainDay.innerHTML = Number.parseFloat(data.rain.latest).toFixed(1);
+    rainDay.innerHTML = Number.parseFloat(data.daily_rain.latest).toFixed(1);
     rainRate.innerHTML = Number.parseFloat(rainRateVal).toFixed(1);
     rainWeek.innerHTML = Number.parseFloat(data.weekly_rain.latest).toFixed(1);
     rainMonth.innerHTML = Number.parseFloat(data.monthly_rain.latest).toFixed(1);

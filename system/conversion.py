@@ -83,3 +83,17 @@ class UnitConversion:
         cm = round((inch * 2.54), places)
 
         return cm
+
+    @staticmethod
+    def in_to_mm(inch: float, places: int = 3) -> float:
+        """
+        Convert length/depth in inches to millimeters.
+
+        :param inch: The length/depth in inches to convert from.
+        :param places: The number of decimal places to return in the converted result.
+        :return: mm: The converted length/depth in millimeters.
+        """
+
+        cm = round((inch * 25.4), places)
+
+        return cm

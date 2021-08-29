@@ -26,7 +26,7 @@ from weather.models import WeatherData as WeatherDataModel
 from django.db.models import Max, Min
 from system.conversion import UnitConversion
 from datetime import datetime
-from django.utils.timezone import make_aware
+from django.conf import settings
 from django.core.cache import cache
 import math
 import pytz
@@ -82,9 +82,10 @@ class WeatherData:
         """
 
         # First do some date mangling.
-        tz = pytz.timezone('UTC')
+        tz = pytz.timezone(getattr(settings, 'TIME_ZONE'))
         date_string = data.get('dateutc').replace('%20', ' ')
-        datetime_object = make_aware(datetime.strptime(date_string, '%Y-%m-%d %X'), tz)
+        utc_time = datetime.strptime(date_string, '%Y-%m-%d %X')
+        datetime_object = pytz.utc.localize(utc_time, is_dst=None).astimezone(tz)
 
         # We reuse some values that need post processing first
         indoor_temp = UnitConversion.f_to_c(float(data.get('indoortempf')))
@@ -98,8 +99,8 @@ class WeatherData:
         store_data = {
             'indoor_temp': indoor_temp,
             'outdoor_temp': outdoor_temp,
-            'indoor_feels_temp': WeatherData.get_apparent_temperature(indoor_temp, indoor_humidity, wind_speed, solar_radiation),
-            'outdoor_feels_temp': WeatherData.get_apparent_temperature(outdoor_temp, outdoor_humidity, 0.1, 0),
+            'indoor_feels_temp': WeatherData.get_apparent_temperature(indoor_temp, indoor_humidity, 0.1, 0),
+            'outdoor_feels_temp': WeatherData.get_apparent_temperature(outdoor_temp, outdoor_humidity, wind_speed, 0),
             'indoor_dew_temp': WeatherData.get_dew_point(indoor_temp, indoor_humidity),
             'outdoor_dew_temp': WeatherData.get_dew_point(outdoor_temp, outdoor_humidity),
             'dew_point': UnitConversion.f_to_c(float(data.get('dewptf'))),
@@ -111,10 +112,10 @@ class WeatherData:
             'wind_direction': float(data.get('winddir')),
             'absolute_pressure': UnitConversion.inhg_to_hpa(float(data.get('absbaromin'))),
             'pressure': UnitConversion.inhg_to_hpa(float(data.get('baromin'))),
-            'rain': UnitConversion.in_to_cm(float(data.get('rainin'))),
-            'daily_rain': UnitConversion.in_to_cm(float(data.get('dailyrainin'))),
-            'weekly_rain': UnitConversion.in_to_cm(float(data.get('weeklyrainin'))),
-            'monthly_rain': UnitConversion.in_to_cm(float(data.get('monthlyrainin'))),
+            'rain': UnitConversion.in_to_mm(float(data.get('rainin'))),
+            'daily_rain': UnitConversion.in_to_mm(float(data.get('dailyrainin'))),
+            'weekly_rain': UnitConversion.in_to_mm(float(data.get('weeklyrainin'))),
+            'monthly_rain': UnitConversion.in_to_mm(float(data.get('monthlyrainin'))),
             'solar_radiation': solar_radiation,
             'uv_index': int(data.get('UV')),
             'date_utc': datetime_object,
