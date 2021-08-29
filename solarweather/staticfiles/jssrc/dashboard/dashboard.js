@@ -91,6 +91,17 @@ const weatherCharts = {
     'outdoorTemp': {'id': 'outdoor-temp-chart', 'chartObj': null, 'dataLabel': 'outdoor_temp'},
 };
 
+const windDegrees = [
+    'N',
+    'NE',
+    'E',
+    'SE',
+    'S',
+    'SW',
+    'W',
+    'NW',
+];
+
 /**
  * Update the graphs.
  *
@@ -173,6 +184,11 @@ const updateDashboard = (data) => {
     const pressureOverlay = pressureCard.querySelector('.overlay');
     const pressureBlur = pressureCard.querySelectorAll('.blur');
 
+    const windCard = document.getElementById('dashboard-wind-card');
+    const windSpinner = windCard.querySelector('.loading-spinner');
+    const windOverlay = windCard.querySelector('.overlay');
+    const windBlur = windCard.querySelectorAll('.blur');
+
     // Individual elements that we will set.
     const indoorTempNow = document.getElementById('indoor-temp-now');
     const indoorTempNowFeelsLike = document.getElementById('indoor-temp-now-feels-like');
@@ -200,6 +216,12 @@ const updateDashboard = (data) => {
     const pressureDayMin = document.getElementById('pressure-day-min');
     const pressureDayMax = document.getElementById('pressure-day-max');
 
+    const windNow = document.getElementById('wind-now');
+    const windDir = document.getElementById('wind-dir');
+    const windDayMin = document.getElementById('wind-day-min');
+    const windDayMax = document.getElementById('wind-day-max');
+    const windGust = document.getElementById('wind-gust');
+
     // Handle some potential null conditions.
     const indoorTempNowVal = data.indoor_temp.latest ? data.indoor_temp.latest : 0;
     const indoorTempNowFeelsLikeVal = data.indoor_feels_temp.latest? data.indoor_feels_temp.latest : 0;
@@ -214,6 +236,9 @@ const updateDashboard = (data) => {
     const nowDate = new Date();
     const nowHours = nowDate.getHours() + 1;
     const rainRateVal = data.daily_rain.latest / nowHours;
+
+    const winDirVal = Number.parseInt((data.wind_direction.latest/45)+.5);
+    const windDirStr = windDegrees[winDirVal];
 
     // Set the values.
     indoorTempNow.innerHTML = Number.parseFloat(indoorTempNowVal).toFixed(1);
@@ -242,6 +267,12 @@ const updateDashboard = (data) => {
     pressureNow.innerHTML = Number.parseFloat(data.pressure.latest).toFixed(2);
     pressureDayMin.innerHTML = Number.parseFloat(data.pressure.daily_min).toFixed(2);
     pressureDayMax.innerHTML = Number.parseFloat(data.pressure.daily_max).toFixed(2);
+
+    windNow.innerHTML = Number.parseFloat(data.wind_speed.latest).toFixed(1);
+    windDir.innerHTML = windDirStr;
+    windDayMin.innerHTML = Number.parseFloat(data.wind_speed.daily_min).toFixed(1);
+    windDayMax.innerHTML = Number.parseFloat(data.wind_speed.daily_max).toFixed(1);
+    windGust.innerHTML = Number.parseFloat(data.wind_gust.latest).toFixed(1);
 
     // Update the charts.
     for (const chartName in weatherCharts) {
@@ -283,6 +314,12 @@ const updateDashboard = (data) => {
     pressureSpinner.style.display = 'none';
     pressureOverlay.style.display = 'none';
     pressureBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
+
+    windSpinner.style.display = 'none';
+    windOverlay.style.display = 'none';
+    windBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
 };
