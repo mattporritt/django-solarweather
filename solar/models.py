@@ -24,4 +24,19 @@
 
 from django.db import models
 
-# Create your models here.
+
+class SolarData(models.Model):
+    """
+    This model stores the data received from the solar inverte.
+    """
+    power_usage_real = models.FloatField()
+    power_factor = models.FloatField()
+    power_apparent = models.FloatField()
+    power_reactive = models.FloatField()
+    grid_ac_voltage = models.FloatField()
+    grid_ac_current = models.FloatField()
+    time_stamp = models.IntegerField(db_index=True)
+    time_year = models.IntegerField(db_index=True)
+    time_month = models.IntegerField(db_index=True)
+    time_day = models.IntegerField(db_index=True)
+
