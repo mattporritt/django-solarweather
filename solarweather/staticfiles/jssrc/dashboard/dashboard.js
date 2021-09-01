@@ -238,7 +238,7 @@ const updateDashboard = (data) => {
     const rainRateVal = data.daily_rain.latest / nowHours;
 
     const winDirVal = Number.parseInt((data.wind_direction.latest/45)+.5);
-    const windDirStr = windDegrees[winDirVal];
+    const windDirStr = windDegrees[winDirVal] ? windDegrees[winDirVal] : 'N';
 
     // Set the values.
     indoorTempNow.innerHTML = Number.parseFloat(indoorTempNowVal).toFixed(1);
