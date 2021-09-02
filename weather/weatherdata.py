@@ -39,7 +39,7 @@ logger = logging.getLogger('django')
 
 class WeatherData:
     """
-    Class to weather station data related operations
+    Class to get weather station data and related operations.
     """
 
     # Metrics we can query and get data for.

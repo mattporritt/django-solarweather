@@ -35,7 +35,7 @@ import logging
 logger = logging.getLogger('django')
 
 
-# Basic functional testing
+# Unit testing
 class WeatherDataUnitTestCase(TestCase):
     # Load the fixtures used in this test.
     fixtures = ['weatherdata.json']
