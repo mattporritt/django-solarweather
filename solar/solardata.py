@@ -24,7 +24,10 @@
 
 import requests
 from django.conf import settings
+import logging
 
+# Get an instance of a logger
+logger = logging.getLogger('django')
 
 class SolarData:
     """
@@ -42,9 +45,17 @@ class SolarData:
         inverter_uri = 'http://{0}/solar_api/v1/GetMeterRealtimeData.cgi'.format(inverter_domain)
         query_params = {'Scope': 'System'}
         request_response = requests.get(inverter_uri, params=query_params)
-        grid_data = request_response.json()
+        grid_data_raw = request_response.json()['Body']['Data']['0']
 
-        # TODO: Filter out unwanted data.
+        # Just grab the data we want.
+        grid_data = {
+            'grid_power_usage_real': grid_data_raw.get('PowerReal_P_Sum', 0),
+            'grid_power_factor': grid_data_raw.get('PowerFactor_Sum', 0),
+            'grid_power_apparent': grid_data_raw.get('PowerApparent_S_Sum', 0),
+            'grid_power_reactive': grid_data_raw.get('PowerReactive_Q_Sum', 0),
+            'grid_ac_voltage': grid_data_raw.get('Voltage_AC_Phase_1', 0),
+            'grid_ac_current': grid_data_raw.get('Current_AC_Sum', 0)
+        }
 
         return grid_data
 
@@ -59,9 +70,16 @@ class SolarData:
         inverter_uri = 'http://{0}/solar_api/v1/GetInverterRealtimeData.cgi'.format(inverter_domain)
         query_params = {'Scope': 'Device', 'DeviceId': '1', 'DataCollection': 'CommonInverterData'}
         request_response = requests.get(inverter_uri, params=query_params)
-        inverter_data = request_response.json(
+        inverter_data_raw = request_response.json()['Body']['Data']
 
-        # TODO: Filter out unwanted data.
-        # TODO: handle missing elements.
+        # Just grab the data we want.
+        inverter_data = {
+            'inverter_ac_frequency': inverter_data_raw.get('FAC', {'Unit': 'Hz', 'Value': 0})['Value'],
+            'inverter_ac_current': inverter_data_raw.get('IAC', {'Unit': 'A', 'Value': 0})['Value'],
+            'inverter_ac_voltage': inverter_data_raw.get('UAC', {'Unit': 'V', 'Value': 0})['Value'],
+            'inverter_ac_power': inverter_data_raw.get('PAC', {'Unit': 'W', 'Value': 0})['Value'],
+            'inverter_dc_current': inverter_data_raw.get('IDC', {'Unit': 'A', 'Value': 0})['Value'],
+            'inverter_dc_voltage': inverter_data_raw.get('UDC', {'Unit': 'V', 'Value': 0})['Value']
+        }
 
         return inverter_data

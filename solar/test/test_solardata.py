@@ -24,7 +24,7 @@
 
 from django.test import TestCase
 import solar.test.test_data as test_data
-import responses
+import requests_mock
 from solar.solardata import SolarData
 from django.conf import settings
 import json
@@ -38,7 +38,8 @@ logger = logging.getLogger('django')
 # Unit testing.
 class SolarDataUnitTestCase(TestCase):
 
-    def test_get_grid_data(self):
+    @requests_mock.Mocker()
+    def test_get_grid_data(self, m):
         """
         Test getting grid data.
         """
@@ -48,12 +49,39 @@ class SolarDataUnitTestCase(TestCase):
 
         # Setup mock response.
         inverter_domain = getattr(settings, 'SOLAR_API')
-        inverter_uri = 'http://{0}/solar_api/v1/GetMeterRealtimeData.cgi'.format(inverter_domain)
-        responses.add(responses.GET, inverter_uri, json=test_json_data, status=200)
+        inverter_uri = 'http://{0}/solar_api/v1/GetMeterRealtimeData.cgi?Scope=System'.format(inverter_domain)
+        m.get(inverter_uri, text=test_json_data)
 
         solar_data = SolarData()
         grid_data = solar_data.get_grid_data()
 
-        logger.info(grid_data)
+        self.assertEqual(grid_data['grid_power_usage_real'], 980.11)
+        self.assertEqual(grid_data['grid_power_factor'], 0.93)
+        self.assertEqual(grid_data['grid_power_apparent'], 1046.23)
+        self.assertEqual(grid_data['grid_power_reactive'], -325.19)
+        self.assertEqual(grid_data['grid_ac_voltage'], 246)
+        self.assertEqual(grid_data['grid_ac_current'], 4.253)
 
+    @requests_mock.Mocker()
+    def test_get_inverter_data(self, m):
+        """
+        Test getting inverter data.
+        """
 
+        # Get test data.
+        test_json_data = json.dumps(test_data.test_inverter_data)
+
+        # Setup mock response.
+        inverter_domain = getattr(settings, 'SOLAR_API')
+        inverter_uri = 'http://{0}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceId=1&DataCollection=CommonInverterData'.format(inverter_domain)
+        m.get(inverter_uri, text=test_json_data)
+
+        solar_data = SolarData()
+        inverter_data = solar_data.get_inverter_data()
+
+        self.assertEqual(inverter_data['inverter_ac_frequency'], 49.99)
+        self.assertEqual(inverter_data['inverter_ac_current'], 0.93)
+        self.assertEqual(inverter_data['inverter_ac_voltage'], 242.1)
+        self.assertEqual(inverter_data['inverter_ac_power'], 222)
+        self.assertEqual(inverter_data['inverter_dc_current'], 0.85)
+        self.assertEqual(inverter_data['inverter_dc_voltage'], 309.9)

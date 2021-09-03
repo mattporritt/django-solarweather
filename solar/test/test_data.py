@@ -73,3 +73,109 @@ test_grid_data = {
       "Timestamp": "2021-09-02T09:51:45+10:00"
    }
 }
+
+test_inverter_data = {
+   "Body": {
+      "Data": {
+         "DAY_ENERGY": {
+            "Unit": "Wh",
+            "Value": 9802
+         },
+         "DeviceStatus": {
+            "ErrorCode": 0,
+            "LEDColor": 2,
+            "LEDState": 0,
+            "MgmtTimerRemainingTime": -1,
+            "StateToReset": False,
+            "StatusCode": 7
+         },
+         "FAC": {
+            "Unit": "Hz",
+            "Value": 49.990000000000002
+         },
+         "IAC": {
+            "Unit": "A",
+            "Value": 0.93000000000000005
+         },
+         "IDC": {
+            "Unit": "A",
+            "Value": 0.84999999999999998
+         },
+         "PAC": {
+            "Unit": "W",
+            "Value": 222
+         },
+         "TOTAL_ENERGY": {
+            "Unit": "Wh",
+            "Value": 27236302
+         },
+         "UAC": {
+            "Unit": "V",
+            "Value": 242.09999999999999
+         },
+         "UDC": {
+            "Unit": "V",
+            "Value": 309.89999999999998
+         },
+         "YEAR_ENERGY": {
+            "Unit": "Wh",
+            "Value": 4984010.5
+         }
+      }
+   },
+   "Head": {
+      "RequestArguments": {
+         "DataCollection": "CommonInverterData",
+         "DeviceClass": "Inverter",
+         "DeviceId": "1",
+         "Scope": "Device"
+      },
+      "Status": {
+         "Code": 0,
+         "Reason": "",
+         "UserMessage": ""
+      },
+      "Timestamp": "2021-09-03T14:00:05+10:00"
+   }
+}
+
+test_inverter_data_dark = {
+   "Body": {
+      "Data": {
+         "DAY_ENERGY": {
+            "Unit": "Wh",
+            "Value": 9802
+         },
+         "DeviceStatus": {
+            "ErrorCode": 0,
+            "LEDColor": 2,
+            "LEDState": 0,
+            "MgmtTimerRemainingTime": -1,
+            "StateToReset": False,
+            "StatusCode": 7
+         },
+         "TOTAL_ENERGY": {
+            "Unit": "Wh",
+            "Value": 27236302
+         },
+         "YEAR_ENERGY": {
+            "Unit": "Wh",
+            "Value": 4984010.5
+         }
+      }
+   },
+   "Head": {
+      "RequestArguments": {
+         "DataCollection": "CommonInverterData",
+         "DeviceClass": "Inverter",
+         "DeviceId": "1",
+         "Scope": "Device"
+      },
+      "Status": {
+         "Code": 0,
+         "Reason": "",
+         "UserMessage": ""
+      },
+      "Timestamp": "2021-09-03T14:00:05+10:00"
+   }
+}
