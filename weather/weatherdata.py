@@ -77,8 +77,9 @@ class WeatherData:
     def store(data: dict) -> int:
         """
         Store received weather station data into database.
-        :param data:
-        :return:
+
+        :param data: Data received from the weather station
+        :return: ID of inserted row.
         """
 
         # First do some date mangling.
