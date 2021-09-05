@@ -28,6 +28,7 @@ import requests_mock
 from solar.solardata import SolarData
 from django.conf import settings
 import json
+from solar.models import SolarData as SolarDataModel
 
 import logging
 
@@ -85,3 +86,28 @@ class SolarDataUnitTestCase(TestCase):
         self.assertEqual(inverter_data['inverter_ac_power'], 222)
         self.assertEqual(inverter_data['inverter_dc_current'], 0.85)
         self.assertEqual(inverter_data['inverter_dc_voltage'], 309.9)
+
+    @requests_mock.Mocker()
+    def test_store(self, m):
+        """
+        Test getting inverter data.
+        """
+
+        # Get test data.
+        grid_test_json_data = json.dumps(test_data.test_grid_data)
+        inverter_test_json_data = json.dumps(test_data.test_inverter_data)
+
+        # Setup mock response.
+        inverter_domain = getattr(settings, 'SOLAR_API')
+        inverter_uri = 'http://{0}/solar_api/v1/GetMeterRealtimeData.cgi?Scope=System'.format(inverter_domain)
+        m.get(inverter_uri, text=grid_test_json_data)
+
+        inverter_uri = 'http://{0}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceId=1&DataCollection=CommonInverterData'.format(inverter_domain)
+        m.get(inverter_uri, text=inverter_test_json_data)
+
+        solar_data = SolarData()
+        store_result = solar_data.store()
+
+        data_record = SolarDataModel.objects.get(id=store_result)
+
+        self.assertEqual(data_record.inverter_ac_frequency, 49.99)
