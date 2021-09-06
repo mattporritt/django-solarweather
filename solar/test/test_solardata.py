@@ -88,6 +88,32 @@ class SolarDataUnitTestCase(TestCase):
         self.assertEqual(inverter_data['inverter_dc_voltage'], 309.9)
 
     @requests_mock.Mocker()
+    def test_get_inverter_data_dark(self, m):
+        """
+        Test getting inverter data when it is dark outside.
+        When the inverter is not generating any power,
+        the response object has a different signature.
+        """
+
+        # Get test data.
+        test_json_data = json.dumps(test_data.test_inverter_data_dark)
+
+        # Setup mock response.
+        inverter_domain = getattr(settings, 'SOLAR_API')
+        inverter_uri = 'http://{0}/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceId=1&DataCollection=CommonInverterData'.format(inverter_domain)
+        m.get(inverter_uri, text=test_json_data)
+
+        solar_data = SolarData()
+        inverter_data = solar_data.get_inverter_data()
+
+        self.assertEqual(inverter_data['inverter_ac_frequency'], 0)
+        self.assertEqual(inverter_data['inverter_ac_current'], 0)
+        self.assertEqual(inverter_data['inverter_ac_voltage'], 0)
+        self.assertEqual(inverter_data['inverter_ac_power'], 0)
+        self.assertEqual(inverter_data['inverter_dc_current'], 0)
+        self.assertEqual(inverter_data['inverter_dc_voltage'], 0)
+
+    @requests_mock.Mocker()
     def test_store(self, m):
         """
         Test getting inverter data.
