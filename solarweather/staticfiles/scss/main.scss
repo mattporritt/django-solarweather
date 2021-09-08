@@ -69,10 +69,22 @@ p {
 }
 
 .navbar{
-  &.aa-nav {
+  &.sw-nav {
     background-color: $purple-navy;
     margin-bottom: 1rem;
     @include prefix(box-shadow, 0px 2px 4px 0px rgba(188,196,220,1), webkit ms);
+  }
+}
+
+.sw-nav-center {
+  justify-content: center;
+}
+
+.nav-link {
+  color: #ffffff;
+  font-size: 1.25rem;
+  &.active {
+    color: #ffaa05;
   }
 }
 
