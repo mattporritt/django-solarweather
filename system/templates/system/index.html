@@ -11,12 +11,18 @@
                 <img class="header-logo" src="{% static "images/weather.png" %}" />
                 <span class="ms-2 d-none d-md-inline">SolarWeather</span>
             </div>
-            <ul class="navbar-nav aa-nav-center">
+            <ul class="navbar-nav sw-nav-center">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Weather</a>
+                    <a class="nav-link active" aria-current="page" href="#">
+                        <i class="fa fa-temperature-low me-3 me-md-0"></i>&nbsp;
+                        <span class="d-none d-md-inline">Weather</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Solar</a>
+                    <a class="nav-link" href="#">
+                        <span class="ms-2 d-none d-md-inline">Solar</span>
+                        &nbsp;<i class="fas fa-sun"></i>
+                    </a>
                 </li>
             </ul>
             {% include "system/refresh-controls.html" %}

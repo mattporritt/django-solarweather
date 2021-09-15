@@ -78,11 +78,13 @@ p {
 
 .sw-nav-center {
   justify-content: center;
+  flex-direction: row;
 }
 
 .nav-link {
   color: #ffffff;
   font-size: 1.25rem;
+  text-shadow: 0.5px 1px rgba(0,0,0,0.75);
   &.active {
     color: #ffaa05;
   }
