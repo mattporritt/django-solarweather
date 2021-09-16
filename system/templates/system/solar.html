@@ -13,13 +13,13 @@
             </div>
             <ul class="navbar-nav sw-nav-center">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/">
+                    <a class="nav-link" aria-current="page" href="/">
                         <i class="fa fa-temperature-low me-3 me-md-0"></i>&nbsp;
                         <span class="d-none d-md-inline">Weather</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/solar/">
+                    <a class="nav-link active" href="/solar/">
                         <span class="ms-2 d-none d-md-inline">Solar</span>
                         &nbsp;<i class="fas fa-sun"></i>
                     </a>
@@ -32,32 +32,31 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-lg-6 mb-1 mb-md-2 p-1">
-            {% include "system/card-indoor-temp.html" %}
+        <div class="col-lg-4 mb-1 mb-md-2 p-1">
+            {% include "system/card-current-usage.html" %}
         </div>
-        <div class="col-lg-6 mb-1 mb-md-2 p-1">
-            {% include "system/card-outdoor-temp.html" %}
+        <div class="col-lg-4 mb-1 mb-md-2 p-1">
+            {% include "system/card-daily-power.html" %}
+        </div>
+        <div class="col-lg-4 mb-1 mb-md-2 p-1">
+            {% include "system/card-light.html" %}
         </div>
     </div>
     <div class="row">
-        <div class="col-md-6 col-xxl-3 mb-1 mb-md-2 p-1">
-            {% include "system/card-humidity.html" %}
+        <div class="col-12 mb-1 mb-md-2 p-1">
+            {% include "system/card-energy-balance.html" %}
         </div>
-        <div class="col-md-6 col-xxl-3 mb-1 mb-md-2 p-1">
-            {% include "system/card-rain.html" %}
-        </div>
-        <div class="col-md-6 col-xxl-3 mb-1 mb-md-2 p-1">
-            {% include "system/card-pressure.html" %}
-        </div>
-        <div class="col-md-6 col-xxl-3 mb-1 mb-md-2 p-1">
-            {% include "system/card-wind.html" %}
+    </div>
+    <div class="row">
+        <div class="col-12 mb-1 mb-md-2 p-1">
+            {% include "system/card-solar-generation.html" %}
         </div>
     </div>
 {% endblock %}
 {% block javascript_extra %}
     <script type="module">
         import {Chart, registerables} from '{% static "js/chart.js/dist/chart.esm.js" %}';
-        import {init} from '{% static "js/dashboard/dashboard.js" %}';
+        import {init} from '{% static "js/dashboard/solar-dashboard.js" %}';
 
         Chart.register(...registerables);
         init(Chart);

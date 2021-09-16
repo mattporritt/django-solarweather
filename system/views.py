@@ -32,9 +32,9 @@ import logging
 logger = logging.getLogger('django')
 
 
-def dashboard(request):
+def weather_dashboard(request):
     """
-    This is the view that render the main dashboard.
+    This is the view that render the weather dashboard.
     :param request:
     :return:
     """
@@ -43,6 +43,19 @@ def dashboard(request):
 
     # Pass the context to a template
     return render(request, 'system/index.html', context)
+
+
+def solar_dashboard(request):
+    """
+    This is the view that render the solar dashboard.
+    :param request:
+    :return:
+    """
+
+    context = {}
+
+    # Pass the context to a template
+    return render(request, 'system/solar.html', context)
 
 
 def data_ajax(request):

@@ -31,6 +31,7 @@ from django.urls import path, re_path
 from system import views
 
 urlpatterns = [
-    path('', views.dashboard, name='dashboard'),
+    path('', views.weather_dashboard, name='weather.dashboard'),
+    re_path(r'^solar\/.*', views.solar_dashboard, name='solar_dashboard'),
     re_path(r'^dataajax\/.*', views.data_ajax, name='data_ajax'),
 ]
