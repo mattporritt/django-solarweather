@@ -26,6 +26,7 @@ import requests
 from django.conf import settings
 from datetime import datetime
 from solar.models import SolarData as SolarDataModel
+from django.core.cache import cache
 
 
 class SolarData:
@@ -85,6 +86,57 @@ class SolarData:
 
         return inverter_data
 
+    @staticmethod
+    def get_power_consumption(inverter_power: float, grid_power: float) -> float:
+        """
+        Calculate the power consumption of the house,
+        based on the difference between the inverter and
+        grid power.
+
+        :param inverter_power: The power from the inverter always positive.
+        :param grid_power: The power from the grid positive or negative.
+        :return power_consumption: The power consumption of the house.
+        """
+
+        # Power consumption for the house is always above zero (positive).
+        # The power from the inverter is always zero or above (positive).
+        # The power from the grid can be either positive or negative.
+        # The power from the inverter is always used by the house first.
+
+        power_diff = inverter_power - abs(grid_power)
+        power_consumption = abs(power_diff)
+
+        return power_consumption
+
+    @staticmethod
+    def get_latest(metric: str) -> dict:
+        """
+        Get the latest received value for a metric
+
+        :param: metric: The metric to set the latest for, e.g. uv_index
+        :return:
+        """
+
+        cache_key = '{0}_latest'.format(metric)
+        cache_val = cache.get(cache_key)
+
+        return {cache_key: cache_val}
+
+    @staticmethod
+    def set_latest(metric: str, value) -> dict:
+        """
+        Set the latest value for a given metric.
+        The value is only "set" in the cache and not updated in the database.
+
+        :param metric: The metric to set the latest for, e.g. uv_index
+        :param value: The latest value.
+        :return:
+        """
+
+        cache_key = '{0}_latest'.format(metric)
+        cache.set(cache_key, value, 3600)
+
+        return {cache_key: value}
 
     @staticmethod
     def store(timestamp: int = 0) -> int:
@@ -105,6 +157,10 @@ class SolarData:
         grid_data = SolarData.get_grid_data()
         inverter_data = SolarData.get_inverter_data()
 
+        # Do some calculations.
+        power_consumption = SolarData.get_power_consumption(
+            inverter_data['inverter_ac_power'], grid_data['grid_power_usage_real'])
+
         # Prepare data object to be stored in database.
         store_data = {
             'grid_power_usage_real': grid_data['grid_power_usage_real'],
@@ -119,11 +175,26 @@ class SolarData:
             'inverter_ac_power': inverter_data['inverter_ac_power'],
             'inverter_dc_current': inverter_data['inverter_dc_current'],
             'inverter_dc_voltage': inverter_data['inverter_dc_voltage'],
+            'power_consumption': power_consumption,
             'time_stamp': timestamp,
             'time_year': date_object.year,
             'time_month': date_object.month,
             'time_day': date_object.day
         }
+
+        # Update latest, max and min values.
+        timestamp = datetime.now().timestamp()
+        date_object = datetime.fromtimestamp(timestamp)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+        }
+        for metric, value in store_data.items():
+            if (type(value) is int) or (type(value) is float):
+                # SolarData.set_max(metric, 'day', value, time_obj)
+                # SolarData.set_min(metric, 'day', value, time_obj)
+                SolarData.set_latest(metric, value)
 
         # Store data in the database.
         data_record = SolarDataModel(**store_data)
@@ -131,3 +202,20 @@ class SolarData:
 
         # Return ID of inserted row.
         return data_record.id
+
+    @staticmethod
+    def get_data(timestamp: int = 0) -> dict:
+        """
+        Get all the data to display the solar dashboard.
+        Data returned:
+            Current power usage for the house in kWh
+            Current power draw from the solar panels in kWh.
+            Current power draw from the grid in kWh
+
+        :param timestamp:
+        :return:
+        """
+
+        result_data = {}
+
+        return result_data

@@ -25,6 +25,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseNotAllowed, JsonResponse
 from weather.weatherdata import WeatherData
+from solar.solardata import SolarData
 from datetime import datetime
 import logging
 
@@ -74,9 +75,15 @@ def data_ajax(request):
         if timestamp == 0:
             timestamp = datetime.now().timestamp()
 
-        weather_data = WeatherData()
-        result_data = weather_data.get_data(timestamp)
+        # Decide which dataset we are getting.
+        dashboard = str(request.GET.get('dashboard', default='weather'))
+
+        if dashboard == 'weather':
+            weather_data = WeatherData()
+            result_data = weather_data.get_data(timestamp)
+        elif dashboard == 'solar':
+            solar_data = SolarData()
+            result_data = solar_data.get_data(timestamp)
+
         response = JsonResponse(result_data)
-
         return response
-

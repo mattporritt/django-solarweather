@@ -40,9 +40,9 @@ class SystemFunctionalTestCase(TestCase):
     def setUp(self):
         self.client = Client()
 
-    def test_index_view(self):
+    def test_dataajax_weather_view(self):
         cache.clear()
-        response = self.client.get('/dataajax/', {'timestamp': '1623906568'})
+        response = self.client.get('/dataajax/?dashboard=weather', {'timestamp': '1623906568'})
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)

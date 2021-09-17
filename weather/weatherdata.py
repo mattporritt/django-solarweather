@@ -130,7 +130,7 @@ class WeatherData:
             'radio_freq': int(data.get('rtfreq')),
         }
 
-        # Update max and min values.
+        # Update latest, max and min values.
         timestamp = datetime.now().timestamp()
         date_object = datetime.fromtimestamp(timestamp)
         time_obj = {

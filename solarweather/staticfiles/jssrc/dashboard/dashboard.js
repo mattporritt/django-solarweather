@@ -330,7 +330,7 @@ const updateDashboard = (data) => {
  * @method getData
  */
 const getData = () => {
-    fetch('/dataajax/')
+    fetch('/dataajax/?dashboard=weather')
         .then((response) => response.json())
         .then((data) => updateDashboard(data));
 };

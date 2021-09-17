@@ -41,6 +41,7 @@ class SolarData(models.Model):
     inverter_ac_power = models.FloatField()  # PAC
     inverter_dc_current = models.FloatField()  # IDC
     inverter_dc_voltage = models.FloatField()  # UDC
+    power_consumption = models.FloatField()
     time_stamp = models.IntegerField(db_index=True)
     time_year = models.IntegerField(db_index=True)
     time_month = models.IntegerField(db_index=True)
