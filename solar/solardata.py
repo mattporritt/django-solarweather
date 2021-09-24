@@ -120,7 +120,7 @@ class SolarData:
         """
         Get the latest received value for a metric
 
-        :param: metric: The metric to set the latest for, e.g. uv_index
+        :param: metric: The metric to get the latest for, e.g. uv_index
         :return:
         """
 
@@ -136,6 +136,55 @@ class SolarData:
         The value is only "set" in the cache and not updated in the database.
 
         :param metric: The metric to set the latest for, e.g. uv_index
+        :param value: The latest value.
+        :return:
+        """
+
+        cache_key = '{0}_latest'.format(metric)
+        cache.set(cache_key, value, 3600)
+
+        return {cache_key: value}
+
+    @staticmethod
+    def get_daily(metric: str, period: str, time_obj: dict, usecache: bool = True) -> float:
+        """
+        Get the accumulated value for a metric for the given period (day, month, week, or year).
+        If the value is not cached it is calculated and
+        then the value is set in the cache
+
+        :param metric: The metric to get the daily value for, e.g. uv_index
+        :param period: The period the maximum relates to. i.e. 'year', 'month', 'day'.
+        :param time_obj: The object that contains the time data.
+        :param usecache: Use max value from cache. False means get from database.
+        :return: The accumulated value.
+        """
+
+        # Get value from cache.
+        # If cache is empty or invalid get value from the database. Then store in cache.
+        if period == 'year':
+            cache_key = '_'.join(('max', metric, str(max_year)))
+            cache_val = cache.get(cache_key)
+
+        elif period == 'month':
+            cache_key = '_'.join(('max', metric, str(max_year), str(max_month)))
+            cache_val = cache.get(cache_key)
+
+        elif period == 'week':
+            cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
+            cache_val = cache.get(cache_key)
+
+        elif period == 'day':
+            cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
+            cache_val = cache.get(cache_key)
+
+        return 0
+
+    @staticmethod
+    def set_daily(metric: str, value) -> dict:
+        """
+        Set the daily accumulated for a given metric in the cache.
+
+        :param metric: The metric to set the daily value for, e.g. uv_index
         :param value: The latest value.
         :return:
         """
