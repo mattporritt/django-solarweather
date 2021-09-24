@@ -27,278 +27,41 @@
 import {setup} from './controls.js';
 
 /**
- * This class allows setting up the configuration object
- * that is used in charts.
- *
- * @class SolarChartConfig
- */
-class SolarChartConfig {
-    /**
-     * Constructor method for the class.
-     */
-    constructor() {
-        this.config = {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    backgroundColor: '#c68200',
-                    borderColor: '#FF8C00',
-                    data: [],
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                    },
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            color: 'rgb(255, 255, 255, 0.5)',
-                        },
-                        ticks: {
-                            color: 'rgb(255, 255, 255)',
-                        },
-                    },
-                    y: {
-                        grid: {
-                            color: 'rgb(255, 255, 255, 0.5)',
-                        },
-                        ticks: {
-                            color: 'rgb(255, 255, 255)',
-                        },
-                    },
-                },
-            },
-        };
-    }
-}
-
-/**
- * @param {Object} Chart The chart object factory.
- */
-let Chart;
-
-/**
- * @param {Object} solarCharts The charts to make.
- */
-const solarCharts = {
-    'indoorTemp': {'id': 'indoor-temp-chart', 'chartObj': null, 'dataLabel': 'indoor_temp'},
-    'outdoorTemp': {'id': 'outdoor-temp-chart', 'chartObj': null, 'dataLabel': 'outdoor_temp'},
-};
-
-/**
- * Update the graphs.
- *
- * @param {String} chartName The chart to update.
- * @param {Object} updateData The data to update the charts with.
- */
-const updateGraphs = (chartName, updateData) => {
-    solarCharts[chartName].chartObj.data.labels = updateData.labels;
-    solarCharts[chartName].chartObj.data.datasets[0].data = updateData.values;
-    solarCharts[chartName].chartObj.update();
-};
-
-/**
- * Format the timestamps given in the trend data into readable times.
- *
- *  @param {Object} data The data to update the charts with.
- *  @return {Promise} The data processed.
- */
-const formatDate = (data) => {
-    const labelDates = [];
-    return new Promise((resolve, reject) => {
-        data.labels.forEach((label) =>{
-            const dateObj = new Date(label * 1000);
-            const hours = dateObj.getHours();
-            const minutes = '0' + dateObj.getMinutes();
-            const strftimetime = hours + ':' + minutes.substr(-2); // Will display time in 10:30 format.
-            labelDates.push(strftimetime);
-        });
-        resolve({'labels': labelDates, 'values': data.values});
-    });
-};
-
-/**
- * Format the trend data ready for the charts.
- *
- * @param {Object} data The data to update the charts with.
- * @return {Promise} The data processed.
- */
-const formatTrend = (data) => {
-    const labels = [];
-    const values = [];
-    return new Promise((resolve, reject) => {
-        data.forEach((datapair) =>{
-            labels.push(datapair[0]);
-            values.push(datapair[1]);
-        });
-        resolve({'labels': labels, 'values': values});
-    });
-};
-
-/**
  * Update the dashboard
  *
  * @param {Object} data The raw data to use to update dashboard.
  */
 const updateDashboard = (data) => {
     // Parent card elements.
-    const indoorTempCard = document.getElementById('dashboard-indoor-temp-card');
-    const indoorTempSpinner = indoorTempCard.querySelector('.loading-spinner');
-    const indoorTempOverlay = indoorTempCard.querySelector('.overlay');
-    const indoorTempBlur = indoorTempCard.querySelectorAll('.blur');
-
-    const outdoorTempCard = document.getElementById('dashboard-outdoor-temp-card');
-    const outdoorTempSpinner = outdoorTempCard.querySelector('.loading-spinner');
-    const outdoorTempOverlay = outdoorTempCard.querySelector('.overlay');
-    const outdoorTempBlur = outdoorTempCard.querySelectorAll('.blur');
-
-    const humidityCard = document.getElementById('dashboard-humidity-card');
-    const humiditySpinner = humidityCard.querySelector('.loading-spinner');
-    const humidityOverlay = humidityCard.querySelector('.overlay');
-    const humidityBlur = humidityCard.querySelectorAll('.blur');
-
-    const rainCard = document.getElementById('dashboard-rain-card');
-    const rainSpinner = rainCard.querySelector('.loading-spinner');
-    const rainOverlay = rainCard.querySelector('.overlay');
-    const rainBlur = rainCard.querySelectorAll('.blur');
-
-    const pressureCard = document.getElementById('dashboard-pressure-card');
-    const pressureSpinner = pressureCard.querySelector('.loading-spinner');
-    const pressureOverlay = pressureCard.querySelector('.overlay');
-    const pressureBlur = pressureCard.querySelectorAll('.blur');
+    const currentUsageCard = document.getElementById('dashboard-current-usage-card');
+    const currentUsageSpinner = currentUsageCard.querySelector('.loading-spinner');
+    const currentUsageOverlay = currentUsageCard.querySelector('.overlay');
+    const currentUsageBlur = currentUsageCard.querySelectorAll('.blur');
 
     // Individual elements that we will set.
-    const indoorTempNow = document.getElementById('indoor-temp-now');
-    const indoorTempNowFeelsLike = document.getElementById('indoor-temp-now-feels-like');
-    const indoorTempDayMin = document.getElementById('indoor-temp-day-min');
-    const indoorTempDayMax = document.getElementById('indoor-temp-day-max');
-
-    const outdoorTempNow = document.getElementById('outdoor-temp-now');
-    const outdoorTempNowFeelsLike = document.getElementById('outdoor-temp-now-feels-like');
-    const outdoorTempDayMin = document.getElementById('outdoor-temp-day-min');
-    const outdoorTempDayMax = document.getElementById('outdoor-temp-day-max');
-
-    const indoorHumidityNow = document.getElementById('indoor-humidity-now');
-    const indoorHumidityDayMin = document.getElementById('indoor-humidity-day-min');
-    const indoorHumidityDayMax = document.getElementById('indoor-humidity-day-max');
-    const outdoorHumidityNow = document.getElementById('outdoor-humidity-now');
-    const outdoorHumidityDayMin = document.getElementById('outdoor-humidity-day-min');
-    const outdoorHumidityDayMax = document.getElementById('outdoor-humidity-day-max');
-
-    const rainDay = document.getElementById('rain-day');
-    const rainRate = document.getElementById('rain-rate');
-    const rainWeek = document.getElementById('rain-week');
-    const rainMonth = document.getElementById('rain-month');
-
-    const pressureNow = document.getElementById('pressure-now');
-    const pressureDayMin = document.getElementById('pressure-day-min');
-    const pressureDayMax = document.getElementById('pressure-day-max');
-
+    const currentUsageNow = document.getElementById('current-usage-now');
+    const currentUsageFromSolar = document.getElementById('current-usage-from-solar');
+    const currentUsageFromGrid = document.getElementById('current-usage-from-grid');
 
     // Handle some potential null conditions.
-    const indoorTempNowVal = data.indoor_temp.latest ? data.indoor_temp.latest : 0;
-    const indoorTempNowFeelsLikeVal = data.indoor_feels_temp.latest? data.indoor_feels_temp.latest : 0;
-
-    const outdoorTempNowVal = data.outdoor_temp.latest ? data.outdoor_temp.latest : 0;
-    const outdoorTempNowFeelsLikeVal = data.outdoor_feels_temp.latest ? data.outdoor_feels_temp.latest : 0;
-
-    const indoorHumidityNowVal = data.indoor_humidity.latest ? data.indoor_humidity.latest : 0;
-    const outdoorHumidityNowVal = data.outdoor_humidity.latest ? data.outdoor_humidity.latest : 0;
+    const currentUsageNowVal = data.power_consumption.latest ? data.power_consumption.latest : 0;
+    const currentUsageFromSolarVal = data.inverter_ac_power.latest? data.inverter_ac_power.latest : 0;
+    const currentUsageFromGridVal = data.grid_power_usage_real.latest? data.grid_power_usage_real.latest : 0;
 
     // Calculations.
-    const nowDate = new Date();
-    const nowHours = nowDate.getHours() + 1;
-    const rainRateVal = data.daily_rain.latest / nowHours;
-
-    const winDirVal = Number.parseInt((data.wind_direction.latest/45)+.5);
-    const windDirStr = windDegrees[winDirVal] ? windDegrees[winDirVal] : 'N';
+    const currentUsageNowValFloat = Number.parseFloat(currentUsageNowVal) / 1000;
+    const currentUsageFromSolarValFloat = Number.parseFloat(currentUsageFromSolarVal) / 1000;
+    const currentUsageFromGridValFloat = Number.parseFloat(currentUsageFromGridVal) / 1000;
 
     // Set the values.
-    indoorTempNow.innerHTML = Number.parseFloat(indoorTempNowVal).toFixed(1);
-    indoorTempNowFeelsLike.innerHTML = Number.parseFloat(indoorTempNowFeelsLikeVal).toFixed(1);
-    indoorTempDayMin.innerHTML = Number.parseFloat(data.indoor_temp.daily_min).toFixed(1);
-    indoorTempDayMax.innerHTML = Number.parseFloat(data.indoor_temp.daily_max).toFixed(1);
-
-    outdoorTempNow.innerHTML = Number.parseFloat(outdoorTempNowVal).toFixed(1);
-    outdoorTempNowFeelsLike.innerHTML = Number.parseFloat(outdoorTempNowFeelsLikeVal).toFixed(1);
-    outdoorTempDayMin.innerHTML = Number.parseFloat(data.outdoor_temp.daily_min).toFixed(1);
-    outdoorTempDayMax.innerHTML = Number.parseFloat(data.outdoor_temp.daily_max).toFixed(1);
-
-    indoorHumidityNow.innerHTML = Number.parseInt(indoorHumidityNowVal);
-    indoorHumidityDayMin.innerHTML = Number.parseInt(data.indoor_humidity.daily_min);
-    indoorHumidityDayMax.innerHTML = Number.parseInt(data.indoor_humidity.daily_max);
-
-    outdoorHumidityNow.innerHTML = Number.parseInt(outdoorHumidityNowVal);
-    outdoorHumidityDayMin.innerHTML = Number.parseInt(data.outdoor_humidity.daily_min);
-    outdoorHumidityDayMax.innerHTML = Number.parseInt(data.outdoor_humidity.daily_max);
-
-    rainDay.innerHTML = Number.parseFloat(data.daily_rain.latest).toFixed(1);
-    rainRate.innerHTML = Number.parseFloat(rainRateVal).toFixed(1);
-    rainWeek.innerHTML = Number.parseFloat(data.weekly_rain.latest).toFixed(1);
-    rainMonth.innerHTML = Number.parseFloat(data.monthly_rain.latest).toFixed(1);
-
-    pressureNow.innerHTML = Number.parseFloat(data.pressure.latest).toFixed(2);
-    pressureDayMin.innerHTML = Number.parseFloat(data.pressure.daily_min).toFixed(2);
-    pressureDayMax.innerHTML = Number.parseFloat(data.pressure.daily_max).toFixed(2);
-
-    windNow.innerHTML = Number.parseFloat(data.wind_speed.latest).toFixed(1);
-    windDir.innerHTML = windDirStr;
-    windDayMin.innerHTML = Number.parseFloat(data.wind_speed.daily_min).toFixed(1);
-    windDayMax.innerHTML = Number.parseFloat(data.wind_speed.daily_max).toFixed(1);
-    windGust.innerHTML = Number.parseFloat(data.wind_gust.latest).toFixed(1);
-
-    // Update the charts.
-    for (const chartName in solarCharts) {
-        if ({}.hasOwnProperty.call(solarCharts, chartName)) {
-            const trendName = solarCharts[chartName].dataLabel;
-            formatTrend(data[trendName].daily_trend)
-                .then(formatDate)
-                .then((trendData) => {
-                    updateGraphs(chartName, trendData);
-                });
-        }
-    }
+    currentUsageNow.innerHTML = currentUsageNowValFloat.toFixed(3);
+    currentUsageFromSolar.innerHTML = currentUsageFromSolarValFloat.toFixed(3);
+    currentUsageFromGrid.innerHTML = currentUsageFromGridValFloat.toFixed(3);
 
     // Remove the blur effect etc.
-    indoorTempSpinner.style.display = 'none';
-    indoorTempOverlay.style.display = 'none';
-    indoorTempBlur.forEach((BlurredItem) =>{
-        BlurredItem.classList.remove('blur');
-    });
-
-    outdoorTempSpinner.style.display = 'none';
-    outdoorTempOverlay.style.display = 'none';
-    outdoorTempBlur.forEach((BlurredItem) =>{
-        BlurredItem.classList.remove('blur');
-    });
-
-    humiditySpinner.style.display = 'none';
-    humidityOverlay.style.display = 'none';
-    humidityBlur.forEach((BlurredItem) =>{
-        BlurredItem.classList.remove('blur');
-    });
-
-    rainSpinner.style.display = 'none';
-    rainOverlay.style.display = 'none';
-    rainBlur.forEach((BlurredItem) =>{
-        BlurredItem.classList.remove('blur');
-    });
-
-    pressureSpinner.style.display = 'none';
-    pressureOverlay.style.display = 'none';
-    pressureBlur.forEach((BlurredItem) =>{
-        BlurredItem.classList.remove('blur');
-    });
-
-    windSpinner.style.display = 'none';
-    windOverlay.style.display = 'none';
-    windBlur.forEach((BlurredItem) =>{
+    currentUsageSpinner.style.display = 'none';
+    currentUsageOverlay.style.display = 'none';
+    currentUsageBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
 };
@@ -318,23 +81,9 @@ const getData = () => {
  * Script entry point.
  *
  * @method init
- * @param {Object} chart The chart object.
  *
  */
-export const init = (chart) => {
-    Chart = chart;
-    const chartConfigObj = new SolarChartConfig();
-
-    // Setup the initial charts.
-    for (const chartName in solarCharts) {
-        if ({}.hasOwnProperty.call(solarCharts, chartName)) {
-            solarCharts[chartName].chartObj = new Chart(
-                document.getElementById(solarCharts[chartName].id),
-                chartConfigObj.config
-            );
-        }
-    }
-
+export const init = () => {
     // Setup auto retrieving of data.
     setup(getData);
 
