@@ -24,10 +24,14 @@
 
 import requests
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, timedelta
 from solar.models import SolarData as SolarDataModel
 from django.core.cache import cache
 
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger('django')
 
 class SolarData:
     """
@@ -40,6 +44,34 @@ class SolarData:
         'inverter_ac_power',
         'power_consumption',
     ]
+
+    @staticmethod
+    def get_date_obj(timestamp: int) -> dict:
+        """
+        Custom processing to convert a timestamp into components
+        used in various processing.
+
+        :param timestamp: The unix timestamp to get the date object for.
+        :return time_obj: The date object
+        """
+
+        # Split out timestamp to date components.
+        date_object = datetime.fromtimestamp(timestamp)
+
+        today = date_object.today()
+        start = today - timedelta(days=(today.weekday() + 1) % 7)
+        end = start + timedelta(days=6)
+
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'week': date_object.isocalendar()[1],
+            'day': date_object.day,
+            'week_start_day': start.day,
+            'week_end_day': end.day
+        }
+
+        return time_obj
 
     @staticmethod
     def get_grid_data() -> dict:
@@ -110,8 +142,11 @@ class SolarData:
         # The power from the grid can be either positive or negative.
         # The power from the inverter is always used by the house first.
 
-        power_diff = inverter_power - abs(grid_power)
-        power_consumption = abs(power_diff)
+        if grid_power <= 0:
+            power_diff = inverter_power - abs(grid_power)
+            power_consumption = abs(power_diff)
+        else:
+            power_consumption = inverter_power + grid_power
 
         return power_consumption
 
@@ -146,7 +181,7 @@ class SolarData:
         return {cache_key: value}
 
     @staticmethod
-    def get_daily(metric: str, period: str, time_obj: dict, usecache: bool = True) -> float:
+    def get_accumulated(metric: str, period: str, time_obj: dict, usecache: bool = True) -> float:
         """
         Get the accumulated value for a metric for the given period (day, month, week, or year).
         If the value is not cached it is calculated and
@@ -159,25 +194,33 @@ class SolarData:
         :return: The accumulated value.
         """
 
+        accum_value = 0
+
         # Get value from cache.
         # If cache is empty or invalid get value from the database. Then store in cache.
         if period == 'year':
-            cache_key = '_'.join(('max', metric, str(max_year)))
+            cache_key = '_'.join(('accum', metric, str(time_obj['year'])))
             cache_val = cache.get(cache_key)
-
+            if (cache_val is None) or (usecache is False):
+                accum_objects = SolarDataModel.objects\
+                    .filter(time_year=time_obj['year']) \
+                    .values_list(metric, flat=True)
+                accum_value = sum(accum_objects)
+            else:
+                accum_value = cache_val
         elif period == 'month':
-            cache_key = '_'.join(('max', metric, str(max_year), str(max_month)))
+            cache_key = '_'.join(('accum', metric, str(time_obj['year']), str(time_obj['month'])))
             cache_val = cache.get(cache_key)
 
         elif period == 'week':
-            cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
+            cache_key = '_'.join(('accum', metric, str(time_obj['year']), str(time_obj['week'])))
             cache_val = cache.get(cache_key)
 
         elif period == 'day':
-            cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
+            cache_key = '_'.join(('accum', metric, str(time_obj['year']), str(time_obj['month']), str(time_obj['day'])))
             cache_val = cache.get(cache_key)
 
-        return 0
+        return accum_value
 
     @staticmethod
     def set_daily(metric: str, value) -> dict:

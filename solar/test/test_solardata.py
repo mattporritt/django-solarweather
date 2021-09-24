@@ -39,6 +39,8 @@ logger = logging.getLogger('django')
 
 # Unit testing.
 class SolarDataUnitTestCase(TestCase):
+    # Load the fixtures used in this test.
+    fixtures = ['solardata.json']
 
     @requests_mock.Mocker()
     def test_get_grid_data(self, m):
@@ -180,3 +182,42 @@ class SolarDataUnitTestCase(TestCase):
         # Initial should be false as less than the current min
         set_result = solar_data.get_latest('inverter_ac_voltage')
         self.assertEqual(set_result.get('inverter_ac_voltage_latest'), 10.277)
+
+    def test_get_date_obj(self):
+        """
+        Test the date object processing.
+        """
+
+        timestamp = 1632429492
+
+        solar_data = SolarData()
+        date_obj = solar_data.get_date_obj(timestamp)
+
+        self.assertEqual(date_obj['year'], 2021)
+        self.assertEqual(date_obj['month'], 9)
+        self.assertEqual(date_obj['week'], 38)
+        self.assertEqual(date_obj['day'], 24)
+        self.assertEqual(date_obj['week_start_day'], 19)
+        self.assertEqual(date_obj['week_end_day'], 25)
+
+    def test_get_accumulated(self):
+        """
+        Test getting accumulated data.
+        """
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        metric = 'inverter_ac_power'
+        time_obj = {
+            'year': 2021,
+            'month': 9,
+            'week': 38,
+            'day': 24,
+            'week_start_day': 19,
+            'week_end_day': 25,
+        }
+        
+        solar_data = SolarData()
+        accum_val = solar_data.get_accumulated(metric, 'year', time_obj)
+        self.assertEqual(accum_val, 729018.0)

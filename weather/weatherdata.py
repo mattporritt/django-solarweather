@@ -476,6 +476,7 @@ class WeatherData:
             'year': date_object.year,
             'month': date_object.month,
             'day': date_object.day
+
         }
 
         result_data = {}
