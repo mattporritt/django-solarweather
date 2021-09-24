@@ -29,6 +29,7 @@ from solar.solardata import SolarData
 from django.conf import settings
 import json
 from solar.models import SolarData as SolarDataModel
+from django.core.cache import cache
 
 import logging
 
@@ -137,3 +138,45 @@ class SolarDataUnitTestCase(TestCase):
         data_record = SolarDataModel.objects.get(id=store_result)
 
         self.assertEqual(data_record.inverter_ac_frequency, 49.99)
+
+    def test_set_latest(self):
+        """
+        Test setting the latest value.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        cache_key = 'inverter_ac_voltage_latest'
+        solar_data = SolarData()
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        # Initial should be false as less than the current min
+        set_result = solar_data.set_latest('inverter_ac_voltage', 10.277)
+        self.assertEqual(set_result.get('inverter_ac_voltage_latest'), 10.277)
+
+    def test_get_latest(self):
+        """
+        Test getting the latest value.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches
+        cache.clear()
+
+        cache_key = 'inverter_ac_voltage_latest'
+        solar_data = SolarData()
+
+        # Initially caches should be empty.
+        cache_val = cache.get(cache_key)
+        self.assertIsNone(cache_val)
+
+        cache.set(cache_key, 10.277)
+
+        # Initial should be false as less than the current min
+        set_result = solar_data.get_latest('inverter_ac_voltage')
+        self.assertEqual(set_result.get('inverter_ac_voltage_latest'), 10.277)
