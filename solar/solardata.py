@@ -34,6 +34,13 @@ class SolarData:
     Class to get inverter data and related operations.
     """
 
+    # Metrics we can query and get data for.
+    solar_metrics = [
+        'grid_power_usage_real',
+        'inverter_ac_power',
+        'power_consumption',
+    ]
+
     @staticmethod
     def get_grid_data() -> dict:
         """
@@ -217,5 +224,9 @@ class SolarData:
         """
 
         result_data = {}
+
+        for metric in SolarData.solar_metrics:
+            result_data[metric] = {}
+            result_data[metric]['latest'] = SolarData.get_latest(metric).get('{0}_latest'.format(metric))
 
         return result_data
