@@ -200,6 +200,31 @@ class SolarDataUnitTestCase(TestCase):
         self.assertEqual(date_obj['week_start_day'], 19)
         self.assertEqual(date_obj['week_end_day'], 25)
 
+    def test_get_accumulated_area(self):
+        """
+        Test getting the accumulated data.
+        """
+
+        data_set = [
+            {'time_stamp': 1631858701, 'inverter_ac_power': 1308.0},
+            {'time_stamp': 1631858721, 'inverter_ac_power': 1323.0},
+            {'time_stamp': 1631858741, 'inverter_ac_power': 1653.0},
+            {'time_stamp': 1631858761, 'inverter_ac_power': 2249.0},
+            {'time_stamp': 1631858781, 'inverter_ac_power': 1968.0},
+            {'time_stamp': 1631858801, 'inverter_ac_power': 1263.0},
+            {'time_stamp': 1631858821, 'inverter_ac_power': 1206.0},
+            {'time_stamp': 1631858841, 'inverter_ac_power': 1173.0},
+            {'time_stamp': 1631858861, 'inverter_ac_power': 1155.0},
+            {'time_stamp': 1631858882, 'inverter_ac_power': 1155.0},
+            {'time_stamp': 1631858902, 'inverter_ac_power': 1167.0},
+        ]
+
+        solar_data = SolarData()
+
+        # Test.
+        accum_area = solar_data.get_accumulated_area(data_set, 'inverter_ac_power', 'time_stamp')
+        self.assertEqual(accum_area, 79.83194444444445)
+
     def test_get_accumulated(self):
         """
         Test getting accumulated data.
@@ -211,13 +236,27 @@ class SolarDataUnitTestCase(TestCase):
         metric = 'inverter_ac_power'
         time_obj = {
             'year': 2021,
-            'month': 9,
+            'month': 10,
             'week': 38,
-            'day': 24,
-            'week_start_day': 19,
-            'week_end_day': 25,
+            'day': 17,
+            'week_start_day': 17,
+            'week_end_day': 23,
         }
-        
+
         solar_data = SolarData()
+
+        # Test year.
         accum_val = solar_data.get_accumulated(metric, 'year', time_obj)
-        self.assertEqual(accum_val, 729018.0)
+        self.assertEqual(accum_val, 4028.2455555555553)
+
+        # Test month.
+        accum_val = solar_data.get_accumulated(metric, 'month', time_obj)
+        self.assertEqual(accum_val, 19.58888888888889)
+
+        # Test week.
+        accum_val = solar_data.get_accumulated(metric, 'week', time_obj)
+        self.assertEqual(accum_val, 19.58888888888889)
+
+        # Test day.
+        accum_val = solar_data.get_accumulated(metric, 'day', time_obj)
+        self.assertEqual(accum_val, 11.883333333333335)

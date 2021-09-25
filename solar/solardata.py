@@ -45,6 +45,12 @@ class SolarData:
         'power_consumption',
     ]
 
+    # Metrics to get accumulated data for.
+    accumulated_metrics = [
+        'inverter_ac_power',
+        'power_consumption',
+    ]
+
     @staticmethod
     def get_date_obj(timestamp: int) -> dict:
         """
@@ -126,7 +132,7 @@ class SolarData:
         return inverter_data
 
     @staticmethod
-    def get_power_consumption(inverter_power: float, grid_power: float) -> float:
+    def get_inst_power_consumption(inverter_power: float, grid_power: float) -> float:
         """
         Calculate the power consumption of the house,
         based on the difference between the inverter and
@@ -181,11 +187,37 @@ class SolarData:
         return {cache_key: value}
 
     @staticmethod
+    def get_accumulated_area(data_table: list, magnitude_field: str, time_field: str) -> float:
+        """
+        Take a table of time based data and return the accumulated area under the curve.
+        Useful for taking instantaneous power readings and using them to calculate,
+        the power consumption over time.
+
+        The output will be per hour.
+
+        :param data_table: The table containing the raw data pairs.
+        :param magnitude_field: The key value for the magnitude data.
+        :param time_field: The key value for the time data.
+        :return accumulated_area: The accumulated are per hour.
+        """
+
+        row_count = 0
+        accumulated_area = 0
+        for data_row in data_table:
+            if row_count > 0:
+                time_period = (data_row[time_field] - data_table[(row_count -1)][time_field]) / 3600
+                accumulated_area += data_row[magnitude_field] * time_period
+
+            row_count += 1
+
+        return accumulated_area
+
+    @staticmethod
     def get_accumulated(metric: str, period: str, time_obj: dict, usecache: bool = True) -> float:
         """
         Get the accumulated value for a metric for the given period (day, month, week, or year).
-        If the value is not cached it is calculated and
-        then the value is set in the cache
+        By accumulated we mean the area under the curve. For example the total power generated for a day.
+        If the value is not cached it is calculated and then the value is set in the cache
 
         :param metric: The metric to get the daily value for, e.g. uv_index
         :param period: The period the maximum relates to. i.e. 'year', 'month', 'day'.
@@ -204,38 +236,51 @@ class SolarData:
             if (cache_val is None) or (usecache is False):
                 accum_objects = SolarDataModel.objects\
                     .filter(time_year=time_obj['year']) \
-                    .values_list(metric, flat=True)
-                accum_value = sum(accum_objects)
+                    .values('time_stamp', metric) \
+                    .order_by('time_stamp')
+                accum_value = SolarData.get_accumulated_area(accum_objects, metric, 'time_stamp')
+                cache.set(cache_key, accum_value, 3600)
             else:
                 accum_value = cache_val
         elif period == 'month':
             cache_key = '_'.join(('accum', metric, str(time_obj['year']), str(time_obj['month'])))
             cache_val = cache.get(cache_key)
-
+            if (cache_val is None) or (usecache is False):
+                accum_objects = SolarDataModel.objects \
+                    .filter(time_year=time_obj['year'], time_month=time_obj['month']) \
+                    .values('time_stamp', metric)\
+                    .order_by('time_stamp')
+                accum_value = SolarData.get_accumulated_area(accum_objects, metric, 'time_stamp')
+                cache.set(cache_key, accum_value, 3600)
+            else:
+                accum_value = cache_val
         elif period == 'week':
             cache_key = '_'.join(('accum', metric, str(time_obj['year']), str(time_obj['week'])))
             cache_val = cache.get(cache_key)
-
+            if (cache_val is None) or (usecache is False):
+                accum_objects = SolarDataModel.objects \
+                    .filter(time_year=time_obj['year'], time_month=time_obj['month'],
+                            time_day__gte=time_obj['week_start_day'], time_day__lte=time_obj['week_end_day']) \
+                    .values('time_stamp', metric) \
+                    .order_by('time_stamp')
+                accum_value = SolarData.get_accumulated_area(accum_objects, metric, 'time_stamp')
+                cache.set(cache_key, accum_value, 1800)
+            else:
+                accum_value = cache_val
         elif period == 'day':
             cache_key = '_'.join(('accum', metric, str(time_obj['year']), str(time_obj['month']), str(time_obj['day'])))
             cache_val = cache.get(cache_key)
+            if (cache_val is None) or (usecache is False):
+                accum_objects = SolarDataModel.objects \
+                    .filter(time_year=time_obj['year'], time_month=time_obj['month'], time_day=time_obj['day']) \
+                    .values('time_stamp', metric) \
+                    .order_by('time_stamp')
+                accum_value = SolarData.get_accumulated_area(accum_objects, metric, 'time_stamp')
+                cache.set(cache_key, accum_value, 600)
+            else:
+                accum_value = cache_val
 
         return accum_value
-
-    @staticmethod
-    def set_daily(metric: str, value) -> dict:
-        """
-        Set the daily accumulated for a given metric in the cache.
-
-        :param metric: The metric to set the daily value for, e.g. uv_index
-        :param value: The latest value.
-        :return:
-        """
-
-        cache_key = '{0}_latest'.format(metric)
-        cache.set(cache_key, value, 3600)
-
-        return {cache_key: value}
 
     @staticmethod
     def store(timestamp: int = 0) -> int:
@@ -257,7 +302,7 @@ class SolarData:
         inverter_data = SolarData.get_inverter_data()
 
         # Do some calculations.
-        power_consumption = SolarData.get_power_consumption(
+        power_consumption = SolarData.get_inst_power_consumption(
             inverter_data['inverter_ac_power'], grid_data['grid_power_usage_real'])
 
         # Prepare data object to be stored in database.
@@ -315,10 +360,22 @@ class SolarData:
         :return:
         """
 
+        # If timestamp is not provided default to now.
+        if timestamp == 0:
+            timestamp = datetime.now().timestamp()
+
+        # Split out timestamp to date components.
+        date_object = SolarData.get_date_obj(timestamp)
+
         result_data = {}
 
         for metric in SolarData.solar_metrics:
             result_data[metric] = {}
             result_data[metric]['latest'] = SolarData.get_latest(metric).get('{0}_latest'.format(metric))
+
+            if metric in SolarData.accumulated_metrics:
+                result_data[metric]['day'] = SolarData.get_accumulated(metric, 'day', date_object)
+                result_data[metric]['week'] = SolarData.get_accumulated(metric, 'week', date_object)
+                result_data[metric]['month'] = SolarData.get_accumulated(metric, 'month', date_object)
 
         return result_data
