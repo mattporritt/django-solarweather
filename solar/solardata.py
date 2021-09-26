@@ -64,8 +64,7 @@ class SolarData:
         # Split out timestamp to date components.
         date_object = datetime.fromtimestamp(timestamp)
 
-        today = date_object.today()
-        start = today - timedelta(days=(today.weekday() + 1) % 7)
+        start = date_object - timedelta(days=(date_object.weekday() + 1) % 7)
         end = start + timedelta(days=6)
 
         time_obj = {
@@ -205,8 +204,17 @@ class SolarData:
         accumulated_area = 0
         for data_row in data_table:
             if row_count > 0:
-                time_period = (data_row[time_field] - data_table[(row_count -1)][time_field]) / 3600
-                accumulated_area += data_row[magnitude_field] * time_period
+                current_time = data_row[time_field]
+                previous_time = data_table[(row_count - 1)][time_field]
+                current_magnitude = data_row[magnitude_field]
+                previous_magnitude = data_table[(row_count - 1)][magnitude_field]
+                time_period = (current_time - previous_time) / 3600
+
+                # Calculate the "main" rectangle under the curve and add it to the area total.
+                accumulated_area += current_magnitude * time_period
+
+                # Next add the "triangle" at the top of rectangle.
+                accumulated_area += (current_magnitude - previous_magnitude) * time_period * 0.5
 
             row_count += 1
 

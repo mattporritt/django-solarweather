@@ -223,7 +223,7 @@ class SolarDataUnitTestCase(TestCase):
 
         # Test.
         accum_area = solar_data.get_accumulated_area(data_set, 'inverter_ac_power', 'time_stamp')
-        self.assertEqual(accum_area, 79.83194444444445)
+        self.assertEqual(accum_area, 79.44027777777778)
 
     def test_get_accumulated(self):
         """
@@ -247,16 +247,16 @@ class SolarDataUnitTestCase(TestCase):
 
         # Test year.
         accum_val = solar_data.get_accumulated(metric, 'year', time_obj)
-        self.assertEqual(accum_val, 4028.2455555555553)
+        self.assertEqual(accum_val, 4020.651527777777)
 
         # Test month.
         accum_val = solar_data.get_accumulated(metric, 'month', time_obj)
-        self.assertEqual(accum_val, 19.58888888888889)
+        self.assertEqual(accum_val, 19.875)
 
         # Test week.
         accum_val = solar_data.get_accumulated(metric, 'week', time_obj)
-        self.assertEqual(accum_val, 19.58888888888889)
+        self.assertEqual(accum_val, 19.875)
 
         # Test day.
         accum_val = solar_data.get_accumulated(metric, 'day', time_obj)
-        self.assertEqual(accum_val, 11.883333333333335)
+        self.assertEqual(accum_val, 14.258333333333335)
