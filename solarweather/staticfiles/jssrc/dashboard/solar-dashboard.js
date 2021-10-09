@@ -38,30 +38,89 @@ const updateDashboard = (data) => {
     const currentUsageOverlay = currentUsageCard.querySelector('.overlay');
     const currentUsageBlur = currentUsageCard.querySelectorAll('.blur');
 
+    const dailyPowerCard = document.getElementById('dashboard-daily-power-card');
+    const dailyPowerSpinner = dailyPowerCard.querySelector('.loading-spinner');
+    const dailyPowerOverlay = dailyPowerCard.querySelector('.overlay');
+    const dailyPowerBlur = dailyPowerCard.querySelectorAll('.blur');
+
+    const lightCard = document.getElementById('dashboard-light-card');
+    const lightSpinner = lightCard.querySelector('.loading-spinner');
+    const lightOverlay = lightCard.querySelector('.overlay');
+    const lightBlur = lightCard.querySelectorAll('.blur');
+
     // Individual elements that we will set.
     const currentUsageNow = document.getElementById('current-usage-now');
     const currentUsageFromSolar = document.getElementById('current-usage-from-solar');
     const currentUsageFromGrid = document.getElementById('current-usage-from-grid');
+
+    const generatedDay = document.getElementById('generated-day');
+    const generatedWeek = document.getElementById('generated-week');
+    const generatedMonth = document.getElementById('generated-month');
+    const usedDay = document.getElementById('used-day');
+    const usedWeek = document.getElementById('used-week');
+    const usedMonth = document.getElementById('used-month');
+
+    const currentUvIndex = document.getElementById('uv-index');
+    const currentLightIntensity = document.getElementById('light-intensity');
 
     // Handle some potential null conditions.
     const currentUsageNowVal = data.power_consumption.latest ? data.power_consumption.latest : 0;
     const currentUsageFromSolarVal = data.inverter_ac_power.latest? data.inverter_ac_power.latest : 0;
     const currentUsageFromGridVal = data.grid_power_usage_real.latest? data.grid_power_usage_real.latest : 0;
 
+    const generatedDayVal = data.inverter_ac_power.day ? data.inverter_ac_power.day : 0;
+    const generatedWeekVal = data.inverter_ac_power.week ? data.inverter_ac_power.week : 0;
+    const generatedMonthVal = data.inverter_ac_power.month ? data.inverter_ac_power.month : 0;
+    const usedDayVal = data.power_consumption.day ? data.power_consumption.day : 0;
+    const usedWeekVal = data.power_consumption.week ? data.power_consumption.week : 0;
+    const usedMonthVal = data.power_consumption.month ? data.power_consumption.month : 0;
+
+    const currentUvIndexVal = data.uv_index.latest ? data.uv_index.latest : 0;
+    const ccurrentLightIntensityVal = data.solar_radiation.latest? data.solar_radiation.latest : 0;
+
     // Calculations.
     const currentUsageNowValFloat = Number.parseFloat(currentUsageNowVal) / 1000;
     const currentUsageFromSolarValFloat = Number.parseFloat(currentUsageFromSolarVal) / 1000;
     const currentUsageFromGridValFloat = Number.parseFloat(currentUsageFromGridVal) / 1000;
+
+    const generatedDayValFloat = Number.parseFloat(generatedDayVal) / 1000;
+    const generatedWeekValFloat = Number.parseFloat(generatedWeekVal) / 1000;
+    const generatedMonthValFloat = Number.parseFloat(generatedMonthVal) / 1000;
+    const usedDayValFloat = Number.parseFloat(usedDayVal) / 1000;
+    const usedWeekValFloat = Number.parseFloat(usedWeekVal) / 1000;
+    const usedMonthValFloat = Number.parseFloat(usedMonthVal) / 1000;
 
     // Set the values.
     currentUsageNow.innerHTML = currentUsageNowValFloat.toFixed(3);
     currentUsageFromSolar.innerHTML = currentUsageFromSolarValFloat.toFixed(3);
     currentUsageFromGrid.innerHTML = currentUsageFromGridValFloat.toFixed(3);
 
+    generatedDay.innerHTML = generatedDayValFloat.toFixed(3);
+    generatedWeek.innerHTML = generatedWeekValFloat.toFixed(1);
+    generatedMonth.innerHTML = generatedMonthValFloat.toFixed(1);
+    usedDay.innerHTML = usedDayValFloat.toFixed(3);
+    usedWeek.innerHTML = usedWeekValFloat.toFixed(1);
+    usedMonth.innerHTML = usedMonthValFloat.toFixed(1);
+
+    currentUvIndex.innerHTML = currentUvIndexVal;
+    currentLightIntensity.innerHTML = ccurrentLightIntensityVal.toFixed(3);
+
     // Remove the blur effect etc.
     currentUsageSpinner.style.display = 'none';
     currentUsageOverlay.style.display = 'none';
     currentUsageBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
+
+    dailyPowerSpinner.style.display = 'none';
+    dailyPowerOverlay.style.display = 'none';
+    dailyPowerBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
+
+    lightSpinner.style.display = 'none';
+    lightOverlay.style.display = 'none';
+    lightBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
 };

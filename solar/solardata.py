@@ -26,6 +26,7 @@ import requests
 from django.conf import settings
 from datetime import datetime, timedelta
 from solar.models import SolarData as SolarDataModel
+from weather.weatherdata import WeatherData
 from django.core.cache import cache
 
 import logging
@@ -385,5 +386,11 @@ class SolarData:
                 result_data[metric]['day'] = SolarData.get_accumulated(metric, 'day', date_object)
                 result_data[metric]['week'] = SolarData.get_accumulated(metric, 'week', date_object)
                 result_data[metric]['month'] = SolarData.get_accumulated(metric, 'month', date_object)
+
+        # Get some solar related data from the weather station.
+        result_data['solar_radiation'] = {}
+        result_data['uv_index'] = {}
+        result_data['solar_radiation']['latest'] = WeatherData.get_latest('solar_radiation').get('{0}_latest'.format('solar_radiation'))
+        result_data['uv_index']['latest'] = WeatherData.get_latest('solar_radiation').get('{0}_latest'.format('uv_index'))
 
         return result_data
