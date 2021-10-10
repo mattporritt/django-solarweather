@@ -161,6 +161,10 @@ footer {
   }
 }
 
+.solar-card-body {
+  min-height: unquote('clamp(100px, 20vw + 1rem, 275px)');
+}
+
 .dashboard-card-titles {
   font-weight: 700;
   width: 100%;
@@ -172,6 +176,12 @@ footer {
 .dashboard-card-value {
   font-family: 'quantico', Helvetica, Arial, Sans-Serif;
   font-size: unquote('clamp(2rem, 0.8rem + 4vw, 5rem)');
+  font-weight: 600;
+}
+
+.dashboard-card-value-solar {
+  font-family: 'quantico', Helvetica, Arial, Sans-Serif;
+  font-size: unquote('clamp(2rem, 0.8rem + 4vw, 4.5rem)');
   font-weight: 600;
 }
 
