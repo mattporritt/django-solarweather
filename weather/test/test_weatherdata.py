@@ -471,8 +471,16 @@ class WeatherDataUnitTestCase(TestCase):
         # If this test was ever run in a production environment it would clear all caches.
         cache.clear()
 
+        date_object = datetime.fromtimestamp(1623906568)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+
+        }
+
         weather_data = WeatherData()
-        result_data = weather_data.get_trend('indoor_temp', 'day', 1623906568)
+        result_data = weather_data.get_trend('indoor_temp', 'day', time_obj)
 
         self.assertEqual(result_data[0][0], 1623906326)
         self.assertEqual(result_data[-1][0], 1623907827)

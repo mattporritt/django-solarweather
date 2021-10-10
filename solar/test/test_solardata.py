@@ -30,6 +30,7 @@ from django.conf import settings
 import json
 from solar.models import SolarData as SolarDataModel
 from django.core.cache import cache
+from datetime import datetime
 
 import logging
 
@@ -260,3 +261,26 @@ class SolarDataUnitTestCase(TestCase):
         # Test day.
         accum_val = solar_data.get_accumulated(metric, 'day', time_obj)
         self.assertEqual(accum_val, 14.258333333333335)
+
+    def test_get_trend(self):
+        """
+        Test getting the trend data.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches.
+        cache.clear()
+
+        date_object = datetime.fromtimestamp(1631859241)
+        time_obj = {
+            'year': date_object.year,
+            'month': date_object.month,
+            'day': date_object.day
+
+        }
+
+        solar_data = SolarData()
+        result_data = solar_data.get_trend('grid_power_usage_real', 'day', time_obj)
+
+        self.assertEqual(result_data[0][0], 1631855161)
+        self.assertEqual(result_data[-1][0], 1631859241)

@@ -27,6 +27,121 @@
 import {setup} from './controls.js';
 
 /**
+ * @param {Object} weatherCharts The charts to make.
+ */
+const solarCharts = {
+    'indoorTemp': {'id': 'energy-balance-chart', 'chartObj': null, 'dataLabel': 'grid_power_usage_real', 'type': 'line'},
+};
+
+
+/**
+ * This class allows setting up the configuration object
+ * that is used in charts.
+ *
+ * @class SolarChartConfig
+ */
+class SolarChartConfig {
+    /**
+     * Constructor method for the class.
+     */
+    constructor() {
+        this.config = {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    backgroundColor: '#c68200',
+                    borderColor: '#FF8C00',
+                    data: [],
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgb(255, 255, 255, 0.5)',
+                        },
+                        ticks: {
+                            color: 'rgb(255, 255, 255)',
+                        },
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgb(255, 255, 255, 0.5)',
+                        },
+                        ticks: {
+                            color: 'rgb(255, 255, 255)',
+                        },
+                    },
+                },
+            },
+        };
+    }
+}
+
+/**
+ * @param {Object} Chart The chart object factory.
+ */
+let Chart;
+
+/**
+ * Update the graphs.
+ *
+ * @param {String} chartName The chart to update.
+ * @param {Object} updateData The data to update the charts with.
+ */
+const updateGraphs = (chartName, updateData) => {
+    solarCharts[chartName].chartObj.data.labels = updateData.labels;
+    solarCharts[chartName].chartObj.data.datasets[0].data = updateData.values;
+    solarCharts[chartName].chartObj.update();
+};
+
+/**
+ * Format the timestamps given in the trend data into readable times.
+ *
+ *  @param {Object} data The data to update the charts with.
+ *  @return {Promise} The data processed.
+ */
+const formatDate = (data) => {
+    const labelDates = [];
+    return new Promise((resolve, reject) => {
+        data.labels.forEach((label) =>{
+            const dateObj = new Date(label * 1000);
+            const hours = dateObj.getHours();
+            const minutes = '0' + dateObj.getMinutes();
+            const strftimetime = hours + ':' + minutes.substr(-2); // Will display time in 10:30 format.
+            labelDates.push(strftimetime);
+        });
+        resolve({'labels': labelDates, 'values': data.values});
+    });
+};
+
+/**
+ * Format the trend data ready for the charts.
+ *
+ * @param {Object} data The data to update the charts with.
+ * @return {Promise} The data processed.
+ */
+const formatTrend = (data) => {
+    const labels = [];
+    const values = [];
+    return new Promise((resolve, reject) => {
+        data.forEach((datapair) =>{
+            labels.push(datapair[0]);
+            values.push(datapair[1] * -1);
+        });
+        resolve({'labels': labels, 'values': values});
+    });
+};
+
+/**
  * Update the dashboard
  *
  * @param {Object} data The raw data to use to update dashboard.
@@ -47,6 +162,11 @@ const updateDashboard = (data) => {
     const lightSpinner = lightCard.querySelector('.loading-spinner');
     const lightOverlay = lightCard.querySelector('.overlay');
     const lightBlur = lightCard.querySelectorAll('.blur');
+
+    const energyBalanceCard = document.getElementById('dashboard-energy-balance-card');
+    const energyBalanceSpinner = energyBalanceCard.querySelector('.loading-spinner');
+    const energyBalanceOverlay = energyBalanceCard.querySelector('.overlay');
+    const energyBalanceBlur = energyBalanceCard.querySelectorAll('.blur');
 
     // Individual elements that we will set.
     const currentUsageNow = document.getElementById('current-usage-now');
@@ -103,7 +223,19 @@ const updateDashboard = (data) => {
     usedMonth.innerHTML = usedMonthValFloat.toFixed(1);
 
     currentUvIndex.innerHTML = currentUvIndexVal;
-    currentLightIntensity.innerHTML = ccurrentLightIntensityVal.toFixed(3);
+    currentLightIntensity.innerHTML = ccurrentLightIntensityVal.toFixed(2); // Max resoltion from station is this.
+
+    // Update the charts.
+    for (const chartName in solarCharts) {
+        if ({}.hasOwnProperty.call(solarCharts, chartName)) {
+            const trendName = solarCharts[chartName].dataLabel;
+            formatTrend(data[trendName].daily_trend)
+                .then(formatDate)
+                .then((trendData) => {
+                    updateGraphs(chartName, trendData);
+                });
+        }
+    }
 
     // Remove the blur effect etc.
     currentUsageSpinner.style.display = 'none';
@@ -123,6 +255,12 @@ const updateDashboard = (data) => {
     lightBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
+
+    energyBalanceSpinner.style.display = 'none';
+    energyBalanceOverlay.style.display = 'none';
+    energyBalanceBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
 };
 
 /**
@@ -140,9 +278,22 @@ const getData = () => {
  * Script entry point.
  *
  * @method init
- *
+ * @param {Object} chart The chart object.
  */
-export const init = () => {
+export const init = (chart) => {
+    Chart = chart;
+    const chartConfigObj = new SolarChartConfig();
+
+    // Setup the initial charts.
+    for (const chartName in solarCharts) {
+        if ({}.hasOwnProperty.call(solarCharts, chartName)) {
+            solarCharts[chartName].chartObj = new Chart(
+                document.getElementById(solarCharts[chartName].id),
+                chartConfigObj.config
+            );
+        }
+    }
+
     // Setup auto retrieving of data.
     setup(getData);
 

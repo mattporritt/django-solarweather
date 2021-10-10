@@ -52,6 +52,11 @@ class SolarData:
         'power_consumption',
     ]
 
+    # Metrics to get trend data for.
+    solar_trends = [
+        'grid_power_usage_real',
+    ]
+
     @staticmethod
     def get_date_obj(timestamp: int) -> dict:
         """
@@ -357,6 +362,42 @@ class SolarData:
         return data_record.id
 
     @staticmethod
+    def get_trend(metric: str, period: str, time_obj: dict) -> list:
+        """
+        Get the metric trend data for a given time period.
+
+        :param metric: The metric to get the trend for, e.g. indoor_temp
+        :param period: The period the trend relates to. i.e. 'year', 'month', 'day'.
+        :param time_obj: The object that contains the time data.
+        :return: The trend data.
+        """
+
+        trend_year = time_obj['year']
+        trend_month = time_obj['month']
+        trend_day = time_obj['day']
+
+        trend_data = {}
+
+        # TODO: decide if this needs to be cached.
+        if period == 'year':
+            trend_data = SolarDataModel.objects.values_list('time_stamp', metric) \
+                .filter(time_year=trend_year) \
+                .order_by('time_stamp') \
+                .all()
+        elif period == 'month':
+            trend_data = SolarDataModel.objects.values_list('time_stamp', metric) \
+                .filter(time_year=trend_year, time_month=trend_month) \
+                .order_by('time_stamp') \
+                .all()
+        elif period == 'day':
+            trend_data = SolarDataModel.objects.values_list('time_stamp', metric) \
+                .filter(time_year=trend_year, time_month=trend_month, time_day=trend_day) \
+                .order_by('time_stamp') \
+                .all()
+
+        return list(trend_data)
+
+    @staticmethod
     def get_data(timestamp: int = 0) -> dict:
         """
         Get all the data to display the solar dashboard.
@@ -387,10 +428,24 @@ class SolarData:
                 result_data[metric]['week'] = SolarData.get_accumulated(metric, 'week', date_object)
                 result_data[metric]['month'] = SolarData.get_accumulated(metric, 'month', date_object)
 
+            # Get the trend data.
+            if metric in SolarData.solar_trends:
+                # We use slicing here to do some quick and dirty down sampling.
+                # Down sampling is based on number of elements (told you it was dirty).
+                trend_list = SolarData.get_trend(metric, 'day', date_object)
+                list_size = len(trend_list)
+
+                if list_size <= 250:
+                    result_data[metric]['daily_trend'] = trend_list
+                elif (list_size > 250) or (list_size < 100):
+                    result_data[metric]['daily_trend'] = trend_list[::10]
+                else:
+                    result_data[metric]['daily_trend'] = trend_list[::50]
+
         # Get some solar related data from the weather station.
         result_data['solar_radiation'] = {}
         result_data['uv_index'] = {}
         result_data['solar_radiation']['latest'] = WeatherData.get_latest('solar_radiation').get('{0}_latest'.format('solar_radiation'))
-        result_data['uv_index']['latest'] = WeatherData.get_latest('solar_radiation').get('{0}_latest'.format('uv_index'))
+        result_data['uv_index']['latest'] = WeatherData.get_latest('uv_index').get('{0}_latest'.format('uv_index'))
 
         return result_data

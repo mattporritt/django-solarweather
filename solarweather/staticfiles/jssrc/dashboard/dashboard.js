@@ -27,6 +27,14 @@
 import {setup} from './controls.js';
 
 /**
+ * @param {Object} weatherCharts The charts to make.
+ */
+const weatherCharts = {
+    'indoorTemp': {'id': 'indoor-temp-chart', 'chartObj': null, 'dataLabel': 'indoor_temp', 'type': 'line'},
+    'outdoorTemp': {'id': 'outdoor-temp-chart', 'chartObj': null, 'dataLabel': 'outdoor_temp', 'type': 'line'},
+};
+
+/**
  * This class allows setting up the configuration object
  * that is used in charts.
  *
@@ -82,14 +90,6 @@ class WeatherChartConfig {
  * @param {Object} Chart The chart object factory.
  */
 let Chart;
-
-/**
- * @param {Object} weatherCharts The charts to make.
- */
-const weatherCharts = {
-    'indoorTemp': {'id': 'indoor-temp-chart', 'chartObj': null, 'dataLabel': 'indoor_temp'},
-    'outdoorTemp': {'id': 'outdoor-temp-chart', 'chartObj': null, 'dataLabel': 'outdoor_temp'},
-};
 
 const windDegrees = [
     'N',

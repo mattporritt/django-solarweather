@@ -495,7 +495,7 @@ class WeatherData:
             if metric in WeatherData.weather_trends:
                 # We use slicing here to do some quick and dirty down sampling.
                 # Down sampling is based on number of elements (told you it was dirty).
-                trend_list = WeatherData.get_trend(metric, 'day', timestamp)
+                trend_list = WeatherData.get_trend(metric, 'day', time_obj)
                 list_size = len(trend_list)
 
                 if list_size <= 250:
@@ -508,25 +508,19 @@ class WeatherData:
         return result_data
 
     @staticmethod
-    def get_trend(metric: str, period: str, timestamp: int = 0) -> list:
+    def get_trend(metric: str, period: str, time_obj: dict) -> list:
         """
         Get the metric trend data for a given time period.
 
         :param metric: The metric to get the trend for, e.g. indoor_temp
         :param period: The period the trend relates to. i.e. 'year', 'month', 'day'.
-        :param timestamp: The unix timestamp to use as the reference.
+        :param time_obj: The object that contains the time data.
         :return: The trend data.
         """
 
-        # If timestamp is not provided default to now.
-        if timestamp == 0:
-            timestamp = datetime.now().timestamp()
-
-        # Split out timestamp to date components.
-        date_object = datetime.fromtimestamp(timestamp)
-        trend_year = date_object.year
-        trend_month = date_object.month
-        trend_day = date_object.day
+        trend_year = time_obj['year']
+        trend_month = time_obj['month']
+        trend_day = time_obj['day']
 
         trend_data = {}
 
