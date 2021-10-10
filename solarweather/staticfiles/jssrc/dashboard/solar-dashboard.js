@@ -31,9 +31,23 @@ import {setup} from './controls.js';
  */
 const solarCharts = {
     'energyBalance': {
-        'id': 'energy-balance-chart', 'chartObj': null, 'dataLabel': 'grid_power_usage_real', 'type': 'bar', 'invert': true},
+        'id': 'energy-balance-chart',
+        'chartObj': null,
+        'dataLabel': 'grid_power_usage_real',
+        'type': 'bar',
+        'invert': true,
+        'suggestedMinVal': -5000,
+        'suggestedMaxVal': 5000,
+    },
     'generation': {
-        'id': 'solar-generation-chart', 'chartObj': null, 'dataLabel': 'inverter_ac_power', 'type': 'line', 'invert': false},
+        'id': 'solar-generation-chart',
+        'chartObj': null,
+        'dataLabel': 'inverter_ac_power',
+        'type': 'line',
+        'invert': false,
+        'suggestedMinVal': 0,
+        'suggestedMaxVal': 5000,
+    },
 };
 
 /**
@@ -47,8 +61,10 @@ class SolarChartConfig {
      * Constructor method for the class.
      *
      * @param {String} chartType The type of chart. Bar, line, etc.
+     * @param {Int} suggestedMinVal The suggested min value for the y scale.
+     * @param {Int} suggestedMaxVal The suggested max value for the y scale.
      */
-    constructor(chartType) {
+    constructor(chartType, suggestedMinVal, suggestedMaxVal) {
         this.config = {
             type: chartType,
             data: {
@@ -83,10 +99,20 @@ class SolarChartConfig {
                         ticks: {
                             color: 'rgb(255, 255, 255)',
                         },
+                        suggestedMin: -5000,
+                        suggestedMax: 5000,
                     },
                 },
             },
         };
+
+        if (typeof suggestedMinVal !== 'undefined') {
+            this.config.options.scales.y.suggestedMin = suggestedMinVal;
+        }
+
+        if (typeof suggestedMaxVal !== 'undefined') {
+            this.config.options.scales.y.suggestedMax = suggestedMaxVal;
+        }
     }
 }
 
@@ -317,7 +343,8 @@ export const init = (chart) => {
     // Setup the initial charts.
     for (const chartName in solarCharts) {
         if ({}.hasOwnProperty.call(solarCharts, chartName)) {
-            const chartConfigObj = new SolarChartConfig(solarCharts[chartName].type);
+            const chartConfigObj = new SolarChartConfig(
+                solarCharts[chartName].type, solarCharts[chartName].suggestedMinVal, solarCharts[chartName].suggestedMaxVal);
             solarCharts[chartName].chartObj = new Chart(
                 document.getElementById(solarCharts[chartName].id),
                 chartConfigObj.config

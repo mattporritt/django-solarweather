@@ -223,6 +223,12 @@ footer {
   max-height: 250px;
 }
 
+#solar-generation-chart,
+#energy-balance-chart {
+  height: 300px;
+  max-height: 300px;
+}
+
 #refresh-menu-items {
   left: -50px;
 }
