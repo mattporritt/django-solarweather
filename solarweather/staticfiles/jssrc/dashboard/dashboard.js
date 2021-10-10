@@ -43,10 +43,12 @@ const weatherCharts = {
 class WeatherChartConfig {
     /**
      * Constructor method for the class.
+     *
+     * @param {String} chartType The type of chart. Bar, line, etc.
      */
-    constructor() {
+    constructor(chartType) {
         this.config = {
-            type: 'line',
+            type: chartType,
             data: {
                 labels: [],
                 datasets: [{
@@ -147,7 +149,7 @@ const formatTrend = (data, invert) => {
     return new Promise((resolve, reject) => {
         data.forEach((datapair) =>{
             labels.push(datapair[0]);
-            if (invert) {
+            if (invert === true) {
                 values.push(datapair[1] * -1);
             } else {
                 values.push(datapair[1]);
@@ -283,7 +285,7 @@ const updateDashboard = (data) => {
     for (const chartName in weatherCharts) {
         if ({}.hasOwnProperty.call(weatherCharts, chartName)) {
             const trendName = weatherCharts[chartName].dataLabel;
-            formatTrend(data[trendName].daily_trend, data[trendName].invert)
+            formatTrend(data[trendName].daily_trend, weatherCharts[chartName].invert)
                 .then(formatDate)
                 .then((trendData) => {
                     updateGraphs(chartName, trendData);
@@ -349,11 +351,11 @@ const getData = () => {
  */
 export const init = (chart) => {
     Chart = chart;
-    const chartConfigObj = new WeatherChartConfig();
 
     // Setup the initial charts.
     for (const chartName in weatherCharts) {
         if ({}.hasOwnProperty.call(weatherCharts, chartName)) {
+            const chartConfigObj = new WeatherChartConfig(weatherCharts[chartName].type);
             weatherCharts[chartName].chartObj = new Chart(
                 document.getElementById(weatherCharts[chartName].id),
                 chartConfigObj.config

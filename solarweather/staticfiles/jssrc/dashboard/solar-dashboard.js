@@ -137,10 +137,11 @@ const formatDate = (data) => {
 const formatTrend = (data, invert) => {
     const labels = [];
     const values = [];
+
     return new Promise((resolve, reject) => {
         data.forEach((datapair) =>{
             labels.push(datapair[0]);
-            if (invert) {
+            if (invert === true) {
                 values.push(datapair[1] * -1);
             } else {
                 values.push(datapair[1]);
@@ -199,6 +200,8 @@ const updateDashboard = (data) => {
 
     const energyBalanceSurplus = document.getElementById('energy-balance-surplus');
 
+    const solarGenerationTotal = document.getElementById('solar-generation-total');
+
     // Handle some potential null conditions.
     const currentUsageNowVal = data.power_consumption.latest ? data.power_consumption.latest : 0;
     const currentUsageFromSolarVal = data.inverter_ac_power.latest? data.inverter_ac_power.latest : 0;
@@ -245,11 +248,13 @@ const updateDashboard = (data) => {
 
     energyBalanceSurplus.innerHTML = energyBalanceSurplusVal.toFixed(3);
 
+    solarGenerationTotal.innerHTML = generatedDayValFloat.toFixed(3);
+
     // Update the charts.
     for (const chartName in solarCharts) {
         if ({}.hasOwnProperty.call(solarCharts, chartName)) {
             const trendName = solarCharts[chartName].dataLabel;
-            formatTrend(data[trendName].daily_trend, data[trendName].invert)
+            formatTrend(data[trendName].daily_trend, solarCharts[chartName].invert)
                 .then(formatDate)
                 .then((trendData) => {
                     updateGraphs(chartName, trendData);
