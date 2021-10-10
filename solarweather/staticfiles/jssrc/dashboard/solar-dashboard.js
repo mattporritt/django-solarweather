@@ -30,9 +30,11 @@ import {setup} from './controls.js';
  * @param {Object} weatherCharts The charts to make.
  */
 const solarCharts = {
-    'indoorTemp': {'id': 'energy-balance-chart', 'chartObj': null, 'dataLabel': 'grid_power_usage_real', 'type': 'line'},
+    'energyBalance': {
+        'id': 'energy-balance-chart', 'chartObj': null, 'dataLabel': 'grid_power_usage_real', 'type': 'bar', 'invert': true},
+    'generation': {
+        'id': 'solar-generation-chart', 'chartObj': null, 'dataLabel': 'inverter_ac_power', 'type': 'line', 'invert': false},
 };
-
 
 /**
  * This class allows setting up the configuration object
@@ -43,10 +45,12 @@ const solarCharts = {
 class SolarChartConfig {
     /**
      * Constructor method for the class.
+     *
+     * @param {String} chartType The type of chart. Bar, line, etc.
      */
-    constructor() {
+    constructor(chartType) {
         this.config = {
-            type: 'bar',
+            type: chartType,
             data: {
                 labels: [],
                 datasets: [{
@@ -127,15 +131,20 @@ const formatDate = (data) => {
  * Format the trend data ready for the charts.
  *
  * @param {Object} data The data to update the charts with.
+ * @param {Boolean} invert True if data values should be inverted.
  * @return {Promise} The data processed.
  */
-const formatTrend = (data) => {
+const formatTrend = (data, invert) => {
     const labels = [];
     const values = [];
     return new Promise((resolve, reject) => {
         data.forEach((datapair) =>{
             labels.push(datapair[0]);
-            values.push(datapair[1] * -1);
+            if (invert) {
+                values.push(datapair[1] * -1);
+            } else {
+                values.push(datapair[1]);
+            }
         });
         resolve({'labels': labels, 'values': values});
     });
@@ -168,6 +177,11 @@ const updateDashboard = (data) => {
     const energyBalanceOverlay = energyBalanceCard.querySelector('.overlay');
     const energyBalanceBlur = energyBalanceCard.querySelectorAll('.blur');
 
+    const solarGenerationCard = document.getElementById('dashboard-solar-generation-card');
+    const solarGenerationSpinner = solarGenerationCard.querySelector('.loading-spinner');
+    const solarGenerationOverlay = solarGenerationCard.querySelector('.overlay');
+    const solarGenerationBlur = solarGenerationCard.querySelectorAll('.blur');
+
     // Individual elements that we will set.
     const currentUsageNow = document.getElementById('current-usage-now');
     const currentUsageFromSolar = document.getElementById('current-usage-from-solar');
@@ -183,6 +197,8 @@ const updateDashboard = (data) => {
     const currentUvIndex = document.getElementById('uv-index');
     const currentLightIntensity = document.getElementById('light-intensity');
 
+    const energyBalanceSurplus = document.getElementById('energy-balance-surplus');
+
     // Handle some potential null conditions.
     const currentUsageNowVal = data.power_consumption.latest ? data.power_consumption.latest : 0;
     const currentUsageFromSolarVal = data.inverter_ac_power.latest? data.inverter_ac_power.latest : 0;
@@ -196,7 +212,7 @@ const updateDashboard = (data) => {
     const usedMonthVal = data.power_consumption.month ? data.power_consumption.month : 0;
 
     const currentUvIndexVal = data.uv_index.latest ? data.uv_index.latest : 0;
-    const ccurrentLightIntensityVal = data.solar_radiation.latest? data.solar_radiation.latest : 0;
+    const currentLightIntensityVal = data.solar_radiation.latest ? data.solar_radiation.latest : 0;
 
     // Calculations.
     const currentUsageNowValFloat = Number.parseFloat(currentUsageNowVal) / 1000;
@@ -209,6 +225,8 @@ const updateDashboard = (data) => {
     const usedDayValFloat = Number.parseFloat(usedDayVal) / 1000;
     const usedWeekValFloat = Number.parseFloat(usedWeekVal) / 1000;
     const usedMonthValFloat = Number.parseFloat(usedMonthVal) / 1000;
+
+    const energyBalanceSurplusVal = generatedDayValFloat - usedDayValFloat;
 
     // Set the values.
     currentUsageNow.innerHTML = currentUsageNowValFloat.toFixed(3);
@@ -223,13 +241,15 @@ const updateDashboard = (data) => {
     usedMonth.innerHTML = usedMonthValFloat.toFixed(1);
 
     currentUvIndex.innerHTML = currentUvIndexVal;
-    currentLightIntensity.innerHTML = ccurrentLightIntensityVal.toFixed(2); // Max resoltion from station is this.
+    currentLightIntensity.innerHTML = currentLightIntensityVal.toFixed(2); // Max resolution from station is this.
+
+    energyBalanceSurplus.innerHTML = energyBalanceSurplusVal.toFixed(3);
 
     // Update the charts.
     for (const chartName in solarCharts) {
         if ({}.hasOwnProperty.call(solarCharts, chartName)) {
             const trendName = solarCharts[chartName].dataLabel;
-            formatTrend(data[trendName].daily_trend)
+            formatTrend(data[trendName].daily_trend, data[trendName].invert)
                 .then(formatDate)
                 .then((trendData) => {
                     updateGraphs(chartName, trendData);
@@ -261,6 +281,12 @@ const updateDashboard = (data) => {
     energyBalanceBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
+
+    solarGenerationSpinner.style.display = 'none';
+    solarGenerationOverlay.style.display = 'none';
+    solarGenerationBlur.forEach((BlurredItem) =>{
+        BlurredItem.classList.remove('blur');
+    });
 };
 
 /**
@@ -282,11 +308,11 @@ const getData = () => {
  */
 export const init = (chart) => {
     Chart = chart;
-    const chartConfigObj = new SolarChartConfig();
 
     // Setup the initial charts.
     for (const chartName in solarCharts) {
         if ({}.hasOwnProperty.call(solarCharts, chartName)) {
+            const chartConfigObj = new SolarChartConfig(solarCharts[chartName].type);
             solarCharts[chartName].chartObj = new Chart(
                 document.getElementById(solarCharts[chartName].id),
                 chartConfigObj.config

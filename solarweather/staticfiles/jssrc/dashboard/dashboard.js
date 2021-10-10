@@ -30,8 +30,8 @@ import {setup} from './controls.js';
  * @param {Object} weatherCharts The charts to make.
  */
 const weatherCharts = {
-    'indoorTemp': {'id': 'indoor-temp-chart', 'chartObj': null, 'dataLabel': 'indoor_temp', 'type': 'line'},
-    'outdoorTemp': {'id': 'outdoor-temp-chart', 'chartObj': null, 'dataLabel': 'outdoor_temp', 'type': 'line'},
+    'indoorTemp': {'id': 'indoor-temp-chart', 'chartObj': null, 'dataLabel': 'indoor_temp', 'type': 'line', 'invert': false},
+    'outdoorTemp': {'id': 'outdoor-temp-chart', 'chartObj': null, 'dataLabel': 'outdoor_temp', 'type': 'line', 'invert': false},
 };
 
 /**
@@ -138,15 +138,20 @@ const formatDate = (data) => {
  * Format the trend data ready for the charts.
  *
  * @param {Object} data The data to update the charts with.
+ * @param {Boolean} invert True if data values should be inverted.
  * @return {Promise} The data processed.
  */
-const formatTrend = (data) => {
+const formatTrend = (data, invert) => {
     const labels = [];
     const values = [];
     return new Promise((resolve, reject) => {
         data.forEach((datapair) =>{
             labels.push(datapair[0]);
-            values.push(datapair[1]);
+            if (invert) {
+                values.push(datapair[1] * -1);
+            } else {
+                values.push(datapair[1]);
+            }
         });
         resolve({'labels': labels, 'values': values});
     });
@@ -278,7 +283,7 @@ const updateDashboard = (data) => {
     for (const chartName in weatherCharts) {
         if ({}.hasOwnProperty.call(weatherCharts, chartName)) {
             const trendName = weatherCharts[chartName].dataLabel;
-            formatTrend(data[trendName].daily_trend)
+            formatTrend(data[trendName].daily_trend, data[trendName].invert)
                 .then(formatDate)
                 .then((trendData) => {
                     updateGraphs(chartName, trendData);

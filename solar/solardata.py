@@ -55,6 +55,7 @@ class SolarData:
     # Metrics to get trend data for.
     solar_trends = [
         'grid_power_usage_real',
+        'inverter_ac_power',
     ]
 
     @staticmethod

@@ -1,4 +1,4 @@
-<div id="dashboard-energy-balance-card" class="card dashboard-card">
+<div id="dashboard-solar-generation-card" class="card dashboard-card">
     <div class="loading-spinner">
       <div class="spinner-border spinner-style" role="status">
         <span class="sr-only">Loading...</span>
@@ -11,7 +11,17 @@
         <div class="overlay"></div>
         <div class="row">
             <div class="col-12">
-                graph goes here
+                <div class="dashboard-card-graph">
+                    <div class="chart-container">
+                        <canvas id="solar-generation-chart"></canvas>
+                    </div>
+                </div>
+                <div class="dashboard-card-extrema-single">
+                    <div class="dashboard-card-extrema-min-container">
+                        <div class="dashboard-extrema-min">GENERATED kWh</div>
+                        <div id="solar-generation-total" class="dashboard-extrema-min-val">0.0</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

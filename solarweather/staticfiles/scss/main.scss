@@ -183,6 +183,12 @@ footer {
   display: flex;
   justify-content: space-between;
 }
+
+.dashboard-card-extrema-single {
+  display: flex;
+  justify-content: center;
+}
+
 .dashboard-card-extrema-max-container {
     display: inherit;
     background-color: rgba(255,255,255,.4);
