@@ -24,7 +24,12 @@
 
 from django.test import TestCase
 from system.conversion import UnitConversion
+import system.test.test_data as test_data
 
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger('django')
 
 # Basic functional testing
 class ConversionUnitTestCase(TestCase):
@@ -91,3 +96,13 @@ class ConversionUnitTestCase(TestCase):
         cm = UnitConversion.in_to_cm(100)
 
         self.assertEqual(cm, 254)
+
+    def test_downsample_data(self):
+        """
+        Test down sampling.
+        """
+        sample_size = 10
+        result_list = UnitConversion.downsample_data(test_data.test_trend_list, sample_size)
+
+        self.assertEqual(result_list[0][0], 1631855251)
+        self.assertEqual(result_list[0][1], -3677.407)

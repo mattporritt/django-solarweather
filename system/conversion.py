@@ -22,6 +22,11 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger('django')
+
 class UnitConversion:
     """
     Helper class that provides methods to convert between units.
@@ -97,3 +102,44 @@ class UnitConversion:
         cm = round((inch * 25.4), places)
 
         return cm
+
+    @staticmethod
+    def downsample_data(data_table: list, sample_size: int) -> list:
+        """
+        Give a list of time and magnitude pairs, down sample to the provided
+        down sample rate.
+        This is done by averaging the values between the sample size.
+
+        Data is provided in a list of tuples, in the format (timestamp, value)
+
+        :param data_table: The table containing the raw data pairs.
+        :param sample_size: The sampling size to down sample to.
+        :return: The down sampled list.
+        """
+        counter = 0
+        total_count = 0
+        time_count = 0
+        downsampled_list = list()
+
+        for data_tuple in data_table:
+            if counter < sample_size:
+                time_count += data_tuple[0]
+                total_count += data_tuple[1]
+                counter += 1
+            else:
+                avg_count = total_count / counter
+                avg_time = int(time_count / counter)
+                avg_tuple = (avg_time, avg_count)
+                downsampled_list.append(avg_tuple)
+                total_count = 0
+                time_count = 0
+                counter = 0
+
+        # Handle case where there is some left over data.
+        if counter != 0:
+            avg_count = total_count / counter
+            avg_time = int(time_count / counter)
+            avg_tuple = (avg_time, avg_count)
+            downsampled_list.append(avg_tuple)
+
+        return downsampled_list

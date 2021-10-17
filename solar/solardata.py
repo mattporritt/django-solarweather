@@ -27,6 +27,7 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from solar.models import SolarData as SolarDataModel
 from weather.weatherdata import WeatherData
+from system.conversion import UnitConversion
 from django.core.cache import cache
 
 import logging
@@ -439,9 +440,9 @@ class SolarData:
                 if list_size <= 250:
                     result_data[metric]['daily_trend'] = trend_list
                 elif (list_size > 250) or (list_size < 100):
-                    result_data[metric]['daily_trend'] = trend_list[::50]
+                    result_data[metric]['daily_trend'] = UnitConversion.downsample_data(trend_list, 50)
                 else:
-                    result_data[metric]['daily_trend'] = trend_list[::100]
+                    result_data[metric]['daily_trend'] = UnitConversion.downsample_data(trend_list, 100)
 
         # Get some solar related data from the weather station.
         result_data['solar_radiation'] = {}

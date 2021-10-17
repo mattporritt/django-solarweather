@@ -501,9 +501,9 @@ class WeatherData:
                 if list_size <= 250:
                     result_data[metric]['daily_trend'] = trend_list
                 elif (list_size > 250) or (list_size < 100):
-                    result_data[metric]['daily_trend'] = trend_list[::10]
+                    result_data[metric]['daily_trend'] = UnitConversion.downsample_data(trend_list, 20)
                 else:
-                    result_data[metric]['daily_trend'] = trend_list[::50]
+                    result_data[metric]['daily_trend'] = UnitConversion.downsample_data(trend_list, 60)
 
         return result_data
 
