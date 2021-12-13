@@ -23,13 +23,38 @@
 # ==============================================================================
 
 from django.core.management.base import BaseCommand, CommandError
-from django.core.cache import cache
+from django.conf import settings
+import sqlite3
+import time
 
 
 class Command(BaseCommand):
-    help = 'Clears the application cache'
+    help = 'Export the SQLite Database'
+
+    def add_arguments(self, parser):
+        """
+        Arguments for the command.
+        """
+        parser.add_argument(
+            'path',
+            type=str,
+            help='The path to save the backup file. e.g /tmp/db.sql'
+        )
 
     def handle(self, *args, **options):
-        cache.clear()
-        self.stdout.write(self.style.SUCCESS('Successfully cleared caches'))
-        
+        """
+        Export the SQLite database.
+        """
+        db_settings = inverter_domain = getattr(settings, 'DATABASES')
+        db_con = sqlite3.connect(db_settings['default']['NAME'])
+        start = time.time()
+        path = options['path']
+
+        self.stdout.write(self.style.SUCCESS('Beginning database backup.'))
+        with open(path, 'w') as f:
+            for line in db_con.iterdump():
+                f.write('%s\n' % line)
+        db_con.close()
+
+        total_time = (time.time() - start)
+        self.stdout.write(self.style.SUCCESS('Backup complete in {0:.1f} seconds.'.format(total_time)))
