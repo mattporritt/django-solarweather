@@ -26,10 +26,12 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 import sqlite3
 import time
+import os
+import tqdm
 
 
 class Command(BaseCommand):
-    help = 'Export the SQLite Database'
+    help = 'Import SQLite Database from backup'
 
     def add_arguments(self, parser):
         """
@@ -38,23 +40,49 @@ class Command(BaseCommand):
         parser.add_argument(
             'path',
             type=str,
-            help='The path to save the backup file. e.g /tmp/db.sql'
+            help='The path to the backup file to restore. e.g /tmp/db.sql'
         )
 
     def handle(self, *args, **options):
         """
-        Export the SQLite database.
+        Import the SQLite database.
         """
         db_settings = getattr(settings, 'DATABASES')
-        db_con = sqlite3.connect(db_settings['default']['NAME'])
+        db_name = db_settings['default']['NAME']
         start = time.time()
         path = options['path']
 
-        self.stdout.write(self.style.SUCCESS('Beginning database backup.'))
-        with open(path, 'w') as f:
-            for line in db_con.iterdump():
-                f.write('%s\n' % line)
+        # Check backup file exists.
+        if not os.path.isfile(path):
+            self.stdout.write(self.style.ERROR('Database backup file does not exist'))
+            exit(1)
+
+        # Delete database if it exists.
+        if os.path.isfile(db_name):
+            self.stdout.write(self.style.WARNING('Database exists, removing'))
+            os.remove(db_name)
+        else:
+            self.stdout.write(self.style.WARNING('Database does not exist, creating {}'.format(db_name)))
+
+        # Create database.
+        db_con = sqlite3.connect(db_name)
+        db_cur = db_con.cursor()
+
+        # Restore database from file.
+        self.stdout.write(self.style.SUCCESS('Starting database restore...'))
+        with tqdm.tqdm(total=os.path.getsize(path)) as pbar:
+            with open(path) as file:
+                for line in file:
+                    db_cur.execute(line)
+                    pbar.update(len(line))
+
+        # Test database.
+        db_cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        self.stdout.write(self.style.SUCCESS('Tables created:'))
+        for row in db_cur.fetchall():
+            db_cur.execute("SELECT COUNT(*) FROM '{}';".format(row[0]))
+            self.stdout.write(self.style.SUCCESS('Table {}, Rows {}'.format(row[0], db_cur.fetchone()[0])))
         db_con.close()
 
         total_time = (time.time() - start)
-        self.stdout.write(self.style.SUCCESS('Backup complete in {0:.1f} seconds.'.format(total_time)))
+        self.stdout.write(self.style.SUCCESS('Restore complete in {0:.1f} seconds.'.format(total_time)))
