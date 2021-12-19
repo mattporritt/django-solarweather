@@ -32,4 +32,3 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         cache.clear()
         self.stdout.write(self.style.SUCCESS('Successfully cleared caches'))
-        
