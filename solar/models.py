@@ -29,19 +29,19 @@ class SolarData(models.Model):
     """
     This model stores the data received from the solar inverter.
     """
-    grid_power_usage_real = models.FloatField()
-    grid_power_factor = models.FloatField()
-    grid_power_apparent = models.FloatField()
-    grid_power_reactive = models.FloatField()
-    grid_ac_voltage = models.FloatField()
-    grid_ac_current = models.FloatField()
-    inverter_ac_frequency = models.FloatField()  # FAC
-    inverter_ac_current = models.FloatField()  # IAC
-    inverter_ac_voltage = models.FloatField()  # UAC
-    inverter_ac_power = models.FloatField()  # PAC
-    inverter_dc_current = models.FloatField()  # IDC
-    inverter_dc_voltage = models.FloatField()  # UDC
-    power_consumption = models.FloatField()
+    grid_power_usage_real = models.FloatField(db_index=True)
+    grid_power_factor = models.FloatField(db_index=True)
+    grid_power_apparent = models.FloatField(db_index=True)
+    grid_power_reactive = models.FloatField(db_index=True)
+    grid_ac_voltage = models.FloatField(db_index=True)
+    grid_ac_current = models.FloatField(db_index=True)
+    inverter_ac_frequency = models.FloatField(db_index=True)  # FAC
+    inverter_ac_current = models.FloatField(db_index=True)  # IAC
+    inverter_ac_voltage = models.FloatField(db_index=True)  # UAC
+    inverter_ac_power = models.FloatField(db_index=True)  # PAC
+    inverter_dc_current = models.FloatField(db_index=True)  # IDC
+    inverter_dc_voltage = models.FloatField(db_index=True)  # UDC
+    power_consumption = models.FloatField(db_index=True)
     time_stamp = models.IntegerField(db_index=True)
     time_year = models.IntegerField(db_index=True)
     time_month = models.IntegerField(db_index=True)

@@ -43,7 +43,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'django_cprofile_middleware.middleware.ProfilerMiddleware',
+    #'django_cprofile_middleware.middleware.ProfilerMiddleware',
 ]
 
 ROOT_URLCONF = 'solarweather.urls'
@@ -158,8 +158,8 @@ LOGGING = {
         },
 
         'django.db.backends': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
+            'handlers': ['logfile_error', 'logfile_debug'],
+            'level': 'INFO',
             'propagate': False,
         },
     }
