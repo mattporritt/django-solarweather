@@ -25,7 +25,6 @@
 from django.db import migrations, models
 from psqlextra.types import PostgresPartitioningMethod
 from psqlextra.models import PostgresPartitionedModel
-from psqlextra.backend.migrations.operations import PostgresAddRangePartition
 
 
 class SolarData(PostgresPartitionedModel):
@@ -53,47 +52,3 @@ class SolarData(PostgresPartitionedModel):
     time_year = models.IntegerField(db_index=True)
     time_month = models.IntegerField(db_index=True)
     time_day = models.IntegerField(db_index=True)
-
-
-class Migration(migrations.Migration):
-    """
-    Set up the initial partitions.
-    """
-    operations = [
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="solar_solardata_2021_09",
-            from_values="1630923435",
-            to_values="1633010382",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="solar_solardata_2021_10",
-            from_values="1633010401",
-            to_values="1635685181",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="solar_solardata_2021_11",
-            from_values="1635685202",
-            to_values="1638277181",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="solar_solardata_2021_12",
-            from_values="1638277201",
-            to_values="1640955581",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="solar_solardata_2022_01",
-            from_values="1640955601",
-            to_values="1643633982",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="solar_solardata_2022_02",
-            from_values="1643634001",
-            to_values="1645966800",
-        ),
-    ]

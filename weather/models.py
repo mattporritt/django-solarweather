@@ -25,7 +25,6 @@
 from django.db import migrations, models
 from psqlextra.types import PostgresPartitioningMethod
 from psqlextra.models import PostgresPartitionedModel
-from psqlextra.backend.migrations.operations import PostgresAddRangePartition
 
 class WeatherData(PostgresPartitionedModel):
     """
@@ -65,52 +64,3 @@ class WeatherData(PostgresPartitionedModel):
     action = models.CharField(max_length=100)
     real_time = models.IntegerField()
     radio_freq = models.IntegerField()
-
-class Migration(migrations.Migration):
-    """
-    Set up the initial partitions
-    """
-    operations = [
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="weather_weatherdata_2021_08",
-            from_values="1628702487",
-            to_values="1630418353",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="weather_weatherdata_2021_09",
-            from_values="1630418423",
-            to_values="1633010364",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="weather_weatherdata_2021_10",
-            from_values="1633010432",
-            to_values="1635685171",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="weather_weatherdata_2021_11",
-            from_values="1635685243",
-            to_values="1638277180",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="weather_weatherdata_2021_12",
-            from_values="1638277251",
-            to_values="1640955588",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="weather_weatherdata_2022_01",
-            from_values="1640955658",
-            to_values="1643633997",
-        ),
-        PostgresAddRangePartition(
-            model_name="SolarData",
-            name="weather_weatherdata_2022_02",
-            from_values="1643634000",
-            to_values="1645966800",
-        ),
-    ]

@@ -382,6 +382,7 @@ class SolarData:
 
         # TODO: decide if this needs to be cached.
         if period == 'year':
+            SolarDataModel.name
             trend_data = SolarDataModel.objects.values_list('time_stamp', metric) \
                 .filter(time_year=trend_year) \
                 .order_by('time_stamp') \
