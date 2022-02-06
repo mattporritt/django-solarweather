@@ -22,34 +22,40 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
-from django.db import models
+from django.db import migrations, models
+from psqlextra.types import PostgresPartitioningMethod
+from psqlextra.models import PostgresPartitionedModel
+from psqlextra.backend.migrations.operations import PostgresAddRangePartition
 
-
-class WeatherData(models.Model):
+class WeatherData(PostgresPartitionedModel):
     """
     This model stores the data received from the weather station.
     """
-    indoor_temp = models.FloatField(db_index=True)
-    outdoor_temp = models.FloatField(db_index=True)
-    indoor_feels_temp = models.FloatField(db_index=True)
-    outdoor_feels_temp = models.FloatField(db_index=True)
-    indoor_dew_temp = models.FloatField(db_index=True)
-    outdoor_dew_temp = models.FloatField(db_index=True)
-    dew_point = models.FloatField(db_index=True)
-    wind_chill = models.FloatField(db_index=True)
-    indoor_humidity = models.FloatField(db_index=True)
-    outdoor_humidity = models.FloatField(db_index=True)
-    wind_speed = models.FloatField(db_index=True)
-    wind_gust = models.FloatField(db_index=True)
-    wind_direction = models.FloatField(db_index=True)
-    absolute_pressure = models.FloatField(db_index=True)
-    pressure = models.FloatField(db_index=True)
-    rain = models.FloatField(db_index=True)
-    daily_rain = models.FloatField(db_index=True)
-    weekly_rain = models.FloatField(db_index=True)
-    monthly_rain = models.FloatField(db_index=True)
-    solar_radiation = models.FloatField(db_index=True)
-    uv_index = models.IntegerField(db_index=True)
+    class PartitioningMeta:
+        method = PostgresPartitioningMethod.RANGE
+        key = ['time_stamp']
+
+    indoor_temp = models.FloatField()
+    outdoor_temp = models.FloatField()
+    indoor_feels_temp = models.FloatField()
+    outdoor_feels_temp = models.FloatField()
+    indoor_dew_temp = models.FloatField()
+    outdoor_dew_temp = models.FloatField()
+    dew_point = models.FloatField()
+    wind_chill = models.FloatField()
+    indoor_humidity = models.FloatField()
+    outdoor_humidity = models.FloatField()
+    wind_speed = models.FloatField()
+    wind_gust = models.FloatField()
+    wind_direction = models.FloatField()
+    absolute_pressure = models.FloatField()
+    pressure = models.FloatField()
+    rain = models.FloatField()
+    daily_rain = models.FloatField()
+    weekly_rain = models.FloatField()
+    monthly_rain = models.FloatField()
+    solar_radiation = models.FloatField()
+    uv_index = models.IntegerField()
     date_utc = models.DateTimeField()
     time_stamp = models.IntegerField(db_index=True)
     time_year = models.IntegerField(db_index=True)
@@ -60,3 +66,51 @@ class WeatherData(models.Model):
     real_time = models.IntegerField()
     radio_freq = models.IntegerField()
 
+class Migration(migrations.Migration):
+    """
+    Set up the initial partitions
+    """
+    operations = [
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="weather_weatherdata_2021_08",
+            from_values="1628702487",
+            to_values="1630418353",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="weather_weatherdata_2021_09",
+            from_values="1630418423",
+            to_values="1633010364",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="weather_weatherdata_2021_10",
+            from_values="1633010432",
+            to_values="1635685171",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="weather_weatherdata_2021_11",
+            from_values="1635685243",
+            to_values="1638277180",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="weather_weatherdata_2021_12",
+            from_values="1638277251",
+            to_values="1640955588",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="weather_weatherdata_2022_01",
+            from_values="1640955658",
+            to_values="1643633997",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="weather_weatherdata_2022_02",
+            from_values="1643634000",
+            to_values="1645966800",
+        ),
+    ]

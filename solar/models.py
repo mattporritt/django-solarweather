@@ -22,27 +22,78 @@
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 # ==============================================================================
 
-from django.db import models
+from django.db import migrations, models
+from psqlextra.types import PostgresPartitioningMethod
+from psqlextra.models import PostgresPartitionedModel
+from psqlextra.backend.migrations.operations import PostgresAddRangePartition
 
 
-class SolarData(models.Model):
+class SolarData(PostgresPartitionedModel):
     """
     This model stores the data received from the solar inverter.
     """
-    grid_power_usage_real = models.FloatField(db_index=True)
-    grid_power_factor = models.FloatField(db_index=True)
-    grid_power_apparent = models.FloatField(db_index=True)
-    grid_power_reactive = models.FloatField(db_index=True)
-    grid_ac_voltage = models.FloatField(db_index=True)
-    grid_ac_current = models.FloatField(db_index=True)
-    inverter_ac_frequency = models.FloatField(db_index=True)  # FAC
-    inverter_ac_current = models.FloatField(db_index=True)  # IAC
-    inverter_ac_voltage = models.FloatField(db_index=True)  # UAC
-    inverter_ac_power = models.FloatField(db_index=True)  # PAC
-    inverter_dc_current = models.FloatField(db_index=True)  # IDC
-    inverter_dc_voltage = models.FloatField(db_index=True)  # UDC
-    power_consumption = models.FloatField(db_index=True)
+    class PartitioningMeta:
+        method = PostgresPartitioningMethod.RANGE
+        key = ['time_stamp']
+
+    grid_power_usage_real = models.FloatField()
+    grid_power_factor = models.FloatField()
+    grid_power_apparent = models.FloatField()
+    grid_power_reactive = models.FloatField()
+    grid_ac_voltage = models.FloatField()
+    grid_ac_current = models.FloatField()
+    inverter_ac_frequency = models.FloatField()  # FAC
+    inverter_ac_current = models.FloatField()  # IAC
+    inverter_ac_voltage = models.FloatField()  # UAC
+    inverter_ac_power = models.FloatField()  # PAC
+    inverter_dc_current = models.FloatField()  # IDC
+    inverter_dc_voltage = models.FloatField()  # UDC
+    power_consumption = models.FloatField()
     time_stamp = models.IntegerField(db_index=True)
     time_year = models.IntegerField(db_index=True)
     time_month = models.IntegerField(db_index=True)
     time_day = models.IntegerField(db_index=True)
+
+
+class Migration(migrations.Migration):
+    """
+    Set up the initial partitions.
+    """
+    operations = [
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="solar_solardata_2021_09",
+            from_values="1630923435",
+            to_values="1633010382",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="solar_solardata_2021_10",
+            from_values="1633010401",
+            to_values="1635685181",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="solar_solardata_2021_11",
+            from_values="1635685202",
+            to_values="1638277181",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="solar_solardata_2021_12",
+            from_values="1638277201",
+            to_values="1640955581",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="solar_solardata_2022_01",
+            from_values="1640955601",
+            to_values="1643633982",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="solar_solardata_2022_02",
+            from_values="1643634001",
+            to_values="1645966800",
+        ),
+    ]
