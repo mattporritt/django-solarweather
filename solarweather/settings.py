@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'system',  # Handle core level functions.
     'weather',  # Weather station recording and operations.
     'solar',  # Solar inverter recording and operations.
+    'django.contrib.postgres',
+    'psqlextra',
 ]
 
 MIDDLEWARE = [

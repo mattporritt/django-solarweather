@@ -5,3 +5,4 @@ tqdm==4.62.3
 
 ###### Requirements without Version Specifiers ######
 psycopg2
+django-postgres-extra
