@@ -24,14 +24,13 @@
 
 from django.core.management.base import BaseCommand
 from django.utils.module_loading import import_string
+from django.db.utils import ProgrammingError
 from django.db import connection
 from django.db.models import Max, Min
 from datetime import datetime
 from dateutil import relativedelta
 import calendar
 
-import logging
-logger = logging.getLogger('django')
 
 class Command(BaseCommand):
     help = 'Creates table partitions. Will create partitions for all un-partitioned data plus a month in the future.'
@@ -77,11 +76,6 @@ class Command(BaseCommand):
                 # Then get the months that have data.
                 month_obj = model_obj.objects.values('time_month').distinct()
                 for month in month_obj:
-                    # If table exists, exit early.
-                    table_name = '{}_{}_{}_{}'.format(app_name, model_name, year['time_year'], month['time_month'])
-                    if table_name in connection.introspection.table_names():
-                        return
-
                     # Then get the max and min value for each month.
                     min_value = model_obj.objects \
                         .filter(time_year=year['time_year'], time_month=month['time_month']) \
@@ -113,29 +107,25 @@ class Command(BaseCommand):
                         partition_list.append(partition_dict)
 
             # Create partition for next month.
-            # Only create if table doesn't exist.
-            table_name = '{}_{}_{}_{}'.format(app_name, model_name, next_year_str, next_month_str)
-            logger.info(table_name)
-            if table_name not in connection.introspection.table_names():
-                month_range = calendar.monthrange(next_year, next_month)
-                max_value = int(datetime(
-                        next_year,
-                        next_month,
-                        month_range[1],
-                        23, 59, 59).timestamp())
-                min_value = int(datetime(
-                    next_year,
-                    next_month,
-                    1,
-                    0, 0, 0).timestamp())
+            month_range = calendar.monthrange(next_year, next_month)
+            max_value = int(datetime(
+                next_year,
+                next_month,
+                month_range[1],
+                23, 59, 59).timestamp())
+            min_value = int(datetime(
+                next_year,
+                next_month,
+                1,
+                0, 0, 0).timestamp())
 
-                partition_dict = {
-                    'model': model_obj,
-                    'name': '{}_{}'.format(next_year_str, next_month_str),
-                    'from_values': min_value,
-                    'to_values': max_value
-                }
-                partition_list.append(partition_dict)
+            partition_dict = {
+                'model': model_obj,
+                'name': '{}_{}'.format(next_year_str, next_month_str),
+                'from_values': min_value,
+                'to_values': max_value
+            }
+            partition_list.append(partition_dict)
 
         # Exit early if dry run.
         if dry:
@@ -143,4 +133,8 @@ class Command(BaseCommand):
 
         self.stdout.write('Creating partitions')
         for partition in partition_list:
-            connection.schema_editor().add_range_partition(**partition)
+            try:
+                connection.schema_editor().add_range_partition(**partition)
+            except ProgrammingError:
+                continue
+

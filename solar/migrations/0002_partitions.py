@@ -49,4 +49,10 @@ class Migration(migrations.Migration):
             from_values="1643634001",
             to_values="1645966800",
         ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="2022_03",
+            from_values="1646053200",
+            to_values="1648731599",
+        ),
     ]
