@@ -46,6 +46,19 @@ def weather_dashboard(request):
     return render(request, 'system/index.html', context)
 
 
+def weather_history(request):
+    """
+    This is the view that render the weather history.
+    :param request:
+    :return:
+    """
+
+    context = {}
+
+    # Pass the context to a template
+    return render(request, 'system/history.html', context)
+
+
 def solar_dashboard(request):
     """
     This is the view that render the solar dashboard.
@@ -57,6 +70,19 @@ def solar_dashboard(request):
 
     # Pass the context to a template
     return render(request, 'system/solar.html', context)
+
+
+def solar_history(request):
+    """
+    This is the view that render the solar history.
+    :param request:
+    :return:
+    """
+
+    context = {}
+
+    # Pass the context to a template
+    return render(request, 'system/solar_history.html', context)
 
 
 def data_ajax(request):

@@ -32,6 +32,8 @@ from system import views
 
 urlpatterns = [
     path('', views.weather_dashboard, name='weather.dashboard'),
-    re_path(r'^solar\/.*', views.solar_dashboard, name='solar_dashboard'),
+    re_path(r'^history[\/]?', views.weather_history, name='weather_history'),
+    re_path(r'^solar\/history[\/]?', views.solar_history, name='solar_history'),
+    re_path(r'^solar[\/]?', views.solar_dashboard, name='solar_dashboard'),
     re_path(r'^dataajax\/.*', views.data_ajax, name='data_ajax'),
 ]
