@@ -53,7 +53,8 @@ def weather_history(request):
     :return:
     """
 
-    context = {}
+    weather_data = WeatherData()
+    context = weather_data.get_date_range()
 
     # Pass the context to a template
     return render(request, 'system/history.html', context)
@@ -79,7 +80,8 @@ def solar_history(request):
     :return:
     """
 
-    context = {}
+    solar_data = SolarData()
+    context = solar_data.get_date_range()
 
     # Pass the context to a template
     return render(request, 'system/solar_history.html', context)

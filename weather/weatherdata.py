@@ -542,3 +542,23 @@ class WeatherData:
                 .all()
 
         return list(trend_data)
+
+    @staticmethod
+    def get_date_range() -> dict:
+        """
+        Get the max and min date for the data,
+        as well as todays date. All formatted,
+        for the date selector.
+
+        :return context: The dict with the date information.
+        """
+
+        # TODO: cache max and min values. Min can be cached for ages.
+
+        context = {
+            'min': '2021-01-01',
+            'max': '2022-03-05',
+            'value': '2022-03-02',
+        }
+
+        return context
