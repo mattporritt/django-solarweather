@@ -4786,5 +4786,28 @@
         "time_month": 10,
         "time_day": 18
     }
+},
+{
+    "model": "solar.solardata",
+    "pk": 45208,
+    "fields": {
+        "grid_power_usage_real": -816.03,
+        "grid_power_factor": -0.87,
+        "grid_power_apparent": 931.02,
+        "grid_power_reactive": -344.94,
+        "grid_ac_voltage": 244.3,
+        "grid_ac_current": 3.811,
+        "inverter_ac_frequency": 49.97,
+        "inverter_ac_current": 5.7,
+        "inverter_ac_voltage": 244.1,
+        "inverter_ac_power": 1387.0,
+        "inverter_dc_current": 4.46,
+        "inverter_dc_voltage": 330.0,
+        "power_consumption": 100,
+        "time_stamp": 1666027846,
+        "time_year": 2022,
+        "time_month": 10,
+        "time_day": 18
+    }
 }
 ]

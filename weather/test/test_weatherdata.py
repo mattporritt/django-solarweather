@@ -527,3 +527,21 @@ class WeatherDataUnitTestCase(TestCase):
         result_data = weather_data.get_dew_point(temp, humidity)
 
         self.assertEqual(result_data, 13.858)
+
+    def test_get_date_range(self):
+        """
+        Test getting the date range.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches.
+        cache.clear()
+
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        weather_data = WeatherData()
+        result_data = weather_data.get_date_range()
+
+        self.assertEqual(result_data['value'], today)
+        self.assertEqual(result_data['max'], '2021-06-17')
+        self.assertEqual(result_data['min'], '2021-06-17')

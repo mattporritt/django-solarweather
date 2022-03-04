@@ -276,7 +276,6 @@ class SolarDataUnitTestCase(TestCase):
             'year': date_object.year,
             'month': date_object.month,
             'day': date_object.day
-
         }
 
         solar_data = SolarData()
@@ -284,3 +283,21 @@ class SolarDataUnitTestCase(TestCase):
 
         self.assertEqual(result_data[0][0], 1631855161)
         self.assertEqual(result_data[-1][0], 1631859241)
+
+    def test_get_date_range(self):
+        """
+        Test getting the date range.
+        """
+
+        # Start by clearing the cache.
+        # If this test was ever run in a production environment it would clear all caches.
+        cache.clear()
+
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        solar_data = SolarData()
+        result_data = solar_data.get_date_range()
+
+        self.assertEqual(result_data['value'], today)
+        self.assertEqual(result_data['max'], '2022-10-18')
+        self.assertEqual(result_data['min'], '2021-09-17')
