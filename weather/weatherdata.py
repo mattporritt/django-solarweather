@@ -563,22 +563,22 @@ class WeatherData:
         if max_cache_val is None:
             max_value = WeatherDataModel.objects.aggregate(Max('time_stamp'))
             maximum = datetime.fromtimestamp(max_value['time_stamp__max']).strftime("%Y-%m-%d")
-            cache.set(max_cache_key, max, 600)
+            cache.set(max_cache_key, maximum, 600)
         else:
             maximum = max_cache_val
 
         if min_cache_val is None:
             min_value = WeatherDataModel.objects.aggregate(Min('time_stamp'))
             minimum = datetime.fromtimestamp(min_value['time_stamp__min']).strftime("%Y-%m-%d")
-            cache.set(min_cache_key, min, 86400)
+            cache.set(min_cache_key, minimum, 86400)
         else:
             minimum = min_cache_val
 
         today = datetime.now().strftime("%Y-%m-%d")
 
         context = {
-            'min': minimum,
-            'max': maximum,
+            'minimum': minimum,
+            'maximum': maximum,
             'value': today,
         }
 

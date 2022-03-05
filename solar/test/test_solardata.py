@@ -299,5 +299,5 @@ class SolarDataUnitTestCase(TestCase):
         result_data = solar_data.get_date_range()
 
         self.assertEqual(result_data['value'], today)
-        self.assertEqual(result_data['max'], '2022-10-18')
-        self.assertEqual(result_data['min'], '2021-09-17')
+        self.assertEqual(result_data['maximum'], '2022-10-18')
+        self.assertEqual(result_data['minimum'], '2021-09-17')

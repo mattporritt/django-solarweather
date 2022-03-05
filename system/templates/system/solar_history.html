@@ -1,4 +1,5 @@
 {% extends "solarweather/base.html" %}
+{% debug %}
 {# The load static files declaration must be in any template that directly references a static file #}
 {% load static %}
 
@@ -67,7 +68,7 @@
 {% block javascript_extra %}
     <script type="module">
         import {Chart, registerables} from '{% static "js/chart.js/dist/chart.esm.js" %}';
-        import {init} from '{% static "js/dashboard/solar-dashboard.js" %}';
+        import {init} from '{% static "js/dashboard/solar-history.js" %}';
 
         Chart.register(...registerables);
         init(Chart);

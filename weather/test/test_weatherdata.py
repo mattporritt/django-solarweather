@@ -543,5 +543,5 @@ class WeatherDataUnitTestCase(TestCase):
         result_data = weather_data.get_date_range()
 
         self.assertEqual(result_data['value'], today)
-        self.assertEqual(result_data['max'], '2021-06-17')
-        self.assertEqual(result_data['min'], '2021-06-17')
+        self.assertEqual(result_data['maximum'], '2021-06-17')
+        self.assertEqual(result_data['minimum'], '2021-06-17')
