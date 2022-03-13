@@ -106,12 +106,21 @@ def data_ajax(request):
         # Decide which dataset we are getting.
         dashboard = str(request.GET.get('dashboard', default='weather'))
 
+        # Decide if we are getting historic data.
+        history = int(request.GET.get('history', default=0))
+
         if dashboard == 'weather':
             weather_data = WeatherData()
-            result_data = weather_data.get_data(timestamp)
+            if history == 1:
+                result_data = weather_data.get_history(timestamp)
+            else:
+                result_data = weather_data.get_data(timestamp)
         elif dashboard == 'solar':
             solar_data = SolarData()
-            result_data = solar_data.get_data(timestamp)
+            if history == 1:
+                result_data = solar_data.get_history(timestamp)
+            else:
+                result_data = solar_data.get_data(timestamp)
 
         response = JsonResponse(result_data)
         return response

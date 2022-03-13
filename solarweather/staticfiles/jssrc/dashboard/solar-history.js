@@ -351,7 +351,7 @@ const dateChange = (event) => {
 export const init = (chart) => {
     Chart = chart;
 
-    // Setup the initial charts.
+    // Set up the initial charts.
     for (const chartName in solarCharts) {
         if ({}.hasOwnProperty.call(solarCharts, chartName)) {
             const chartConfigObj = new SolarChartConfig(
@@ -366,5 +366,9 @@ export const init = (chart) => {
     // Set up the event listener.
     const dateSelector = document.getElementById('history-date');
     dateSelector.addEventListener('change', dateChange);
+
+    // Initial set kick off.
+    const timestamp = (dateSelector.valueAsNumber) / 1000;
+    getData(timestamp);
 };
 

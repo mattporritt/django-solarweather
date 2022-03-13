@@ -494,3 +494,49 @@ class SolarData:
         }
 
         return context
+
+    @staticmethod
+    def get_history(timestamp: int) -> dict:
+        """
+        Get all the data to display the solar history dashboard.
+
+        :param timestamp:
+        :return:
+        """
+
+        # Split out timestamp to date components.
+        date_object = SolarData.get_date_obj(timestamp)
+
+        result_data = {}
+
+        for metric in SolarData.solar_metrics:
+            result_data[metric] = {}
+            result_data[metric]['latest'] = SolarData.get_latest(metric).get('{0}_latest'.format(metric))
+
+            if metric in SolarData.accumulated_metrics:
+                result_data[metric]['day'] = SolarData.get_accumulated(metric, 'day', date_object)
+                result_data[metric]['week'] = SolarData.get_accumulated(metric, 'week', date_object)
+                result_data[metric]['month'] = SolarData.get_accumulated(metric, 'month', date_object)
+
+            # Get the trend data.
+            if metric in SolarData.solar_trends:
+                # We use slicing here to do some quick and dirty down sampling.
+                # Down sampling is based on number of elements (told you it was dirty).
+                trend_list = SolarData.get_trend(metric, 'day', date_object)
+                list_size = len(trend_list)
+
+                if list_size <= 250:
+                    result_data[metric]['daily_trend'] = trend_list
+                elif (list_size > 250) or (list_size < 100):
+                    result_data[metric]['daily_trend'] = UnitConversion.downsample_data(trend_list, 50)
+                else:
+                    result_data[metric]['daily_trend'] = UnitConversion.downsample_data(trend_list, 100)
+
+        # Get some solar related data from the weather station.
+        result_data['solar_radiation'] = {}
+        result_data['uv_index'] = {}
+        result_data['solar_radiation']['latest'] = WeatherData.get_latest('solar_radiation').get(
+            '{0}_latest'.format('solar_radiation'))
+        result_data['uv_index']['latest'] = WeatherData.get_latest('uv_index').get('{0}_latest'.format('uv_index'))
+
+        return result_data
