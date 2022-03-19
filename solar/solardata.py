@@ -272,7 +272,7 @@ class SolarData:
             else:
                 accum_value = cache_val
         elif period == 'week':
-            cache_key = '_'.join(('accum', metric, str(time_obj['year']), str(time_obj['week'])))
+            cache_key = '_'.join(('accum', metric, str(time_obj['year']), 'week', str(time_obj['week'])))
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
                 accum_objects = SolarDataModel.objects \
@@ -496,6 +496,62 @@ class SolarData:
         return context
 
     @staticmethod
+    def get_max(metric: str, period: str, time_obj: dict, usecache: bool = True):
+        """
+        Get the maximum value for a given time period.
+
+        :param metric: The metric to get the maximum for, e.g. uv_index
+        :param period: The period the maximum relates to. i.e. 'year', 'month', 'day'.
+        :param time_obj: The object that contains the time data.
+        :param usecache: Use max value from cache. False means get from database.
+        :return: The found maximum value.
+        """
+
+        max_year = time_obj['year']
+        max_month = time_obj['month']
+        max_day = time_obj['day']
+
+        max_value = {}
+        metric_max = '{0}__max'.format(metric)
+
+        # Get value from cache.
+        # If cache is empty or invalid get value from the database. Then store in cache.
+        if period == 'year':
+            cache_key = '_'.join(('max', metric, str(max_year)))
+            cache_val = cache.get(cache_key)
+            if (cache_val is None) or (usecache is False):
+                max_value = SolarDataModel.objects \
+                    .filter(time_year=max_year) \
+                    .aggregate(Max(metric))
+                if max_value[metric_max] is None:
+                    max_value = {metric_max: 0}
+            else:
+                max_value = {metric_max: cache_val}
+        elif period == 'month':
+            cache_key = '_'.join(('max', metric, str(max_year), str(max_month)))
+            cache_val = cache.get(cache_key)
+            if (cache_val is None) or (usecache is False):
+                max_value = SolarDataModel.objects \
+                    .filter(time_year=max_year, time_month=max_month) \
+                    .aggregate(Max(metric))
+                if max_value[metric_max] is None:
+                    max_value = {metric_max: 0}
+            else:
+                max_value = {metric_max: cache_val}
+        elif period == 'day':
+            cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
+            cache_val = cache.get(cache_key)
+            if (cache_val is None) or (usecache is False):
+                max_value = SolarDataModel.objects \
+                    .filter(time_year=max_year, time_month=max_month, time_day=max_day) \
+                    .aggregate(Max(metric))
+                if max_value[metric_max] is None:
+                    max_value = {metric_max: 0}
+            else:
+                max_value = {metric_max: cache_val}
+        return max_value
+
+    @staticmethod
     def get_history(timestamp: int) -> dict:
         """
         Get all the data to display the solar history dashboard.
@@ -511,7 +567,8 @@ class SolarData:
 
         for metric in SolarData.solar_metrics:
             result_data[metric] = {}
-            result_data[metric]['latest'] = SolarData.get_latest(metric).get('{0}_latest'.format(metric))
+            result_data[metric]['daily_max'] = SolarData.get_max(metric, 'day', date_object).get(
+                '{0}__max'.format(metric))
 
             if metric in SolarData.accumulated_metrics:
                 result_data[metric]['day'] = SolarData.get_accumulated(metric, 'day', date_object)
@@ -531,12 +588,5 @@ class SolarData:
                     result_data[metric]['daily_trend'] = UnitConversion.downsample_data(trend_list, 50)
                 else:
                     result_data[metric]['daily_trend'] = UnitConversion.downsample_data(trend_list, 100)
-
-        # Get some solar related data from the weather station.
-        result_data['solar_radiation'] = {}
-        result_data['uv_index'] = {}
-        result_data['solar_radiation']['latest'] = WeatherData.get_latest('solar_radiation').get(
-            '{0}_latest'.format('solar_radiation'))
-        result_data['uv_index']['latest'] = WeatherData.get_latest('uv_index').get('{0}_latest'.format('uv_index'))
 
         return result_data

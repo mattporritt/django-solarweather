@@ -182,20 +182,15 @@ const formatTrend = (data, invert) => {
  */
 const updateDashboard = (data) => {
     // Parent card elements.
-    const currentUsageCard = document.getElementById('dashboard-current-usage-card');
-    const currentUsageSpinner = currentUsageCard.querySelector('.loading-spinner');
-    const currentUsageOverlay = currentUsageCard.querySelector('.overlay');
-    const currentUsageBlur = currentUsageCard.querySelectorAll('.blur');
+    const peakUsageCard = document.getElementById('dashboard-peak-usage-card');
+    const peakUsageSpinner = peakUsageCard.querySelector('.loading-spinner');
+    const peakUsageOverlay = peakUsageCard.querySelector('.overlay');
+    const peakUsageBlur = peakUsageCard.querySelectorAll('.blur');
 
     const dailyPowerCard = document.getElementById('dashboard-daily-power-card');
     const dailyPowerSpinner = dailyPowerCard.querySelector('.loading-spinner');
     const dailyPowerOverlay = dailyPowerCard.querySelector('.overlay');
     const dailyPowerBlur = dailyPowerCard.querySelectorAll('.blur');
-
-    const lightCard = document.getElementById('dashboard-light-card');
-    const lightSpinner = lightCard.querySelector('.loading-spinner');
-    const lightOverlay = lightCard.querySelector('.overlay');
-    const lightBlur = lightCard.querySelectorAll('.blur');
 
     const energyBalanceCard = document.getElementById('dashboard-energy-balance-card');
     const energyBalanceSpinner = energyBalanceCard.querySelector('.loading-spinner');
@@ -208,9 +203,9 @@ const updateDashboard = (data) => {
     const solarGenerationBlur = solarGenerationCard.querySelectorAll('.blur');
 
     // Individual elements that we will set.
-    const currentUsageNow = document.getElementById('current-usage-now');
-    const currentUsageFromSolar = document.getElementById('current-usage-from-solar');
-    const currentUsageFromGrid = document.getElementById('current-usage-from-grid');
+    const peakUsageNow = document.getElementById('peak-usage-now');
+    const peakUsageFromSolar = document.getElementById('peak-usage-from-solar');
+    const peakUsageFromGrid = document.getElementById('peak-usage-from-grid');
 
     const generatedDay = document.getElementById('generated-day');
     const generatedWeek = document.getElementById('generated-week');
@@ -219,17 +214,14 @@ const updateDashboard = (data) => {
     const usedWeek = document.getElementById('used-week');
     const usedMonth = document.getElementById('used-month');
 
-    const currentUvIndex = document.getElementById('uv-index');
-    const currentLightIntensity = document.getElementById('light-intensity');
-
     const energyBalanceSurplus = document.getElementById('energy-balance-surplus');
 
     const solarGenerationTotal = document.getElementById('solar-generation-total');
 
     // Handle some potential null conditions.
-    const currentUsageNowVal = data.power_consumption.latest ? data.power_consumption.latest : 0;
-    const currentUsageFromSolarVal = data.inverter_ac_power.latest? data.inverter_ac_power.latest : 0;
-    const currentUsageFromGridVal = data.grid_power_usage_real.latest? data.grid_power_usage_real.latest : 0;
+    const peakUsageNowVal = data.power_consumption.daily_max ? data.power_consumption.daily_max : 0;
+    const peakUsageFromSolarVal = data.inverter_ac_power.daily_max? data.inverter_ac_power.daily_max : 0;
+    const peakUsageFromGridVal = data.grid_power_usage_real.daily_max? data.grid_power_usage_real.daily_max : 0;
 
     const generatedDayVal = data.inverter_ac_power.day ? data.inverter_ac_power.day : 0;
     const generatedWeekVal = data.inverter_ac_power.week ? data.inverter_ac_power.week : 0;
@@ -238,13 +230,10 @@ const updateDashboard = (data) => {
     const usedWeekVal = data.power_consumption.week ? data.power_consumption.week : 0;
     const usedMonthVal = data.power_consumption.month ? data.power_consumption.month : 0;
 
-    const currentUvIndexVal = data.uv_index.latest ? data.uv_index.latest : 0;
-    const currentLightIntensityVal = data.solar_radiation.latest ? data.solar_radiation.latest : 0;
-
     // Calculations.
-    const currentUsageNowValFloat = Number.parseFloat(currentUsageNowVal) / 1000;
-    const currentUsageFromSolarValFloat = Number.parseFloat(currentUsageFromSolarVal) / 1000;
-    const currentUsageFromGridValFloat = Number.parseFloat(currentUsageFromGridVal) / 1000;
+    const peakUsageNowValFloat = Number.parseFloat(peakUsageNowVal) / 1000;
+    const peakUsageFromSolarValFloat = Number.parseFloat(peakUsageFromSolarVal) / 1000;
+    const peakUsageFromGridValFloat = Number.parseFloat(peakUsageFromGridVal) / 1000;
 
     const generatedDayValFloat = Number.parseFloat(generatedDayVal) / 1000;
     const generatedWeekValFloat = Number.parseFloat(generatedWeekVal) / 1000;
@@ -256,9 +245,9 @@ const updateDashboard = (data) => {
     const energyBalanceSurplusVal = generatedDayValFloat - usedDayValFloat;
 
     // Set the values.
-    currentUsageNow.innerHTML = currentUsageNowValFloat.toFixed(3);
-    currentUsageFromSolar.innerHTML = currentUsageFromSolarValFloat.toFixed(3);
-    currentUsageFromGrid.innerHTML = currentUsageFromGridValFloat.toFixed(3);
+    peakUsageNow.innerHTML = peakUsageNowValFloat.toFixed(3);
+    peakUsageFromSolar.innerHTML = peakUsageFromSolarValFloat.toFixed(3);
+    peakUsageFromGrid.innerHTML = peakUsageFromGridValFloat.toFixed(3);
 
     generatedDay.innerHTML = generatedDayValFloat.toFixed(3);
     generatedWeek.innerHTML = generatedWeekValFloat.toFixed(1);
@@ -266,9 +255,6 @@ const updateDashboard = (data) => {
     usedDay.innerHTML = usedDayValFloat.toFixed(3);
     usedWeek.innerHTML = usedWeekValFloat.toFixed(1);
     usedMonth.innerHTML = usedMonthValFloat.toFixed(1);
-
-    currentUvIndex.innerHTML = currentUvIndexVal;
-    currentLightIntensity.innerHTML = currentLightIntensityVal.toFixed(2); // Max resolution from station is this.
 
     energyBalanceSurplus.innerHTML = energyBalanceSurplusVal.toFixed(3);
 
@@ -287,21 +273,15 @@ const updateDashboard = (data) => {
     }
 
     // Remove the blur effect etc.
-    currentUsageSpinner.style.display = 'none';
-    currentUsageOverlay.style.display = 'none';
-    currentUsageBlur.forEach((BlurredItem) =>{
+    peakUsageSpinner.style.display = 'none';
+    peakUsageOverlay.style.display = 'none';
+    peakUsageBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
 
     dailyPowerSpinner.style.display = 'none';
     dailyPowerOverlay.style.display = 'none';
     dailyPowerBlur.forEach((BlurredItem) =>{
-        BlurredItem.classList.remove('blur');
-    });
-
-    lightSpinner.style.display = 'none';
-    lightOverlay.style.display = 'none';
-    lightBlur.forEach((BlurredItem) =>{
         BlurredItem.classList.remove('blur');
     });
 
@@ -325,7 +305,7 @@ const updateDashboard = (data) => {
  * @param {int} timestamp The timestamp to get the data for.
  */
 const getData = (timestamp) => {
-    const urlString = '/dataajax/?dashboard=solar&timestamp=' + timestamp;
+    const urlString = '/dataajax/?dashboard=solar&history=1&timestamp=' + timestamp;
     fetch(urlString)
         .then((response) => response.json())
         .then((data) => updateDashboard(data));
