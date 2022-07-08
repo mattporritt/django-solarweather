@@ -55,4 +55,34 @@ class Migration(migrations.Migration):
             from_values="1646053200",
             to_values="1648731599",
         ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="2022_04",
+            from_values="1648774667",
+            to_values="1651327182",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="2022_05",
+            from_values="1651327202",
+            to_values="1654005582",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="2022_06",
+            from_values="1654005601",
+            to_values="1656597581",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="2022_07",
+            from_values="1656597602",
+            to_values="1659275999",
+        ),
+        PostgresAddRangePartition(
+            model_name="SolarData",
+            name="2022_08",
+            from_values="1659276000",
+            to_values="1661954399",
+        ),
     ]

@@ -100,7 +100,7 @@ class Command(BaseCommand):
                     if (max_value['time_stamp__max'] is not None) and (min_value['time_stamp__min'] is not None):
                         partition_dict = {
                             'model': model_obj,
-                            'name': '{}_{}'.format(year['time_year'], month['time_month']),
+                            'name': '{}_{:02d}'.format(year['time_year'], month['time_month']),
                             'from_values': min_value['time_stamp__min'],
                             'to_values': max_value['time_stamp__max']
                         }
@@ -121,7 +121,7 @@ class Command(BaseCommand):
 
             partition_dict = {
                 'model': model_obj,
-                'name': '{}_{}'.format(next_year_str, next_month_str),
+                'name': '{}_{}'.format(next_year_str, next_month_str.zfill(2)),
                 'from_values': min_value,
                 'to_values': max_value
             }
@@ -129,6 +129,7 @@ class Command(BaseCommand):
 
         # Exit early if dry run.
         if dry:
+            print(partition_list)
             return
 
         self.stdout.write('Creating partitions')
@@ -137,4 +138,3 @@ class Command(BaseCommand):
                 connection.schema_editor().add_range_partition(**partition)
             except ProgrammingError:
                 continue
-

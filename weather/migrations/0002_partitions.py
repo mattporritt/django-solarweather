@@ -61,4 +61,34 @@ class Migration(migrations.Migration):
             from_values="1646053200",
             to_values="1648731599",
         ),
+        PostgresAddRangePartition(
+            model_name="WeatherData",
+            name="2022_04",
+            from_values="1648775111",
+            to_values="1651327160",
+        ),
+        PostgresAddRangePartition(
+            model_name="WeatherData",
+            name="2022_05",
+            from_values="1651327220",
+            to_values="1654005596",
+        ),
+        PostgresAddRangePartition(
+            model_name="WeatherData",
+            name="2022_06",
+            from_values="1654005667",
+            to_values="1656597546",
+        ),
+        PostgresAddRangePartition(
+            model_name="WeatherData",
+            name="2022_07",
+            from_values="1656597606",
+            to_values="1659275999",
+        ),
+        PostgresAddRangePartition(
+            model_name="WeatherData",
+            name="2022_08",
+            from_values="1659276000",
+            to_values="1661954399",
+        ),
     ]
