@@ -231,6 +231,10 @@ class WeatherData:
         max_day = time_obj['day']
         max_set = False
 
+        # Abort early if metric is not in allowed list
+        if metric not in WeatherData.weather_metrics:
+            return
+
         if period == 'year':
             cache_key = '_'.join(('max', metric, str(max_year)))
 
@@ -345,6 +349,10 @@ class WeatherData:
         min_day = time_obj['day']
         min_set = False
 
+        # Abort early if metric is not in allowed list
+        if metric not in WeatherData.weather_metrics:
+            return
+
         if period == 'year':
             cache_key = '_'.join(('min', metric, str(min_year)))
 
@@ -403,6 +411,10 @@ class WeatherData:
         :param value: The latest value.
         :return:
         """
+
+        # Abort early if metric is not in allowed list
+        if metric not in WeatherData.weather_metrics:
+            return
 
         cache_key = '{0}_latest'.format(metric)
         cache.set(cache_key, value, 3600)

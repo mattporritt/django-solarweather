@@ -52,3 +52,21 @@ class SolarData(PostgresPartitionedModel):
     time_year = models.IntegerField(db_index=True)
     time_month = models.IntegerField(db_index=True)
     time_day = models.IntegerField(db_index=True)
+
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['time_stamp', 'grid_power_usage_real']),
+            models.Index(fields=['time_stamp', 'grid_power_factor']),
+            models.Index(fields=['time_stamp', 'grid_power_apparent']),
+            models.Index(fields=['time_stamp', 'grid_power_reactive']),
+            models.Index(fields=['time_stamp', 'grid_ac_voltage']),
+            models.Index(fields=['time_stamp', 'grid_ac_current']),
+            models.Index(fields=['time_stamp', 'inverter_ac_frequency']),
+            models.Index(fields=['time_stamp', 'inverter_ac_current']),
+            models.Index(fields=['time_stamp', 'inverter_ac_voltage']),
+            models.Index(fields=['time_stamp', 'inverter_ac_power']),
+            models.Index(fields=['time_stamp', 'inverter_dc_current']),
+            models.Index(fields=['time_stamp', 'inverter_dc_voltage']),
+            models.Index(fields=['time_stamp', 'power_consumption']),
+        ]
