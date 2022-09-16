@@ -166,6 +166,7 @@ class WeatherData:
         max_year = time_obj['year']
         max_month = time_obj['month']
         max_day = time_obj['day']
+        tz = pytz.timezone(getattr(settings, 'TIME_ZONE'))
 
         max_value = {}
         metric_max = '{0}__max'.format(metric)
@@ -176,8 +177,9 @@ class WeatherData:
             cache_key = '_'.join(('max', metric, str(max_year)))
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
+                year_stamp = datetime(max_year,1,1,0,0,0, tzinfo=tz).timestamp()
                 max_value = WeatherDataModel.objects\
-                    .filter(time_year=max_year)\
+                    .filter(time_year=max_year, time_stamp__gte=year_stamp)\
                     .aggregate(Max(metric))
                 if max_value[metric_max] is None:
                     max_value = {metric_max: 0}
@@ -187,8 +189,9 @@ class WeatherData:
             cache_key = '_'.join(('max', metric, str(max_year), str(max_month)))
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
+                month_stamp = datetime(max_year, max_month, 1, 0, 0, 0, tzinfo=tz).timestamp()
                 max_value = WeatherDataModel.objects \
-                    .filter(time_year=max_year, time_month=max_month) \
+                    .filter(time_year=max_year, time_month=max_month, time_stamp__gte=month_stamp) \
                     .aggregate(Max(metric))
                 if max_value[metric_max] is None:
                     max_value = {metric_max: 0}
@@ -198,8 +201,9 @@ class WeatherData:
             cache_key = '_'.join(('max', metric, str(max_year), str(max_month), str(max_day)))
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
+                day_stamp = datetime(max_year, max_month, max_day, 0, 0, 0, tzinfo=tz).timestamp()
                 max_value = WeatherDataModel.objects \
-                    .filter(time_year=max_year, time_month=max_month, time_day=max_day) \
+                    .filter(time_year=max_year, time_month=max_month, time_day=max_day, time_stamp__gte=day_stamp) \
                     .aggregate(Max(metric))
                 if max_value[metric_max] is None:
                     max_value = {metric_max: 0}
@@ -276,6 +280,7 @@ class WeatherData:
         min_year = time_obj['year']
         min_month = time_obj['month']
         min_day = time_obj['day']
+        tz = pytz.timezone(getattr(settings, 'TIME_ZONE'))
 
         min_value = {}
         metric_min = '{0}__min'.format(metric)
@@ -286,8 +291,9 @@ class WeatherData:
             cache_key = '_'.join(('min', metric, str(min_year)))
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
+                year_stamp = datetime(min_year, 1, 1, 0, 0, 0, tzinfo=tz).timestamp()
                 min_value = WeatherDataModel.objects\
-                    .filter(time_year=min_year)\
+                    .filter(time_year=min_year, time_stamp__gte=year_stamp)\
                     .aggregate(Min(metric))
                 if min_value[metric_min] is None:
                     min_value = {metric_min: 0}
@@ -297,8 +303,9 @@ class WeatherData:
             cache_key = '_'.join(('min', metric, str(min_year), str(min_month)))
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
+                month_stamp = datetime(min_year, min_month, 1, 0, 0, 0, tzinfo=tz).timestamp()
                 min_value = WeatherDataModel.objects \
-                    .filter(time_year=min_year, time_month=min_month) \
+                    .filter(time_year=min_year, time_month=min_month, time_stamp__gte=month_stamp) \
                     .aggregate(Min(metric))
                 if min_value[metric_min] is None:
                     min_value = {metric_min: 0}
@@ -308,8 +315,9 @@ class WeatherData:
             cache_key = '_'.join(('min', metric, str(min_year), str(min_month), str(min_day)))
             cache_val = cache.get(cache_key)
             if (cache_val is None) or (usecache is False):
+                day_stamp = datetime(min_year, min_month, min_day, 0, 0, 0, tzinfo=tz).timestamp()
                 min_value = WeatherDataModel.objects \
-                    .filter(time_year=min_year, time_month=min_month, time_day=min_day) \
+                    .filter(time_year=min_year, time_month=min_month, time_day=min_day, time_stamp__gte=day_stamp) \
                     .aggregate(Min(metric))
                 if min_value[metric_min] is None:
                     min_value = {metric_min: 0}

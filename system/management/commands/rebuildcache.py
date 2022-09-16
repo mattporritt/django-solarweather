@@ -42,20 +42,24 @@ class Command(BaseCommand):
             'day': date_object.day
         }
 
+
         # Clear caches.
         cache.clear()
         self.stdout.write(self.style.SUCCESS('Successfully cleared caches.'))
 
         # Rebuild caches.
         start = time.time()
-        self.stdout.write(self.style.SUCCESS('Rebuilding caches.'))
+        self.stdout.write(self.style.SUCCESS('Rebuilding caches...'))
+        self.stdout.write('\n')
 
         self.stdout.write(self.style.SUCCESS('Getting Weather data...'))
         weather_start_time = time.time()
         weather_data = WeatherData.get_data()
         self.stdout.write(self.style.SUCCESS('Weather data fetched: {0:.1f} seconds'.format(time.time() - weather_start_time)))
+        self.stdout.write('\n')
 
         self.stdout.write(self.style.SUCCESS('Setting Weather data cache...'))
+        weather_set_start_time = time.time()
         for metric, value in weather_data.items():
             WeatherData.set_max(metric, 'day', value['daily_max'], time_obj)
             WeatherData.set_max(metric, 'month', value['monthly_min'], time_obj)
@@ -66,14 +70,17 @@ class Command(BaseCommand):
             WeatherData.set_min(metric, 'year', value['yearly_min'], time_obj)
 
             WeatherData.set_latest(metric, value['latest'])
-        self.stdout.write(self.style.SUCCESS('Weather cache set.'))
+        self.stdout.write(self.style.SUCCESS('Weather cache set: {0:.1f} seconds'.format(time.time() - weather_set_start_time)))
+        self.stdout.write('\n')
 
         self.stdout.write(self.style.SUCCESS('Getting Solar data...'))
         solar_start_time = time.time()
         solar_data = SolarData.get_data()
         self.stdout.write(self.style.SUCCESS('Solar data fetched: {0:.1f} seconds'.format(time.time() - solar_start_time)))
+        self.stdout.write('\n')
 
         self.stdout.write(self.style.SUCCESS('Setting Solar data cache...'))
+        solar_set_start_time = time.time()
         for metric, value in solar_data.items():
             if metric == 'solar_radiation' or metric == 'uv_index':
                 continue
@@ -82,7 +89,8 @@ class Command(BaseCommand):
             SolarData.get_accumulated(metric, 'year',time_obj, False)
 
             SolarData.set_latest(metric, value['latest'])
-        self.stdout.write(self.style.SUCCESS('Solar cache set.'))
+        self.stdout.write(self.style.SUCCESS('Solar cache set: {0:.1f} seconds'.format(time.time() - solar_set_start_time)))
+        self.stdout.write('\n')
 
         # Test cache values.
         self.stdout.write(self.style.SUCCESS('Getting cached Weather data...'))

@@ -64,3 +64,28 @@ class WeatherData(PostgresPartitionedModel):
     action = models.CharField(max_length=100)
     real_time = models.IntegerField()
     radio_freq = models.IntegerField()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['indoor_temp', 'time_year']),
+            models.Index(fields=['outdoor_temp', 'time_year']),
+            models.Index(fields=['indoor_feels_temp', 'time_year']),
+            models.Index(fields=['outdoor_feels_temp', 'time_year']),
+            models.Index(fields=['indoor_dew_temp', 'time_year']),
+            models.Index(fields=['outdoor_dew_temp', 'time_year']),
+            models.Index(fields=['dew_point', 'time_year']),
+            models.Index(fields=['wind_chill', 'time_year']),
+            models.Index(fields=['indoor_humidity', 'time_year']),
+            models.Index(fields=['outdoor_humidity', 'time_year']),
+            models.Index(fields=['wind_speed', 'time_year']),
+            models.Index(fields=['wind_gust', 'time_year']),
+            models.Index(fields=['wind_direction', 'time_year']),
+            models.Index(fields=['absolute_pressure', 'time_year']),
+            models.Index(fields=['pressure', 'time_year']),
+            models.Index(fields=['rain', 'time_year']),
+            models.Index(fields=['daily_rain', 'time_year']),
+            models.Index(fields=['weekly_rain', 'time_year']),
+            models.Index(fields=['monthly_rain', 'time_year']),
+            models.Index(fields=['solar_radiation', 'time_year']),
+            models.Index(fields=['uv_index', 'time_year']),
+        ]
