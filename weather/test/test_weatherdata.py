@@ -47,8 +47,8 @@ class WeatherDataUnitTestCase(TestCase):
 
         weather_data = WeatherData()
         store_result = weather_data.store(test_data.test_query_vars)
-
-        data_record = WeatherDataModel.objects.get(id=store_result)
+        store_result['thread'].join()
+        data_record = WeatherDataModel.objects.get(id=store_result['datarecord'])
 
         self.assertEqual(data_record.software_type, 'EasyWeatherV1.5.9')
 

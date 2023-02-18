@@ -30,6 +30,8 @@ from django.conf import settings
 from django.core.cache import cache
 import math
 import pytz
+import threading
+from django.db import connection
 
 import logging
 
@@ -74,7 +76,7 @@ class WeatherData:
     ]
 
     @staticmethod
-    def store(data: dict) -> int:
+    def store(data: dict) -> dict:
         """
         Store received weather station data into database.
 
@@ -138,18 +140,36 @@ class WeatherData:
             'month': date_object.month,
             'day': date_object.day
         }
-        for metric, value in store_data.items():
-            if (type(value) is int) or (type(value) is float):
-                WeatherData.set_max(metric, 'day', value, time_obj)
-                WeatherData.set_min(metric, 'day', value, time_obj)
-                WeatherData.set_latest(metric, value)
+
+        # Update caches in a thread so we don't have to wait for a response.
+        x = threading.Thread(target=WeatherData.thread_set, args=(store_data, time_obj))
+        x.start()
 
         # Store data in the database.
         data_record = WeatherDataModel(**store_data)
         data_record.save()
 
         # Return ID of inserted row.
-        return data_record.id
+        return {
+            'datarecord': data_record.id,
+            'thread': x
+        }
+
+    @staticmethod
+    def thread_set(store_data: dict, time_obj: dict):
+        """
+        Method called in a thread to update cache values.
+
+        :param store_data:
+        :param time_obj:
+        :return:
+        """
+        for metric, value in store_data.items():
+            if (type(value) is int) or (type(value) is float):
+                WeatherData.set_max(metric, 'day', value, time_obj)
+                WeatherData.set_min(metric, 'day', value, time_obj)
+                WeatherData.set_latest(metric, value)
+        connection.close()
 
     @staticmethod
     def get_max(metric: str, period: str, time_obj: dict, usecache: bool = True):

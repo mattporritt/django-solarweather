@@ -137,8 +137,9 @@ class SolarDataUnitTestCase(TestCase):
 
         solar_data = SolarData()
         store_result = solar_data.store()
+        store_result['thread'].join()
 
-        data_record = SolarDataModel.objects.get(id=store_result)
+        data_record = SolarDataModel.objects.get(id=store_result['datarecord'])
 
         self.assertEqual(data_record.inverter_ac_frequency, 49.99)
 

@@ -30,6 +30,8 @@ from django.db.models import Max, Min
 from weather.weatherdata import WeatherData
 from system.conversion import UnitConversion
 from django.core.cache import cache
+import threading
+from django.db import connection
 
 import logging
 
@@ -300,7 +302,7 @@ class SolarData:
         return accum_value
 
     @staticmethod
-    def store(timestamp: int = 0) -> int:
+    def store(timestamp: int = 0) -> dict:
         """
         Store received weather station data into database.
 
@@ -351,18 +353,36 @@ class SolarData:
             'month': date_object.month,
             'day': date_object.day
         }
-        for metric, value in store_data.items():
-            if (type(value) is int) or (type(value) is float):
-                # SolarData.set_max(metric, 'day', value, time_obj)
-                # SolarData.set_min(metric, 'day', value, time_obj)
-                SolarData.set_latest(metric, value)
+
+        # Update caches in a thread so we don't have to wait for a response.
+        x = threading.Thread(target=SolarData.thread_set, args=(store_data, time_obj))
+        x.start()
 
         # Store data in the database.
         data_record = SolarDataModel(**store_data)
         data_record.save()
 
         # Return ID of inserted row.
-        return data_record.id
+        return {
+            'datarecord': data_record.id,
+            'thread': x
+        }
+
+    @staticmethod
+    def thread_set(store_data: dict, time_obj: dict):
+        """
+        Method called in a thread to update cache values.
+
+        :param store_data:
+        :param time_obj:
+        :return:
+        """
+        for metric, value in store_data.items():
+            if (type(value) is int) or (type(value) is float):
+                # SolarData.set_max(metric, 'day', value, time_obj)
+                # SolarData.set_min(metric, 'day', value, time_obj)
+                SolarData.set_latest(metric, value)
+        connection.close()
 
     @staticmethod
     def get_trend(metric: str, period: str, time_obj: dict) -> list:
