@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CERTDIR="`pwd`/certs/"
+CERTDIR="`pwd`/certs"
 
 CACONF="${CERTDIR}/openssl.cnf"
 CAKEY="${CERTDIR}/ca/ca.key"
@@ -18,10 +18,10 @@ else
     # Generate the key and certificate for the CA.
     cat <<EOF | openssl req -config ${CACONF} -nodes -new -x509  -keyout "${CAKEY}" -out "${CACERT}"
 AU
-Western Australia
-Perth
-Moodle Pty Ltd
-Moodle LMS
+Victoria
+Melbourne
+Widgets Pty Ltd
+Widgets
 
 
 EOF
@@ -69,10 +69,10 @@ openssl genrsa -out "${HOSTKEY}" 2048
 echo "Generating a CSR for $DOMAIN"
 cat <<EOF | openssl req -nodes -new -key "${HOSTKEY}" -out "${HOSTCSR}"
 AU
-Western Australia
-Perth
-Moodle Pty Ltd
-Moodle LMS
+Victoria
+Melbourne
+Widgets Pty Ltd
+Widgets
 
 
 EOF
@@ -103,22 +103,22 @@ countryName         = Country Name (2 letter code)
 countryName_default = AU
 
 stateOrProvinceName         = State or Province Name (full name)
-stateOrProvinceName_default = Western Australia
+stateOrProvinceName_default = Victoria
 
 localityName                = Locality Name (eg, city)
-localityName_default        = Perth
+localityName_default        = Melbourne
 
 organizationName            = Organization Name (eg, company)
-organizationName_default    = Moodle Pty Ltd
+organizationName_default    = Widgets Pty Ltd
 
 organizationalUnitName         = Organizational Unit (eg, division)
-organizationalUnitName_default = Moodle LMS
+organizationalUnitName_default = Widgets
 
 commonName         = Common Name (e.g. server FQDN or YOUR name)
 commonName_default = ${DOMAIN}
 
 emailAddress         = Email Address
-emailAddress_default = moodle@example.com
+emailAddress_default = widgets@example.com
 
 [ server_req_extensions ]
 subjectKeyIdentifier    = hash
@@ -133,10 +133,10 @@ EOF
 echo "Generating a certificate for $DOMAIN"
 cat <<EOF | openssl req -config "${HOSTEXT}" -newkey rsa:2048 -sha256 -nodes -out "${HOSTCSR}" -outform PEM
 AU
-Western Australia
-Perth
-Moodle Pty Ltd
-Moodle LMS
+Victoria
+Melbourne
+Widgets Pty Ltd
+Widgets
 
 
 EOF

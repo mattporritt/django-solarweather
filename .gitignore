@@ -29,6 +29,8 @@ MANIFEST
 /package-lock.json
 /node_modules/
 /static
+certs/certs
+certs/ca
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
