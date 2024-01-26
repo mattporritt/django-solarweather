@@ -66,11 +66,9 @@
     </div>
 {% endblock %}
 {% block javascript_extra %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module">
-        import {Chart, registerables} from '{% static "js/chart.js/dist/chart.esm.js" %}';
         import {init} from '{% static "js/dashboard/dashboard.js" %}';
-
-        Chart.register(...registerables);
         init(Chart);
     </script>
 {% endblock %}

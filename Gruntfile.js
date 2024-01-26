@@ -41,7 +41,7 @@ module.exports = grunt => {
         },
         eslint: {
             options: {
-                configFile: '.eslintrc.json',
+                overrideConfigFile: '.eslintrc.json',
             },
             target: {
                 files: [{
